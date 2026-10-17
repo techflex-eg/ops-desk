@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ops Desk</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ops Desk">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+  html, body { height: 100%; margin: 0; background: #1f3a5f; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  #shell { position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; }
+  #app { flex: 1 1 auto; min-height: 0; width: 100%; border: 0; display: block; background: #ffffff; }
+  #bar { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: #1f3a5f; color: #ffffff; font-size: 14px; line-height: 1.35; border-top: 1px solid rgba(255,255,255,.25); }
+  #bar[hidden] { display: none; }
+  #barText { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  #bar button { border: 0; border-radius: 8px; font: inherit; font-weight: 700; cursor: pointer; }
+  #barBtn { flex: none; background: #ffffff; color: #1f3a5f; padding: 9px 14px; white-space: nowrap; }
+  #barBtn[hidden] { display: none; }
+  #barX { flex: none; background: transparent; color: #ffffff; font-size: 26px; line-height: 1; padding: 0 6px; }
+  #bar.flash { animation: odflash 1.4s ease 1; }
+  @keyframes odflash { 0%, 100% { background: #1f3a5f; } 20%, 60% { background: #2f6fb7; } }
+  #setup { display: none; margin: 0; padding: 28px 20px; background: #ffffff; color: #1b2430; font-size: 16px; line-height: 1.5; }
+  #setup h1 { margin: 0 0 10px; font-size: 20px; }
+  #setup code { background: #eef1f5; padding: 2px 6px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div id="shell">
+  <div id="setup">
+    <h1>Ops Desk is not set up yet</h1>
+    <p>Open the file <code>config.js</code> and put the web app address of Ops Desk between the quotes.
+      The address ends with <code>/exec</code>.</p>
+  </div>
+  <iframe id="app" title="Ops Desk" allow="clipboard-write; fullscreen"></iframe>
+  <div id="bar" role="region" aria-label="Alerts" hidden>
+    <span id="barText"></span>
+    <button id="barBtn" type="button" hidden>Turn on alerts</button>
+    <button id="barX" type="button" aria-label="Hide this bar">&times;</button>
+  </div>
+</div>
+<noscript><p style="padding:20px;background:#fff">Ops Desk needs JavaScript.</p></noscript>
+<script src="config.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ---------- What this page is ----------
+  // This page holds the Ops Desk page (the Apps Script web app) in a frame and adds one thing to it: alerts with a
+  // sound on this phone or computer, even when the app is closed. The two pages talk with messages (od: 1).
+  // The PIN never comes here. The server sends the alerts; sw.js shows them.
+
+  var APP_URL = String(window.OPS_DESK_APP_URL || '').trim();
+  var el = function (id) { return document.getElementById(id); };
+  var frame = el('app'), bar = el('bar'), barText = el('barText'), barBtn = el('barBtn'), barX = el('barX');
+
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  var standalone = false;
+  try {
+    standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  } catch (e) { }
+  var hasSW = 'serviceWorker' in navigator;
+  var hasPush = hasSW && 'PushManager' in window && 'Notification' in window;
+  var needsInstall = isIOS && !standalone;
+  var swFailed = false;
+
+  var key = '';                  // the public key of the server (the page gives it)
+  var loggedIn = false;
+  var appWin = null;             // the window of the Ops Desk page
+  var appOrigin = '*';
+  var pendingOpen = readOpenFromUrl();
+  var chain = Promise.resolve();
+  var regPromise = null;
+  var HIDE_KEY = 'odw_hide';
+  var HIDE_MS = 3 * 24 * 3600 * 1000;
+
+  // ---------- The Ops Desk page in the frame ----------
+
+  // The address must be an https address that ends with /exec (a local address is allowed for tests)
+  function validUrl(u) {
+    return /^(https:\/\/[^\s\/]+|http:\/\/(localhost|127\.\d+\.\d+\.\d+)(:\d+)?)(\/[^\s]*)?\/exec(\?[^\s]*)?$/.test(u) && u.indexOf('PASTE') === -1;
+  }
+
+  // A tap on an alert while the app was closed: the numbers come in the address
+  function readOpenFromUrl() {
+    try {
+      var q = new URLSearchParams(location.search);
+      if (!q.has('open') && !q.has('e')) return null;
+      var id = Number(q.get('open')) || 0;
+      var entry = q.get('e') || '';
+      history.replaceState(null, '', location.pathname);          // a refresh does not open it again
+      return { id: id, entryId: entry };
+    } catch (e) { return null; }
+  }
+
+  if (validUrl(APP_URL)) {
+    frame.src = APP_URL;
+  } else {
+    el('setup').style.display = 'block';
+    frame.style.display = 'none';
+  }
+
+  // ---------- The service worker ----------
+
+  function getReg() {
+    if (!regPromise) {
+      regPromise = navigator.serviceWorker.register('sw.js').then(function () {
+        return navigator.serviceWorker.ready;
+      });
+      regPromise.catch(function () { swFailed = true; });
+    }
+    return regPromise;
+  }
+  if (hasSW) { try { getReg(); } catch (e) { swFailed = true; } }
+
+  function queue(fn) {
+    chain = chain.then(fn, fn);
+    return chain;
+  }
+
+  function b64uToBytes(s) {
+    var pad = '='.repeat((4 - s.length % 4) % 4);
+    var raw = atob((s + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    var out = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+
+  function sameKey(sub, want) {
+    var k = sub.options && sub.options.applicationServerKey;
+    if (!k) return true;                                     // cannot tell: keep it
+    var a = new Uint8Array(k);
+    if (a.length !== want.length) return false;
+    for (var i = 0; i < a.length; i++) if (a[i] !== want[i]) return false;
+    return true;
+  }
+
+  // The alert address of this device. A new one is made when there is none, or when it belongs to another server key.
+  function ensureSubscription() {
+    var want = b64uToBytes(key);
+    return getReg().then(function (reg) {
+      return reg.pushManager.getSubscription().then(function (sub) {
+        if (sub && !sameKey(sub, want)) {
+          return sub.unsubscribe().then(function () { return null; }, function () { return null; });
+        }
+        return sub;
+      }).then(function (sub) {
+        return sub || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: want });
+      });
+    });
+  }
+
+  function plain(sub) {
+    var j = sub.toJSON();
+    return { endpoint: j.endpoint, keys: { p256dh: j.keys && j.keys.p256dh, auth: j.keys && j.keys.auth } };
+  }
+
+  function describe() {
+    var os = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' :
+      /Windows/.test(ua) ? 'Windows' : /Macintosh/.test(ua) ? 'Mac' : /Linux/.test(ua) ? 'Linux' : 'Device';
+    var br = /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /Firefox\//.test(ua) ? 'Firefox' :
+      /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : 'Browser';
+    return os + ', ' + br + (standalone ? ' app' : '');
+  }
+
+  // ---------- What this device can do now ----------
+
+  function getState() {
+    var st = {
+      od: 1, type: 'state', v: 1,
+      supported: hasPush && !swFailed && !needsInstall,
+      standalone: standalone,
+      needsInstall: needsInstall,
+      permission: hasPush ? Notification.permission : 'unsupported',
+      subscribed: false, sub: null,
+      label: describe(),
+      pendingOpen: pendingOpen
+    };
+    if (!st.supported || st.permission !== 'granted' || !key) return Promise.resolve(st);
+    return queue(ensureSubscription).then(function (sub) {
+      if (sub) { st.subscribed = true; st.sub = plain(sub); }
+      return st;
+    }, function (err) {
+      st.error = String((err && err.message) || err || 'error').slice(0, 100);
+      return st;
+    });
+  }
+
+  function post(msg) {
+    if (!appWin) return;
+    try { appWin.postMessage(msg, appOrigin); } catch (e) { }
+  }
+
+  function sendState() {
+    return getState().then(function (st) {
+      post(st);
+      if (st.pendingOpen && appWin && loggedIn) pendingOpen = null;      // the page has it now
+      paintBar(st);
+    });
+  }
+
+  // ---------- The bar at the bottom ----------
+
+  function hiddenByUser() {
+    try {
+      var t = Number(localStorage.getItem(HIDE_KEY) || 0);
+      return t > 0 && Date.now() - t < HIDE_MS;
+    } catch (e) { return false; }
+  }
+
+  function paintBar(st) {
+    var text = '', button = '';
+    if (loggedIn && !hiddenByUser()) {
+      if (st.needsInstall) {
+        text = 'To get alerts on iPhone: tap Share, then "Add to Home Screen", and open Ops Desk from the Home Screen.';
+      } else if (st.supported && st.permission === 'denied') {
+        text = 'Alerts are blocked. Allow notifications for Ops Desk in the settings of this phone or browser.';
+      } else if (st.supported && st.permission === 'default') {
+        text = 'Get an alert with a sound on this device, even when the app is closed.';
+        button = 'Turn on alerts';
+      } else if (st.supported && st.permission === 'granted' && st.error) {
+        text = 'Alerts could not be turned on in this browser (' + st.error + ').';
+        button = 'Try again';
+      }
+    }
+    barText.textContent = text;
+    barBtn.textContent = button;
+    barBtn.hidden = !button;
+    bar.hidden = !text;
+  }
+
+  barBtn.addEventListener('click', function () {
+    if (!hasPush) return;
+    barBtn.disabled = true;
+    var asked;
+    try { asked = Notification.requestPermission(); } catch (e) { asked = Promise.resolve('default'); }
+    Promise.resolve(asked).then(function () { return sendState(); }).catch(function () { }).then(function () {
+      barBtn.disabled = false;
+    });
+  });
+
+  barX.addEventListener('click', function () {
+    try { localStorage.setItem(HIDE_KEY, String(Date.now())); } catch (e) { }
+    bar.hidden = true;
+  });
+
+  // ---------- Messages ----------
+
+  // Only a window inside the Ops Desk frame may talk to this page
+  function fromApp(src) {
+    try {
+      var w = src;
+      for (var i = 0; i < 6 && w; i++) {
+        if (w === frame.contentWindow) return true;
+        if (w === window || w.parent === w) return false;
+        w = w.parent;
+      }
+    } catch (e) { }
+    return false;
+  }
+
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!d || d.od !== 1 || typeof d.type !== 'string') return;
+    if (!fromApp(e.source)) return;
+    appWin = e.source;
+    appOrigin = (e.origin && e.origin !== 'null') ? e.origin : '*';
+
+    if (d.type === 'hello') {
+      if (typeof d.key === 'string' && /^[A-Za-z0-9_-]{80,100}$/.test(d.key)) key = d.key;
+      loggedIn = true;
+      sendState();
+    } else if (d.type === 'again') {
+      sendState();
+    } else if (d.type === 'bye') {
+      loggedIn = false;
+      bar.hidden = true;
+    } else if (d.type === 'enable') {
+      try { localStorage.removeItem(HIDE_KEY); } catch (x) { }
+      sendState().then(function () {
+        if (!bar.hidden) {
+          bar.classList.remove('flash');
+          void bar.offsetWidth;
+          bar.classList.add('flash');
+        }
+      });
+    }
+  });
+
+  // From the service worker: a message arrived, or the person tapped an alert
+  if (hasSW) {
+    navigator.serviceWorker.addEventListener('message', function (e) {
+      var d = e.data;
+      if (!d || d.od !== 1) return;
+      if (d.type === 'poke') {
+        post({ od: 1, type: 'poke', id: Number(d.id) || 0, kind: typeof d.kind === 'string' ? d.kind.slice(0, 12) : '', full: d.full === true });
+      } else if (d.type === 'open') {
+        var tap = { id: Number(d.id) || 0, entryId: String(d.entryId || '') };
+        if (appWin && loggedIn) post({ od: 1, type: 'open', id: tap.id, entryId: tap.entryId });
+        else pendingOpen = tap;
+      } else if (d.type === 'resub') {
+        if (loggedIn) sendState();
+      }
+    });
+  }
+
+  // Back to the app: the person may have changed the permission in the settings
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && loggedIn) sendState();
+  });
+})();
+</script>
+</body>
+</html>
