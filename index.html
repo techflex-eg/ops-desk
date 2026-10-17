@@ -1,8 +1,8 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
+<base target="_top">
 <meta charset="utf-8">
-<title>Ops Desk</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1f3a5f">
 <link rel="manifest" href="manifest.webmanifest">
@@ -10,55 +10,3830 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Ops Desk">
+<meta name="apple-mobile-web-app-title" content="TechFlex">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script src="config.js"></script>
+<title>TechFlex</title>
 <style>
-  html, body { height: 100%; margin: 0; background: #1f3a5f; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
-  #shell { position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; }
-  #app { flex: 1 1 auto; min-height: 0; width: 100%; border: 0; display: block; background: #ffffff; }
-  #bar { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-    background: #1f3a5f; color: #ffffff; font-size: 14px; line-height: 1.35; border-top: 1px solid rgba(255,255,255,.25); }
-  #bar[hidden] { display: none; }
-  #barText { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-  #bar button { border: 0; border-radius: 8px; font: inherit; font-weight: 700; cursor: pointer; }
-  #barBtn { flex: none; background: #ffffff; color: #1f3a5f; padding: 9px 14px; white-space: nowrap; }
-  #barBtn[hidden] { display: none; }
-  #barX { flex: none; background: transparent; color: #ffffff; font-size: 26px; line-height: 1; padding: 0 6px; }
-  #bar.flash { animation: odflash 1.4s ease 1; }
+  :root {
+    color-scheme: light;
+    --bg: #f4f6f9; --card: #ffffff; --ink: #17202a; --muted: #6b7785; --line: #e2e7ee;
+    --brand: #1f3a5f; --brand-ink: #ffffff; --brand-soft: #e6edf7;
+    --pending: #7f6000; --pending-bg: #fff2cc;
+    --approved: #1e5c33; --approved-bg: #d9ead3;
+    --rejected: #990000; --rejected-bg: #f4cccc;
+    --cancelled: #555555; --cancelled-bg: #e6e8ec;
+    --found: #0b5394; --found-bg: #d6e6f7;
+    --waiting: #b45f06; --waiting-bg: #fce5cd;
+    --error: #a12222;
+    --mu: #56616e;
+  }
+  /* Dark: the buttons at the top of the page choose it. Without a choice it follows the phone. */
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --mu: #a4b1bf;
+    --bg: #10151c; --card: #19212b; --ink: #e8edf3; --muted: #93a1b1; --line: #2a3542;
+    --brand: #4a78b8; --brand-ink: #ffffff; --brand-soft: #22324a;
+    --pending: #f3d27a; --pending-bg: #4a3b10;
+    --approved: #9ad3ae; --approved-bg: #1d3a28;
+    --rejected: #f3a5a5; --rejected-bg: #4a1d1d;
+    --cancelled: #b5bcc6; --cancelled-bg: #2a323d;
+    --found: #9cc5ef; --found-bg: #1d3350;
+    --waiting: #f1bd83; --waiting-bg: #4a3016;
+    --error: #f3a5a5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      color-scheme: dark;
+      --mu: #a4b1bf;
+      --bg: #10151c; --card: #19212b; --ink: #e8edf3; --muted: #93a1b1; --line: #2a3542;
+      --brand: #4a78b8; --brand-ink: #ffffff; --brand-soft: #22324a;
+      --pending: #f3d27a; --pending-bg: #4a3b10;
+      --approved: #9ad3ae; --approved-bg: #1d3a28;
+      --rejected: #f3a5a5; --rejected-bg: #4a1d1d;
+      --cancelled: #b5bcc6; --cancelled-bg: #2a323d;
+      --found: #9cc5ef; --found-bg: #1d3350;
+      --waiting: #f1bd83; --waiting-bg: #4a3016;
+      --error: #f3a5a5;
+    }
+  }
+  /* The three kinds have a soft color each. The button and the cards of a kind use the same color. */
+  :root {
+    --k-idle: #6350a8; --k-idle-bg: #eeeaf8; --k-idle-line: #d6cdee; --k-idle-ink: #4a3a82;
+    --k-rescue: #23788f; --k-rescue-bg: #e2f1f6; --k-rescue-line: #bddbe6; --k-rescue-ink: #1b5a6d;
+    --k-cash: #a0621d; --k-cash-bg: #fbeedd; --k-cash-line: #efd5b0; --k-cash-ink: #7d4a12;
+  }
+  :root[data-theme="dark"] {
+    --k-idle: #5b4cae; --k-idle-bg: #241f3e; --k-idle-line: #3b3465; --k-idle-ink: #d0c8f3;
+    --k-rescue: #26788f; --k-rescue-bg: #15303a; --k-rescue-line: #255160; --k-rescue-ink: #b5e0ee;
+    --k-cash: #94651f; --k-cash-bg: #382b1a; --k-cash-line: #5b4527; --k-cash-ink: #f0d4a8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --k-idle: #5b4cae; --k-idle-bg: #241f3e; --k-idle-line: #3b3465; --k-idle-ink: #d0c8f3;
+      --k-rescue: #26788f; --k-rescue-bg: #15303a; --k-rescue-line: #255160; --k-rescue-ink: #b5e0ee;
+      --k-cash: #94651f; --k-cash-bg: #382b1a; --k-cash-line: #5b4527; --k-cash-ink: #f0d4a8;
+    }
+  }
+  #typeSeg button[data-type="IDLE"], .fchips button[data-f="IDLE"] { background: var(--k-idle-bg); border-color: var(--k-idle-line); color: var(--k-idle-ink); }
+  #typeSeg button[data-type="IDLE"].on, .fchips button[data-f="IDLE"].on { background: var(--k-idle); border-color: var(--k-idle); color: #ffffff; }
+  .fchips button[data-f="IDLE"] .n { background: var(--k-idle-line); color: var(--k-idle-ink); }
+  .fchips button[data-f="IDLE"].on .n { background: rgba(255, 255, 255, 0.25); color: #ffffff; }
+  .card.entry.k-idle { background: var(--k-idle-bg); border-color: var(--k-idle-line); }
+  #typeSeg button[data-type="RESCUE"], .fchips button[data-f="RESCUE"] { background: var(--k-rescue-bg); border-color: var(--k-rescue-line); color: var(--k-rescue-ink); }
+  #typeSeg button[data-type="RESCUE"].on, .fchips button[data-f="RESCUE"].on { background: var(--k-rescue); border-color: var(--k-rescue); color: #ffffff; }
+  .fchips button[data-f="RESCUE"] .n { background: var(--k-rescue-line); color: var(--k-rescue-ink); }
+  .fchips button[data-f="RESCUE"].on .n { background: rgba(255, 255, 255, 0.25); color: #ffffff; }
+  .card.entry.k-rescue { background: var(--k-rescue-bg); border-color: var(--k-rescue-line); }
+  #typeSeg button[data-type="CASH"], .fchips button[data-f="CASH"] { background: var(--k-cash-bg); border-color: var(--k-cash-line); color: var(--k-cash-ink); }
+  #typeSeg button[data-type="CASH"].on, .fchips button[data-f="CASH"].on { background: var(--k-cash); border-color: var(--k-cash); color: #ffffff; }
+  .fchips button[data-f="CASH"] .n { background: var(--k-cash-line); color: var(--k-cash-ink); }
+  .fchips button[data-f="CASH"].on .n { background: rgba(255, 255, 255, 0.25); color: #ffffff; }
+  .card.entry.k-cash { background: var(--k-cash-bg); border-color: var(--k-cash-line); }
+  .card.entry .sub { color: var(--mu); }
+  .lclear { margin-left: 8px; padding: 3px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card);
+    color: var(--brand); font-size: 13px; font-weight: 700; cursor: pointer; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 16px; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 0 16px 96px; }
+  .top { background: var(--brand); color: var(--brand-ink); padding: 14px 16px; }
+  .top-inner { max-width: 560px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .top h1 { margin: 0; font-size: 18px; font-weight: 700; }
+  .top .who { font-size: 13px; opacity: .85; margin-top: 2px; }
+  .linkbtn { background: transparent; border: 1px solid rgba(255,255,255,.5); color: var(--brand-ink);
+    border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
+  .stationbar { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 10px 14px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+  .stationbar .lbl { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .stationbar select { flex: 1; min-height: 42px; padding: 0 10px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--bg); color: var(--ink); font: inherit; font-weight: 700; }
+  .stationbar .fixed { font-weight: 800; font-size: 17px; }
+  .stpick { flex: 1; position: relative; min-width: 0; }
+  .stbtn { width: 100%; min-height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--bg); color: var(--ink); font: inherit; font-weight: 700; text-align: left;
+    display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
+  .stbtn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stpanel { position: absolute; left: 0; right: 0; top: 48px; z-index: 20; background: var(--card);
+    border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    max-height: 320px; overflow-y: auto; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-top: 14px; }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin: 16px 0 6px; }
+  .card > label:first-child { margin-top: 0; }
+  input, button, textarea { font: inherit; }
+  input[type=text], input[type=number], input[type=date], input[type=password] {
+    width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--bg); color: var(--ink); min-height: 46px; }
+  textarea { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--bg); color: var(--ink); resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--brand); outline-offset: 0; }
+  .primary { width: 100%; min-height: 48px; margin-top: 20px; border: 0; border-radius: 12px;
+    background: var(--brand); color: var(--brand-ink); font-weight: 700; font-size: 16px; cursor: pointer; }
+  .primary:disabled { opacity: .55; cursor: default; }
+  .seg { display: flex; gap: 8px; }
+  .seg button { flex: 1; min-height: 44px; padding: 0 4px; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+    border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; }
+  .seg button.on { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+  .seg.wrap { flex-wrap: wrap; padding: 0; margin: 0; max-width: none; }
+  .seg.wrap button { flex: 1 1 30%; }
+
+  /* Driver picker */
+  .list { margin-top: 6px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--card); }
+  .listbar { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 8px 12px; background: var(--brand-soft); font-size: 13px; color: var(--muted); }
+  .listbar button { border: 0; background: transparent; color: var(--brand); font-weight: 700; cursor: pointer; padding: 4px 6px; }
+  .scroll { max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .item:last-child { border-bottom: 0; }
+  .item:hover { background: var(--brand-soft); }
+  .item .n { font-weight: 600; }
+  .item .s { font-size: 12px; color: var(--muted); }
+  .item .tag { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .item .tag.warn { color: var(--waiting); }
+  .item.done { opacity: .5; cursor: default; background: var(--bg); }
+  .item.done:hover { background: var(--bg); }
+  .box { flex: none; width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--line); background: var(--bg); }
+  .item.sel .box { background: var(--brand); border-color: var(--brand); position: relative; }
+  .item.sel .box::after { content: ""; position: absolute; left: 6px; top: 1px; width: 6px; height: 12px;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+  .item.sel { background: var(--brand-soft); }
+  .empty { padding: 12px; color: var(--muted); font-size: 14px; }
+  .chosen { margin-top: 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--brand-soft); color: var(--ink);
+    border-radius: 999px; padding: 6px 6px 6px 12px; font-size: 14px; font-weight: 600; }
+  .chip button { border: 0; background: var(--card); color: var(--muted); width: 22px; height: 22px;
+    border-radius: 50%; cursor: pointer; line-height: 1; }
+  .count { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+  /* Cash rows */
+  .cashrow { border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin-top: 8px; background: var(--bg); }
+  .cashrow .cn .n { font-weight: 700; }
+  .cashrow .cn .s { font-size: 12px; color: var(--muted); }
+  .cashrow .line { display: flex; gap: 8px; margin-top: 8px; }
+  .cashrow .line input { flex: 1; min-width: 0; }
+  .cashrow .attach { flex: none; padding: 0 12px; min-height: 46px; border-radius: 10px; border: 1px dashed var(--brand);
+    background: var(--brand-soft); color: var(--brand); font-weight: 700; cursor: pointer; font-size: 14px; }
+  .cashrow .attach.ok { border-style: solid; background: var(--approved-bg); color: var(--approved); border-color: var(--approved); }
+  .cashrow .rmx { flex: none; width: 46px; min-height: 46px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--card); color: var(--muted); font-size: 20px; cursor: pointer; }
+  .note { margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 13px; background: var(--waiting-bg); color: var(--waiting); }
+  .note.bad { background: var(--rejected-bg); color: var(--rejected); font-weight: 700; }
+  .note:empty { display: none; }
+  .mcomment { margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; background: var(--found-bg); color: var(--found); border-left: 4px solid var(--found); }
+
+  .msg { margin-top: 12px; font-size: 14px; min-height: 20px; }
+  .msg.err { color: var(--error); }
+  .msg.ok { color: var(--approved); font-weight: 600; }
+  .hidden { display: none !important; }
+  .tabs { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line); }
+  .tabs-inner { max-width: 560px; margin: 0 auto; display: flex; }
+  .tabs button { flex: 1; min-height: 56px; border: 0; background: transparent; color: var(--muted);
+    font-weight: 700; font-size: 15px; cursor: pointer; }
+  .tabs button.on { color: var(--brand); box-shadow: inset 0 3px 0 var(--brand); }
+  .tabs .cnt { display: inline-block; min-width: 20px; padding: 1px 6px; margin-left: 4px; border-radius: 999px;
+    background: var(--rejected); color: #fff; font-size: 12px; }
+  .fchips { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 0 2px; }
+  .fchips button { flex: none; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); color: var(--ink); font-size: 14px; cursor: pointer; }
+  .fchips button.on { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+  .fchips .n { display: inline-block; min-width: 20px; margin-left: 6px; padding: 1px 7px; border-radius: 999px;
+    background: var(--brand-soft); color: var(--brand); font-size: 12px; font-weight: 700; text-align: center; }
+  .fchips .n:empty { display: none; }
+  .fchips button.on .n { background: rgba(255, 255, 255, 0.25); color: var(--brand-ink); }
+  .fchips .n.red { background: var(--rejected-bg); color: var(--rejected); }
+  .entry .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .entry .name { font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+  .entry .sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .entry .detail { margin-top: 8px; font-size: 14px; }
+  .badge { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .st-pending, .st-searching { background: var(--pending-bg); color: var(--pending); }
+  .st-approved, .st-found, .st-removed { background: var(--approved-bg); color: var(--approved); }
+  .st-rejected, .st-deducted { background: var(--rejected-bg); color: var(--rejected); }
+  .st-cancelled { background: var(--cancelled-bg); color: var(--cancelled); }
+  .st-replied { background: var(--found-bg); color: var(--found); }
+  .st-reply-amazon { background: var(--waiting-bg); color: var(--waiting); }
+  .actions { margin-top: 10px; display: flex; gap: 8px; }
+  .actions button { min-height: 38px; padding: 0 14px; border-radius: 9px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); font-weight: 600; cursor: pointer; }
+  .actions button.main { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+  .center { text-align: center; padding: 60px 0; color: var(--muted); }
+  .refresh { background: transparent; border: 0; color: var(--brand); font-weight: 700; cursor: pointer; padding: 8px 0; }
+  .login-title { font-size: 22px; font-weight: 800; margin: 0 0 4px; }
+  .login-sub { color: var(--muted); margin: 0 0 16px; font-size: 14px; }
+
+  /* Losses */
+  .lsum { margin-top: 14px; font-size: 14px; color: var(--muted); }
+  .lsum b { color: var(--ink); }
+  .linkrow { display: flex; flex-wrap: wrap; gap: 0 18px; }
+  .linkrow .refresh { white-space: nowrap; }
+  .morebtn { border: 0; background: transparent; color: var(--brand); font-weight: 700; cursor: pointer; padding: 6px 0; font-size: 13px; }
+
+  /* Losses: one search box, the day is inside it */
+  .sbox { margin-top: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+  .sbox:focus-within { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+  .sline { display: flex; align-items: center; gap: 10px; padding: 0 6px 0 14px; }
+  .sico { flex: none; width: 18px; height: 18px; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .sline input { flex: 1; min-width: 0; min-height: 50px; padding: 0; border: 0; border-radius: 0; background: transparent;
+    color: var(--ink); -webkit-appearance: none; appearance: none; }
+  .sline input:focus { outline: none; }
+  .sline input::-webkit-search-cancel-button, .sline input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+  .sclear { flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent;
+    color: var(--muted); font-size: 24px; line-height: 1; cursor: pointer; }
+  .sfilter { position: relative; flex: none; display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 50%; color: var(--muted); }
+  .sfilter svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .sfilter select { position: absolute; left: 0; top: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0;
+    opacity: 0; cursor: pointer; font-size: 16px; -webkit-appearance: none; appearance: none; }
+  .sfilter.on { background: var(--brand-soft); color: var(--brand); }
+  .sfilter.on::after { content: ""; position: absolute; top: 3px; right: 3px; width: 9px; height: 9px; border-radius: 50%;
+    background: var(--brand); border: 2px solid var(--card); }
+  .sdays { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 12px 12px; }
+  .dchip { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px;
+    border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+    font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .dchip.on { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+  .dchip svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .dchip select { position: absolute; left: 0; top: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0;
+    opacity: 0; cursor: pointer; font-size: 16px; -webkit-appearance: none; appearance: none; }
+  .sdays.dim .dchip { opacity: .55; }
+  .others { display: block; width: 100%; margin-top: 10px; padding: 10px 12px; border: 0; border-radius: 10px;
+    text-align: left; font-size: 14px; cursor: pointer; background: var(--waiting-bg); color: var(--waiting); }
+  .others.late { background: var(--rejected-bg); color: var(--rejected); }
+  .hint { margin-top: 6px; font-size: 14px; }
+
+  /* Losses: one color for each person the POC talked to. */
+  .c-driver { --cc: #1c7142; --cb: #e2f3e9; --cf: #ffffff; }
+  .c-otr    { --cc: #6d3fa5; --cb: #eee6f8; --cf: #ffffff; }
+  .c-flow   { --cc: #a14a05; --cb: #fdecd8; --cf: #ffffff; }
+  .c-ops    { --cc: #086a65; --cb: #d9f2ef; --cf: #ffffff; }
+  .c-cust   { --cc: #b4235f; --cb: #fbe4ee; --cf: #ffffff; }
+  .c-other  { --cc: #566270; --cb: #edf0f3; --cf: #ffffff; }
+  .c-found  { --cc: #1e6b3a; --cb: #dcefd6; --cf: #ffffff; }
+  .c-mgr    { --cc: #0b5394; --cb: #d6e6f7; --cf: #ffffff; }
+  :root[data-theme="dark"] .c-driver { --cc: #86d4a3; --cb: #17301f; --cf: #0d1f14; }
+  :root[data-theme="dark"] .c-otr    { --cc: #cdb1ef; --cb: #2b1f3f; --cf: #1b1229; }
+  :root[data-theme="dark"] .c-flow   { --cc: #f3bd85; --cb: #3d2813; --cf: #2a1a0a; }
+  :root[data-theme="dark"] .c-ops    { --cc: #7fd6cd; --cb: #123532; --cf: #0a2523; }
+  :root[data-theme="dark"] .c-cust   { --cc: #f0a3c4; --cb: #411a2d; --cf: #2e1020; }
+  :root[data-theme="dark"] .c-other  { --cc: #aab5c2; --cb: #252d37; --cf: #151b22; }
+  :root[data-theme="dark"] .c-found  { --cc: #8fd3a2; --cb: #1a3a28; --cf: #0d2217; }
+  :root[data-theme="dark"] .c-mgr    { --cc: #9cc5ef; --cb: #1d3350; --cf: #0b1b2e; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .c-driver { --cc: #86d4a3; --cb: #17301f; --cf: #0d1f14; }
+    :root:not([data-theme]) .c-otr    { --cc: #cdb1ef; --cb: #2b1f3f; --cf: #1b1229; }
+    :root:not([data-theme]) .c-flow   { --cc: #f3bd85; --cb: #3d2813; --cf: #2a1a0a; }
+    :root:not([data-theme]) .c-ops    { --cc: #7fd6cd; --cb: #123532; --cf: #0a2523; }
+    :root:not([data-theme]) .c-cust   { --cc: #f0a3c4; --cb: #411a2d; --cf: #2e1020; }
+    :root:not([data-theme]) .c-other  { --cc: #aab5c2; --cb: #252d37; --cf: #151b22; }
+    :root:not([data-theme]) .c-found  { --cc: #8fd3a2; --cb: #1a3a28; --cf: #0d2217; }
+    :root:not([data-theme]) .c-mgr    { --cc: #9cc5ef; --cb: #1d3350; --cf: #0b1b2e; }
+  }
+  #mContacts button { border-left: 4px solid var(--cc); }
+  #mContacts button.on { background: var(--cc); border-color: var(--cc); color: var(--cf); }
+
+  /* Losses: the card. One calm layout: name, address, price and counter, manager note, buttons, updates. */
+  .lcard { padding: 14px 0 16px; }
+  .lc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 0 16px; }
+  .lc-who { min-width: 0; }
+  .lc-name { font-size: 17px; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
+  .lc-sub { margin-top: 3px; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+  .lc-sub b { color: var(--ink); }
+  .lc-sec { margin: 12px 16px 0; }
+  .lc-addr { font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
+  .lc-meta { margin-top: 4px; font-size: 12px; color: var(--muted); }
+  .lc-lab { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .lc-count { display: inline-block; min-width: 18px; margin-left: 4px; padding: 0 6px; border-radius: 999px;
+    background: var(--brand-soft); color: var(--brand); font-size: 11px; font-weight: 800; text-align: center; letter-spacing: 0; }
+  .lc-strip { display: flex; margin: 12px 16px 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); }
+  .lc-cell { flex: 1 1 0; min-width: 0; padding: 8px 12px; }
+  .lc-cell + .lc-cell { border-left: 1px solid var(--line); }
+  .lc-val { margin-top: 2px; font-size: 16px; font-weight: 800; overflow-wrap: anywhere; }
+  .lc-val.today { color: var(--waiting); }
+  .lc-val.late { color: var(--error); }
+  .lc-val.info { color: var(--found); }
+  .lc-box { padding: 10px 12px; border-radius: 12px; }
+  .lc-box.mgr { background: var(--found-bg); }
+  .lc-box.mgr .lc-lab { color: var(--found); }
+  .lc-box.req { background: var(--waiting-bg); }
+  .lc-box.req .lc-lab { color: var(--waiting); }
+  .lc-text { margin-top: 4px; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+  .lc-when { margin-top: 6px; font-size: 12px; color: var(--muted); }
+  .lc-when + .lc-text { margin-top: 2px; }
+  .lc-actions { display: flex; gap: 8px; margin: 14px 16px 0; }
+  .lc-actions button { flex: 1 1 0; min-width: 0; min-height: 42px; padding: 6px 8px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); font-size: 14px; font-weight: 700; line-height: 1.15; cursor: pointer; }
+  .lc-actions button.main { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+  .lc-updates { padding-top: 12px; border-top: 1px solid var(--line); margin-top: 16px; }
+  .tl { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .ti { border: 1px solid var(--line); border-left: 4px solid var(--cc); border-radius: 10px; padding: 8px 10px; background: var(--card); }
+  .ti-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 10px; }
+  .ti-tags { display: flex; flex-wrap: wrap; gap: 2px 10px; }
+  .ti-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; color: var(--ink); }
+  .ti-tag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); }
+  .ti.ev .ti-tag { color: var(--cc); }
+  .ti.ev .ti-tag::before { display: none; }
+  .ti-meta { font-size: 12px; color: var(--muted); }
+  .ti-meta.fresh { color: var(--ink); font-weight: 700; }
+  .ti-text { margin-top: 4px; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+  .ti-ph { margin-top: 6px; font-size: 12px; color: var(--muted); }
+  .lc-updates .morebtn { display: block; margin-top: 6px; }
+
+  /* The two small buttons at the top: light or dark */
+  .top-right { display: flex; align-items: center; gap: 8px; flex: none; }
+  .thm { display: inline-flex; gap: 2px; padding: 2px; border-radius: 10px; background: rgba(255,255,255,.14); }
+  .thm-b { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 0; border: 0;
+    border-radius: 8px; background: transparent; color: rgba(255,255,255,.7); cursor: pointer; }
+  .thm-b svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .thm-b.on { background: rgba(255,255,255,.28); color: #ffffff; }
+  .thm.plain { background: var(--card); border: 1px solid var(--line); }
+  .thm.plain .thm-b { color: var(--muted); }
+  .thm.plain .thm-b.on { background: var(--brand-soft); color: var(--brand); }
+  .login-top { display: flex; justify-content: flex-end; max-width: 560px; margin: 0 auto; padding: 14px 16px 0; }
+
+  /* Yesterday / Today under the date of a new entry */
+  .dayrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+  /* Day buttons: one row on a small phone */
+  .sdays { gap: 6px; padding: 0 10px 12px; }
+  .dchip { padding: 0 12px; gap: 5px; }
+  @media (max-width: 350px) {
+    .sdays { gap: 5px; padding: 0 8px 12px; }
+    .dchip { padding: 0 9px; gap: 4px; font-size: 13px; }
+    .dchip svg { width: 14px; height: 14px; }
+  }
+
+  /* A long word without spaces must not push a card out of the screen */
+  .mcomment, .note, .entry .detail, .entry .sub { overflow-wrap: anywhere; }
+
+  /* Add update window */
+  .modal { position: fixed; left: 0; right: 0; top: 0; bottom: 0; background: rgba(0,0,0,.45);
+    display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+  .sheet { background: var(--card); width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
+    border-radius: 18px 18px 0 0; padding: 16px 16px 24px; }
+  .sheet-head { display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 800; }
+  .x { border: 0; background: transparent; font-size: 30px; line-height: 1; color: var(--muted); cursor: pointer; }
+  .msub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .thumb { position: relative; width: 68px; height: 68px; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb button { position: absolute; top: 2px; right: 2px; width: 22px; height: 22px; border-radius: 50%; border: 0;
+    background: rgba(0,0,0,.65); color: #fff; cursor: pointer; line-height: 1; }
+  .attach-wide { width: 100%; min-height: 44px; border: 1px dashed var(--brand); background: var(--brand-soft);
+    color: var(--brand); border-radius: 10px; font-weight: 700; cursor: pointer; }
+  .attach-wide:disabled { opacity: .5; cursor: default; }
+
+  /* Notices: the bell at the top, the list, and the banner that drops down when a notice arrives */
+  .bell { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 30px; padding: 0;
+    border: 1px solid rgba(255,255,255,.5); border-radius: 8px; background: transparent; color: var(--brand-ink); cursor: pointer; }
+  .bell svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform-origin: 50% 8%; }
+  .bell .dot { position: absolute; top: -8px; right: -8px; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px;
+    background: #d64545; color: #ffffff; border: 2px solid var(--brand); font-size: 11px; font-weight: 800; line-height: 15px; text-align: center; }
+  .bell .dot:empty { display: none; }
+  .bell.ring svg { animation: od-ring .9s ease 1; }
+  @keyframes od-ring { 0%, 100% { transform: rotate(0); } 15% { transform: rotate(16deg); } 30% { transform: rotate(-14deg); }
+    45% { transform: rotate(10deg); } 60% { transform: rotate(-7deg); } 75% { transform: rotate(3deg); } }
+  .nbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
+  .ni { margin-top: 10px; padding: 10px 12px; border: 1px solid var(--line); border-left: 5px solid var(--cc, var(--brand));
+    border-radius: 12px; background: var(--card); cursor: pointer; }
+  .ni.unread { background: var(--brand-soft); }
+  .ni.k-request { --cc: var(--waiting); }
+  .ni.k-comment, .ni.k-update { --cc: var(--found); }
+  .ni.k-found { --cc: var(--approved); }
+  .ni-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; }
+  .ni-title { font-size: 14px; font-weight: 800; }
+  .ni-time { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .ni-time.fresh { color: var(--ink); font-weight: 700; }
+  .ni-text { margin-top: 4px; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+  .nfoot { margin-top: 14px; font-size: 12px; color: var(--muted); }
+  .npush { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; padding: 8px 12px;
+    border: 1px solid var(--line); border-radius: 10px; font-size: 13px; line-height: 1.4; }
+  .npush.off { border-style: dashed; color: var(--muted); }
+  .npush-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .npush .refresh { padding: 4px 0; white-space: nowrap; }
+  .ntoast { position: fixed; left: 50%; top: 10px; transform: translateX(-50%); width: calc(100% - 24px); max-width: 520px; z-index: 90;
+    display: flex; align-items: flex-start; gap: 6px; padding: 12px 6px 12px 14px; border-radius: 14px; cursor: pointer;
+    background: var(--card); color: var(--ink); border: 1px solid var(--line); border-left: 6px solid var(--cc, var(--brand));
+    box-shadow: 0 10px 30px rgba(0,0,0,.3); animation: od-drop .25s ease-out; }
+  .ntoast.k-request { --cc: var(--waiting); }
+  .ntoast.k-comment, .ntoast.k-update { --cc: var(--found); }
+  .ntoast.k-found { --cc: var(--approved); }
+  @keyframes od-drop { from { opacity: 0; transform: translate(-50%, -16px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  .nt-main { flex: 1; min-width: 0; }
+  .nt-title { font-size: 14px; font-weight: 800; }
+  .nt-text { margin-top: 2px; font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; display: -webkit-box;
+    -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .nt-x { flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: transparent; color: var(--muted);
+    font-size: 24px; line-height: 1; cursor: pointer; }
+  /* The alerts bar of the app: it sits right above the tab bar of the page (the page measures it) */
+  #odBar { position: fixed; left: 8px; right: 8px; bottom: calc(var(--od-tabs, 0px) + 8px); z-index: 30; max-width: 544px; margin: 0 auto;
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #1f3a5f; color: #ffffff;
+    font-size: 14px; line-height: 1.35; border-radius: 12px; box-shadow: 0 4px 16px rgba(0, 0, 0, .28); }
+  #odBar[hidden] { display: none; }
+  #odBarText { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  #odBar button { border: 0; border-radius: 8px; font: inherit; font-weight: 700; cursor: pointer; }
+  #odBarBtn { flex: none; background: #ffffff; color: #1f3a5f; padding: 9px 14px; white-space: nowrap; }
+  #odBarBtn[hidden] { display: none; }
+  #odBarX { flex: none; background: transparent; color: #ffffff; font-size: 26px; line-height: 1; padding: 0 6px; }
+  #odBar.flash { animation: odflash 1.4s ease 1; }
   @keyframes odflash { 0%, 100% { background: #1f3a5f; } 20%, 60% { background: #2f6fb7; } }
-  #setup { display: none; margin: 0; padding: 28px 20px; background: #ffffff; color: #1b2430; font-size: 16px; line-height: 1.5; }
-  #setup h1 { margin: 0 0 10px; font-size: 20px; }
-  #setup code { background: #eef1f5; padding: 2px 6px; border-radius: 4px; }
+  #odSetup { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000; margin: 0; padding: 28px 20px;
+    background: #ffffff; color: #1b2430; font-size: 16px; line-height: 1.5; }
+  #odSetup h1 { margin: 0 0 10px; font-size: 20px; }
+  #odSetup code { background: #eef1f5; padding: 2px 6px; border-radius: 4px; }
 </style>
+<script>
+  // Light or dark: the choice of the person is set before the page is drawn
+  (function () {
+    try {
+      var t = localStorage.getItem('od_theme');
+      if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
 </head>
 <body>
-<div id="shell">
-  <div id="setup">
-    <h1>Ops Desk is not set up yet</h1>
-    <p>Open the file <code>config.js</code> and put the web app address of Ops Desk between the quotes.
-      The address ends with <code>/exec</code>.</p>
-  </div>
-  <iframe id="app" title="Ops Desk" allow="clipboard-write; fullscreen"></iframe>
-  <div id="bar" role="region" aria-label="Alerts" hidden>
-    <span id="barText"></span>
-    <button id="barBtn" type="button" hidden>Turn on alerts</button>
-    <button id="barX" type="button" aria-label="Hide this bar">&times;</button>
+
+<div id="boot" class="center">Loading...</div>
+
+<!-- Login -->
+<div id="login" class="hidden">
+  <div class="login-top"><div class="thm plain" role="group" aria-label="Light or dark"><button type="button" class="thm-b" data-theme-set="light" aria-label="Light" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button><button type="button" class="thm-b" data-theme-set="dark" aria-label="Dark" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></div>
+  <div class="wrap" style="padding-top:30px">
+    <div class="card">
+      <h2 class="login-title">Ops Desk</h2>
+      <p class="login-sub">Enter your PIN to start.</p>
+      <input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN">
+      <button id="loginBtn" class="primary">Sign in</button>
+      <div id="loginMsg" class="msg"></div>
+    </div>
   </div>
 </div>
-<noscript><p style="padding:20px;background:#fff">Ops Desk needs JavaScript.</p></noscript>
-<script src="config.js"></script>
+
+<!-- App -->
+<div id="app" class="hidden">
+  <div class="top">
+    <div class="top-inner">
+      <div>
+        <h1 id="officeName">Ops Desk</h1>
+        <div class="who" id="whoLine"></div>
+      </div>
+      <div class="top-right">
+        <button type="button" class="bell" id="bellBtn" aria-label="Notifications" title="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg><span class="dot" id="bellDot"></span></button>
+        <div class="thm" role="group" aria-label="Light or dark"><button type="button" class="thm-b" data-theme-set="light" aria-label="Light" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button><button type="button" class="thm-b" data-theme-set="dark" aria-label="Dark" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div>
+        <button class="linkbtn" id="logoutBtn">Sign out</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- Station -->
+    <div class="stationbar">
+      <span class="lbl">Station</span>
+      <div id="stationPick" class="stpick hidden"><button type="button" id="stationBtn" class="stbtn"></button><div id="stationPanel" class="stpanel hidden"></div></div>
+      <span id="stationFixed" class="fixed hidden"></span>
+    </div>
+
+    <!-- New entry -->
+    <div id="viewNew">
+      <div class="card">
+        <label>Type</label>
+        <div class="seg" id="typeSeg">
+          <button data-type="IDLE" class="on">Idle</button>
+          <button data-type="RESCUE">Rescue Hours</button>
+          <button data-type="CASH">Cash Shortage</button>
+        </div>
+
+        <label>Date</label>
+        <input id="entryDate" type="date">
+        <div class="dayrow" id="entryDays">
+          <button type="button" class="dchip" data-d="YESTERDAY">Yesterday</button>
+          <button type="button" class="dchip" data-d="TODAY">Today</button>
+        </div>
+
+        <label>Drivers (you can select many)</label>
+        <div id="searchBox">
+          <input id="driverSearch" type="text" placeholder="Tap here, or type a name or ID" autocomplete="off">
+          <div id="driverList"></div>
+        </div>
+        <div class="chosen" id="chosen"></div>
+        <div class="count" id="chosenCount"></div>
+
+        <div id="fRescue" class="hidden">
+          <label>Hours (the same for all selected drivers)</label>
+          <input id="hours" type="number" inputmode="decimal" step="0.5" min="0" max="24" placeholder="0">
+        </div>
+
+        <input id="proofFile" type="file" accept="image/*,application/pdf" class="hidden">
+
+        <button id="saveBtn" class="primary">Save</button>
+        <div id="saveMsg" class="msg"></div>
+      </div>
+    </div>
+
+    <!-- Losses -->
+    <div id="viewLoss" class="hidden">
+      <div class="sbox">
+        <div class="sline">
+          <svg class="sico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <input id="lossQ" type="search" placeholder="Search name, ID or tracking" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Search losses">
+          <button type="button" class="sclear hidden" id="lossQClear" aria-label="Clear search">&times;</button>
+          <span class="sfilter" id="lossFilterBox">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7v6l-4 2v-8z"></path></svg>
+            <select id="lossFilter" aria-label="Filter by status or comment"></select>
+          </span>
+        </div>
+        <div class="sdays" id="lossDays">
+          <button type="button" class="dchip" data-d="YESTERDAY">Yesterday</button>
+          <button type="button" class="dchip" data-d="TODAY">Today</button>
+          <span class="dchip hidden" id="lossDateChip">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>
+            <span id="lossDateTxt">Other days</span>
+            <select id="lossDate" aria-label="Choose another day"></select>
+          </span>
+        </div>
+      </div>
+      <div class="lsum" id="lossSummary"></div>
+      <button type="button" class="others hidden" id="lossOthers"></button>
+      <div class="linkrow">
+        <button class="refresh" id="lossRefresh">Refresh</button>
+        <button class="refresh" id="lossExport">Download Excel</button>
+      </div>
+      <div id="lossList"></div>
+      <div id="lossMsg" class="msg"></div>
+    </div>
+
+    <!-- My entries -->
+    <div id="viewList" class="hidden">
+      <div class="fchips" id="fchips">
+        <button data-f="ALL" class="on">All<span class="n" id="nAll"></span></button>
+        <button data-f="IDLE">Idle<span class="n" id="nIdle"></span></button>
+        <button data-f="RESCUE">Rescue Hours<span class="n" id="nRescue"></span></button>
+        <button data-f="CASH">Cash Shortage<span class="n" id="nCash"></span></button>
+      </div>
+      <div class="sbox">
+        <div class="sline">
+          <svg class="sico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <input id="entQ" type="search" placeholder="Search name, ID or date" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Search entries">
+          <button type="button" class="sclear hidden" id="entQClear" aria-label="Clear search">&times;</button>
+          <span class="sfilter" id="entFilterBox">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7v6l-4 2v-8z"></path></svg>
+            <select id="entFilter" aria-label="Filter by status or comment"></select>
+          </span>
+        </div>
+        <div class="sdays" id="entDays">
+          <button type="button" class="dchip" data-d="YESTERDAY">Yesterday</button>
+          <button type="button" class="dchip" data-d="TODAY">Today</button>
+          <span class="dchip hidden" id="entDateChip">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>
+            <span id="entDateTxt">Other days</span>
+            <select id="entDate" aria-label="Choose another day"></select>
+          </span>
+        </div>
+      </div>
+      <div class="lsum hidden" id="entSummary"></div>
+      <div class="linkrow">
+        <button class="refresh" id="refreshBtn">Refresh</button>
+        <button class="refresh" id="exportBtn">Download Excel</button>
+      </div>
+      <div id="entries"></div>
+      <div id="listMsg" class="msg"></div>
+    </div>
+
+  </div>
+
+  <div class="tabs">
+    <div class="tabs-inner">
+      <button id="tabNew" class="on">New Entry</button>
+      <button id="tabLoss">Losses<span id="lossCnt" class="cnt hidden"></span></button>
+      <button id="tabList">My Entries</button>
+    </div>
+  </div>
+</div>
+
+<!-- Request a change window -->
+<div id="reqModal" class="modal hidden">
+  <div class="sheet">
+    <div class="sheet-head"><span>Request a change</span><button class="x" id="rClose">&times;</button></div>
+    <div class="msub" id="rSub"></div>
+
+    <label>What do you want to do? For example: cancel it, or change the amount.</label>
+    <textarea id="rText" rows="4" maxlength="400" placeholder="Write your request"></textarea>
+
+    <button id="rSave" class="primary">Send request</button>
+    <div id="rMsg" class="msg"></div>
+  </div>
+</div>
+
+<!-- Add update window -->
+<div id="modal" class="modal hidden">
+  <div class="sheet">
+    <div class="sheet-head"><span>Add update</span><button class="x" id="mClose">&times;</button></div>
+    <div class="msub" id="mSub"></div>
+
+    <label>Who did you talk to? (you can choose more than one)</label>
+    <div class="seg wrap" id="mContacts"></div>
+
+    <label>Comment</label>
+    <textarea id="mComment" rows="3" maxlength="400" placeholder="What happened?"></textarea>
+
+    <label id="mPhotoLabel">Photos</label>
+    <div class="thumbs" id="mThumbs"></div>
+    <button type="button" class="attach-wide" id="mAdd">Add photos</button>
+    <input id="mFile" type="file" accept="image/*" multiple class="hidden">
+
+    <button id="mSave" class="primary">Save update</button>
+    <div id="mMsg" class="msg"></div>
+  </div>
+</div>
+
+<!-- Notices window -->
+<div id="nModal" class="modal hidden">
+  <div class="sheet">
+    <div class="sheet-head"><span>Notifications</span><button class="x" id="nClose" aria-label="Close">&times;</button></div>
+    <div class="nbar"><span class="msub" id="nSub">The newest are on top.</span><button type="button" class="refresh" id="nSound">Sound on</button></div>
+    <div class="npush hidden" id="nPush"><span class="npush-text" id="nPushText"></span><button type="button" class="refresh hidden" id="nPushBtn"></button></div>
+    <div id="nList"></div>
+    <div class="nfoot">You get a sound and a banner while this page is open on your phone or computer.</div>
+  </div>
+</div>
+
+<!-- The banner of a new notice -->
+<div id="nToast" class="ntoast hidden" role="status" aria-live="polite">
+  <div class="nt-main"><div class="nt-title" id="ntTitle"></div><div class="nt-text" id="ntText"></div></div>
+  <button type="button" class="nt-x" id="ntClose" aria-label="Close">&times;</button>
+</div>
+
+<script>
+  var TYPES = ['IDLE', 'RESCUE', 'CASH'];
+  var KIND_LABEL = { IDLE: 'Idle', RESCUE: 'Rescue Hours', CASH: 'Cash Shortage' };
+
+  var ArSearch = (function () {
+  // ---------- Search names in Arabic (the names in the system are English) ----------
+  // Every name is turned into short "sound skeletons": no vowels, and letters that sound alike are one letter.
+  // An Arabic word is turned into the same kind of skeleton, so Arabic letters can find English names.
+  // A name that starts with a vowel keeps one A at the start (Ahmed = AHMD, Ali = AL, Omar = AMR).
+  // This block has no Arabic letters inside. The letters are written as numbers.
+
+  var SOUND = {};
+  var START_VOWEL = {};
+  (function () {
+    // [letter code, skeleton letter]
+    [[0x628, 'B'], [0x67E, 'B'],
+     [0x62A, 'T'], [0x637, 'T'], [0x62B, 'C'],
+     [0x62C, 'G'], [0x686, 'G'], [0x63A, 'G'], [0x6AF, 'G'],
+     [0x62D, 'H'], [0x647, 'H'], [0x62E, 'K'],
+     [0x62F, 'D'], [0x636, 'D'], [0x630, 'Q'], [0x638, 'Q'],
+     [0x631, 'R'], [0x632, 'Z'],
+     [0x633, 'S'], [0x635, 'S'], [0x634, 'X'],
+     [0x641, 'F'], [0x6A4, 'F'],
+     [0x642, 'K'], [0x643, 'K'],
+     [0x644, 'L'], [0x645, 'M'], [0x646, 'N']
+    ].forEach(function (p) { SOUND[String.fromCharCode(p[0])] = p[1]; });
+    // alef (all forms), ain and hamza at the start of a word
+    [0x627, 0x622, 0x623, 0x625, 0x671, 0x639, 0x621, 0x624, 0x626].forEach(function (c) { START_VOWEL[String.fromCharCode(c)] = true; });
+  })();
+
+  var AR_WAW = String.fromCharCode(0x648);
+  var AR_YA = String.fromCharCode(0x64A);
+  var AR_ALEF = String.fromCharCode(0x627);
+  var AR_LAM = String.fromCharCode(0x644);
+  var AR_HA = String.fromCharCode(0x647);
+  var AR_QAF = String.fromCharCode(0x642);
+  var AR_RANGE = new RegExp('[' + String.fromCharCode(0x600) + '-' + String.fromCharCode(0x6FF) + ']');
+  var APOSTROPHES = new RegExp('[\'`' + String.fromCharCode(0x2019, 0x2018, 0xB4, 0x2BC, 0x2BF) + ']', 'g');
+
+  function hasArabic(s) { return AR_RANGE.test(s); }
+
+  // Does the last vowel (group of vowels) of an English word have an o or a u?  mahmoud: yes. mohamed: no.
+  function lastVowelIsUO(letters) {
+    var m = /[aeiouy]+(?=[^aeiouy]*$)/.exec(letters);
+    return !!m && /[ou]/.test(m[0]);
+  }
+
+  // Does an Arabic word have a waw after its first letter?  (mahmoud: yes. mohamed: no.)
+  function hasWawTail(w) { return w.length >= 3 && w.indexOf(AR_WAW, 1) > 0; }
+  function collapse(s) { return s.replace(/(.)\1+/g, '$1'); }
+
+  // Arabic word (already cleaned by the page) -> skeleton.
+  // keepHa: a last ha counts as a letter. qafAsG: Egyptians say the qaf as g (Gasem).
+  function arSkeleton(word, keepHa, qafAsG) {
+    var out = '';
+    for (var i = 0; i < word.length; i++) {
+      var ch = word.charAt(i);
+      var s = '';
+      if (i === 0 && START_VOWEL[ch]) s = 'A';
+      else if (ch === AR_WAW) s = i === 0 ? 'W' : '';
+      else if (ch === AR_YA) s = i === 0 ? 'Y' : '';
+      else if (ch === AR_HA && i === word.length - 1 && word.length > 1 && !keepHa) s = '';
+      else if (ch === AR_QAF && qafAsG) s = 'G';
+      else s = SOUND[ch] || '';
+      out += s;
+    }
+    return collapse(out);
+  }
+
+  var LAT_SIMPLE = { b: 'B', p: 'B', t: 'T', j: 'G', g: 'G', d: 'D', r: 'R', z: 'Z', s: 'S', f: 'F', v: 'F',
+    q: 'K', k: 'K', l: 'L', m: 'M', n: 'N', h: 'H', x: 'KS' };
+  // Letter pairs. Some sound as one letter or as two (Medhat = d + h, Adham = d + h, Fathy = t + h)
+  var LAT_PAIR = { kh: ['K'], gh: ['G'], ph: ['F'], ck: ['K'], dh: ['Q', 'DH'], th: ['C', 'TH'], sh: ['X', 'SH'], ch: ['X', 'K'] };
+  var MAX_VARIANTS = 8;
+  var SILENT_PEN = 0.3;     // the cost of a silent last h (Abdullah and Abdalla are not the same as Abdel)
+  var POSITION_PEN = 0.02;  // for each word of the name before the word that was found
+  var ORDER_PEN = 0.05;     // the words were typed in another order than in the name
+  var UO_PEN = 0.05;        // the Arabic word has a long o / u (waw) and the last vowel of the English word is not o / u (or the other way)
+  var END_PEN = 0.03;       // the Arabic word ends with ya (Hamdy) and the English word ends with a (Hamada), or the other way
+
+  // How an English word ends: Y (hamdy, fawzi, sameeh no), A (hamada, abdullah) or nothing
+  function endKind(letters) {
+    if (/(?:y|i|ee|ie|ey)$/.test(letters)) return 'Y';
+    if (/(?:a|ah|h)$/.test(letters)) return 'A';
+    return '';
+  }
+
+  // How an Arabic word ends: a ya is a Y, a ha (also the ta marbuta, the page writes it as ha) is an A
+  function arEndKind(word) {
+    if (word.length < 3) return '';
+    var c = word.charAt(word.length - 1);
+    return c === AR_YA ? 'Y' : (c === AR_HA ? 'A' : '');
+  }
+
+  // English word (lower case letters and digits) -> list of skeletons
+  function latVariants(word) {
+    var list = [''];
+    var n = word.length;
+    var i = 0;
+    while (i < n) {
+      var ch = word.charAt(i);
+      var two = word.substr(i, 2);
+      var opts;
+      var step = 1;
+      if (i === 0 && /[aeiou]/.test(ch)) opts = ['A'];
+      else if (LAT_PAIR[two]) { opts = LAT_PAIR[two]; step = 2; }
+      else if (ch === 'c') opts = [/[eiy]/.test(word.charAt(i + 1)) ? 'S' : 'K'];
+      else if (ch === 'w') opts = [i === 0 ? 'W' : ''];
+      else if (ch === 'y') opts = [i === 0 ? 'Y' : ''];
+      else opts = [LAT_SIMPLE[ch] || ''];
+      var next = [];
+      for (var a = 0; a < list.length; a++) {
+        for (var b = 0; b < opts.length; b++) {
+          if (next.length < MAX_VARIANTS) next.push(list[a] + opts[b]);
+        }
+      }
+      list = next;
+      i += step;
+    }
+    // a last h is often silent (Sameh, Abdullah): add the form without it (a little less sure)
+    var base = [];
+    var j;
+    for (j = 0; j < list.length; j++) base.push({ s: list[j], pen: 0 });
+    if (n > 1 && word.charAt(n - 1) === 'h') {
+      for (j = 0; j < list.length; j++) {
+        if (list[j].charAt(list[j].length - 1) === 'H') base.push({ s: list[j].slice(0, -1), pen: SILENT_PEN });
+      }
+    }
+    var out = [];
+    var seen = {};
+    function put(sk, pen) {
+      sk = collapse(sk);
+      if (!sk) return;
+      if (seen[sk] === undefined) { seen[sk] = out.length; out.push({ s: sk, pen: pen }); }
+      else if (pen < out[seen[sk]].pen) out[seen[sk]].pen = pen;
+    }
+    for (var d = 0; d < base.length; d++) {
+      put(base[d].s, base[d].pen);
+      // ...eddin, ...uddin: the Arabic spelling has the letter L of Al (Salaheldin)
+      if (n >= 6 && /d(?:in|ine|een|ein)$/.test(word) && /DN$/.test(collapse(base[d].s))) {
+        put(collapse(base[d].s).slice(0, -2) + 'LDN', base[d].pen + 0.2);
+      }
+    }
+    return out;
+  }
+
+  // Letters that sound alike cost less than other changes. A missing h, w or y costs half.
+  var NEAR = { 'CS': .25, 'CT': .25, 'CQ': .25, 'QZ': .25, 'DQ': .25, 'HK': .5, 'SX': .5 };
+  function subCost(a, b) {
+    if (a === b) return 0;
+    return NEAR[a < b ? a + b : b + a] || 1;
+  }
+  function gapCost(a) { return (a === 'H' || a === 'W' || a === 'Y') ? .5 : 1; }
+
+  function weighted(a, b) {
+    var prev = [0];
+    var i, j;
+    for (j = 1; j <= b.length; j++) prev[j] = prev[j - 1] + gapCost(b.charAt(j - 1));
+    for (i = 1; i <= a.length; i++) {
+      var cur = [prev[0] + gapCost(a.charAt(i - 1))];
+      for (j = 1; j <= b.length; j++) {
+        cur[j] = Math.min(prev[j] + gapCost(a.charAt(i - 1)), cur[j - 1] + gapCost(b.charAt(j - 1)), prev[j - 1] + subCost(a.charAt(i - 1), b.charAt(j - 1)));
+      }
+      prev = cur;
+    }
+    return prev[b.length];
+  }
+
+  // The sound tokens of one English name. Every token has a span: the words of the name it comes from.
+  // Tokens: each word, 2 or 3 words together, and the forms without El / Al / Abd.
+  function nameTokens(name) {
+    var words = String(name || '').toLowerCase().replace(APOSTROPHES, '').split(/[^a-z0-9]+/).filter(Boolean);
+    var seen = {};
+    var out = [];
+    function add(letters, a, b, minLen) {
+      var vs = latVariants(letters);
+      for (var i = 0; i < vs.length; i++) {
+        if (vs[i].s.length < minLen) continue;
+        var key = vs[i].s + '|' + a + '|' + b;
+        if (seen[key] === undefined) { seen[key] = out.length; out.push({ s: vs[i].s, a: a, b: b, pen: vs[i].pen, uo: lastVowelIsUO(letters), end: endKind(letters) }); }
+        else if (vs[i].pen < out[seen[key]].pen) out[seen[key]].pen = vs[i].pen;
+      }
+    }
+    function forms(letters, a, b) {
+      // Abdel, Abdul, Abdal (also Abd + El) are the start of a name, so they are only Abd
+      if (/^abd(?:el|ul|al|ol|il)$/.test(letters)) { add('abd', a, b, 1); return; }
+      add(letters, a, b, 1);
+      var m = /^(?:el|al)(.{2,})$/.exec(letters);
+      if (m) add(m[1], a, b, 2);
+      m = /^abd(.{2,})$/.exec(letters);
+      if (m) {
+        add(m[1], a, b, 3);
+        var m2 = /^(?:el|al|ul)(.{2,})$/.exec(m[1]);
+        if (m2) add(m2[1], a, b, 3);
+      }
+    }
+    for (var i = 0; i < words.length; i++) {
+      var w = words[i];
+      if (w !== 'el' && w !== 'al' && w !== 'ul') forms(w, i, i);
+      if (i + 1 < words.length) forms(w + words[i + 1], i, i + 1);
+      if (i + 2 < words.length) forms(w + words[i + 1] + words[i + 2], i, i + 2);
+    }
+    return out;
+  }
+
+  // What a group of Arabic query words can sound like: the letters, and the letters without Al.
+  // pre: the sound may be only the start of a longer name (the person is still typing)
+  var SOUNDS_MEMO = {};
+  var SOUNDS_MEMO_SIZE = 0;
+  function arSounds(word) {
+    // the same words are asked again for every name of the list, so the answer is kept
+    var kept = SOUNDS_MEMO[word];
+    if (kept) return kept;
+    var made = makeArSounds(word);
+    if (SOUNDS_MEMO_SIZE > 300) { SOUNDS_MEMO = {}; SOUNDS_MEMO_SIZE = 0; }
+    SOUNDS_MEMO[word] = made;
+    SOUNDS_MEMO_SIZE++;
+    return made;
+  }
+
+  function makeArSounds(word) {
+    var out = [];
+    var seen = {};
+    function put(w) {
+      var endsHa = w.length > 1 && w.charAt(w.length - 1) === AR_HA;
+      // the last letter makes no sound (a long vowel): the person may be still typing
+      var tl = w.charAt(w.length - 1);
+      var tailSilent = w.length > 1 && (tl === AR_WAW || tl === AR_YA || !!START_VOWEL[tl]);
+      var haOpts = endsHa ? [true, false] : [true];
+      var qafOpts = w.indexOf(AR_QAF) >= 0 ? [false, true] : [false];
+      for (var h = 0; h < haOpts.length; h++) {
+        for (var q = 0; q < qafOpts.length; q++) {
+          var sk = arSkeleton(w, haOpts[h], qafOpts[q]);
+          if (!sk || seen[sk] !== undefined) continue;
+          var silent = endsHa && !haOpts[h];
+          seen[sk] = out.length;
+          out.push({ s: sk, pre: !silent && (sk.length >= 3 || w.length <= 3 || tailSilent), pen: silent ? SILENT_PEN : 0 });
+        }
+      }
+    }
+    put(word);
+    if (word.length >= 4 && word.charAt(0) === AR_ALEF && word.charAt(1) === AR_LAM) put(word.slice(2));
+    return out;
+  }
+
+  // How well one query sound fits one name sound: 0 is the same, 0.2 starts the same, 1.x sounds alike, -1 no
+  function fit(sound, token, canStart) {
+    var s = sound.s;
+    var t = token.s;
+    var pen = sound.pen + token.pen;
+    if (s === t) return pen;
+    if (canStart && sound.pre && t.length > s.length && t.indexOf(s) === 0) return 0.2 + pen;
+    if (s.length < 2) return -1;
+    var d = Math.abs(s.length - t.length);
+    var cost;
+    if (s.length <= 3) {
+      if (d > 0) return -1;
+      cost = weighted(s, t);
+      return cost <= (s.length === 2 ? 0.25 : 0.5) ? 1 + cost + pen : -1;
+    }
+    if (d > 1) return -1;
+    cost = weighted(s, t);
+    return cost <= (s.length >= 6 ? 1 : 0.5) ? 1 + cost + pen : -1;
+  }
+
+  // ----- The search -----
+  // The page cleans the words of the search box. The Arabic words that are not found as plain text
+  // find a name by sound. Adjacent Arabic words can be one group (Nour Eldin = Noureldin).
+  // Every group needs its own part of the name. Only the last word may be the start of a longer name.
+
+  // best cost to cover the words in 'need' (indexes of the Arabic words) with the tokens of one name. -1 = cannot.
+  function coverCost(words, need, tokens) {
+    if (!need.length) return 0;
+    var lastWord = words.length - 1;
+    var groups = [];
+    var k, g, t, a;
+    for (k = 0; k < need.length; k++) {
+      var letters = '';
+      for (var len = 1; len <= 3 && k + len - 1 < need.length; len++) {
+        var idx = k + len - 1;
+        if (len > 1 && need[idx] !== need[idx - 1] + 1) break;
+        letters += words[need[idx]];
+        groups.push({ from: k, to: idx, snd: arSounds(letters), last: need[idx] === lastWord, single: len === 1, waw: len === 1 && hasWawTail(words[need[idx]]), end: arEndKind(words[need[idx]]) });
+      }
+    }
+    for (g = 0; g < groups.length; g++) {
+      var list = [];
+      var gWords = groups[g].to - groups[g].from + 1;
+      for (t = 0; t < tokens.length; t++) {
+        // Several words are a group only to meet fewer words of the name (Nour Eldin = Noureldin).
+        // The same number of words is matched one by one, so the order of the words counts.
+        if (gWords >= 2 && tokens[t].b - tokens[t].a + 1 === gWords) continue;
+        var bestFit = -1;
+        for (a = 0; a < groups[g].snd.length; a++) {
+          var c = fit(groups[g].snd[a], tokens[t], groups[g].last);
+          if (c >= 0 && (bestFit < 0 || c < bestFit)) bestFit = c;
+        }
+        if (bestFit >= 0) list.push({ t: t, c: bestFit });
+      }
+      groups[g].fits = list;
+    }
+    // Small costs only put the better names first: a word found early in the name (the first name) is better,
+    // and the words in the same order as in the name are better. They never decide if a name matches.
+    var best = -1;
+    function go(pos, usedMask, cost, lastStart) {
+      if (best >= 0 && cost >= best) return;
+      if (pos === need.length) { best = cost; return; }
+      for (var g2 = 0; g2 < groups.length; g2++) {
+        if (groups[g2].from !== pos) continue;
+        var fs = groups[g2].fits;
+        for (var f = 0; f < fs.length; f++) {
+          var tk = tokens[fs[f].t];
+          var mask = 0;
+          for (var p = tk.a; p <= tk.b && p < 30; p++) mask |= (1 << p);
+          if (mask & usedMask) continue;
+          var extra = POSITION_PEN * tk.a + (lastStart > tk.a ? ORDER_PEN : 0) +
+            (groups[g2].single && groups[g2].waw !== tk.uo ? UO_PEN : 0) +
+            (groups[g2].end && tk.end && groups[g2].end !== tk.end ? END_PEN : 0);
+          go(groups[g2].to + 1, usedMask | mask, cost + fs[f].c + extra, tk.a);
+        }
+      }
+    }
+    go(0, 0, 0, -1);
+    return best;
+  }
+
+  // One record: 'hay' is the cleaned text of the record, 'getTokens' gives the sound tokens of its name.
+  // Returns -1 if the record does not match, else the cost (0 = best).
+  function searchCost(hay, words, getTokens) {
+    var need = [];
+    for (var i = 0; i < words.length; i++) {
+      if (hay.indexOf(words[i]) >= 0) continue;
+      if (!hasArabic(words[i])) return -1;
+      need.push(i);
+    }
+    if (!need.length) return 0;
+    return coverCost(words, need, getTokens());
+  }
+    return { nameTokens: nameTokens, searchCost: searchCost, hasArabic: hasArabic };
+  })();
+
+  // ---------- Order of the cards and rows ----------
+  // People first (A to Z). The same person stays together, and his cards go by date (oldest first).
+  var KIND_ORDER = { IDLE: 1, RESCUE: 2, CASH: 3 };
+  var MONTH_NUM = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+
+  function nameKey(s) { return String(s == null ? '' : s).replace(/\s+/g, ' ').trim().toLowerCase(); }
+
+  // yyyy-mm-dd of an item. The server sends dateKey. The shown date (d-MMM-yyyy) is the backup.
+  function dateKeyOf(x) {
+    if (x.dateKey) return String(x.dateKey);
+    var m = /^(\d{1,2})-([A-Za-z]{3})-(\d{4})/.exec(String(x.date || x.scanDate || ''));
+    var mo = m ? MONTH_NUM[m[2].toLowerCase()] : 0;
+    if (!mo) return '';
+    return m[3] + '-' + ('0' + mo).slice(-2) + '-' + ('0' + m[1]).slice(-2);
+  }
+
+  function comparePeople(a, b) {
+    var an = nameKey(a.name), bn = nameKey(b.name);
+    if (an !== bn) return an < bn ? -1 : 1;
+    var at = String(a.tid || '').toUpperCase(), bt = String(b.tid || '').toUpperCase();
+    if (at !== bt) return at < bt ? -1 : 1;
+    var ad = dateKeyOf(a) || '9999-99-99', bd = dateKeyOf(b) || '9999-99-99';
+    if (ad !== bd) return ad < bd ? -1 : 1;
+    var ak = KIND_ORDER[a.kind] || 0, bk = KIND_ORDER[b.kind] || 0;
+    if (ak !== bk) return ak - bk;
+    if ((a.sortKey || 0) !== (b.sortKey || 0)) return (a.sortKey || 0) - (b.sortKey || 0);
+    var ai = String(a.id || ''), bi = String(b.id || '');
+    return ai < bi ? -1 : (ai > bi ? 1 : 0);
+  }
+
+  function sortPeople(list) { return list.slice().sort(comparePeople); }
+
+  // The rows of one Excel sheet, in the same order as the cards. dates = yyyy-MM-dd of each row.
+  function sortSheetRows(headers, rows, dates) {
+    var iName = headers.indexOf('Name'), iTid = headers.indexOf('Transporter ID');
+    var iId = headers.indexOf('Entry ID'), iDate = headers.indexOf('Date');
+    if (iName < 0) return rows;
+    return rows.map(function (r, i) {
+      return {
+        name: r[iName], tid: iTid < 0 ? '' : r[iTid], id: iId < 0 ? '' : r[iId],
+        dateKey: (dates && dates[i]) || '', date: iDate < 0 ? '' : r[iDate], row: r
+      };
+    }).sort(comparePeople).map(function (x) { return x.row; });
+  }
+  var MAX_PDF_BYTES = 4.5 * 1024 * 1024;
+  var MAX_PHOTO_TOTAL = 14000000;
+  var LIST_LIMIT = 300;
+
+  // Every type has its own separate draft.
+  function newDraft() { return { date: todayStr(), sel: [], hours: '', amounts: {}, files: {} }; }
+
+  var state = {
+    pin: '', user: null, drivers: [], byTid: {}, stations: [], station: '',
+    picked: [], today: '', stationNames: {}, type: 'IDLE', open: false, attachTid: '', entries: [], filter: 'ALL',
+    recorded: {}, cash: {},
+    losses: [], contacts: [], maxPhotos: 10, expanded: {},
+    lossDay: 'YESTERDAY', lossQ: '', lossFilter: '', lossMore: 0,
+    entQ: '', entFilter: '', entDay: 'ALL'
+  };
+  var drafts = { IDLE: newDraft(), RESCUE: newDraft(), CASH: newDraft() };
+  var upd = { id: '', contacts: [], files: [] };
+
+  function $(id) { return document.getElementById(id); }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // Every call to the server stops waiting after 45 seconds, so the page never hangs.
+  // There are two ways to reach the server. The functions and the answers are the same:
+  //  - this page is shown by Apps Script (the old address): google.script.run
+  //  - this page is the app on its own address (no Google page around it): a plain web request to the web app
+  //    (the address is OPS_DESK_APP_URL, from config.js). No Google account is involved, so any number of accounts
+  //    in the same browser is no problem.
+  function hasRunner() {
+    return !!(window.google && google.script && google.script.run);
+  }
+
+  function apiUrl() {
+    var u = String(window.OPS_DESK_APP_URL || '').trim();
+    return /^https:\/\/[^\s\/]+(\/[^\s]*)?\/exec(\?[^\s]*)?$/.test(u) ? u : '';
+  }
+
+  function callWeb(fn, args, signal) {
+    return fetch(apiUrl(), {
+      method: 'POST', credentials: 'omit', redirect: 'follow', cache: 'no-store',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },          // a simple request: no preflight
+      body: JSON.stringify({ fn: fn, args: args }),
+      signal: signal
+    }).then(function (res) { return res.text(); }).then(function (txt) {
+      var j = null;
+      try { j = JSON.parse(txt); } catch (e) {}
+      if (!j) throw new Error('The server gave an answer that this page does not know.');
+      if (!j.ok) throw new Error(j.error || 'The server refused the call.');
+      return j.r;
+    });
+  }
+
+  function call(fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return new Promise(function (resolve, reject) {
+      var done = false;
+      var ctl = null;
+      var timer = setTimeout(function () {
+        if (done) return;
+        done = true;
+        if (ctl) { try { ctl.abort(); } catch (e) {} }
+        reject(new Error('timeout'));
+      }, 45000);
+      var good = function (r) { if (done) return; done = true; clearTimeout(timer); resolve(r); };
+      var bad = function (e) { if (done) return; done = true; clearTimeout(timer); reject(e); };
+      if (hasRunner()) {
+        var runner = google.script.run.withSuccessHandler(good).withFailureHandler(bad);
+        runner[fn].apply(runner, args);
+      } else if (apiUrl() && window.fetch) {
+        ctl = window.AbortController ? new AbortController() : null;
+        callWeb(fn, args, ctl ? ctl.signal : undefined).then(good, bad);
+      } else {
+        bad(new Error('This page is not connected to the server.'));
+      }
+    });
+  }
+
+  function store(key, value) {
+    try { if (value) { localStorage.setItem(key, value); } else { localStorage.removeItem(key); } } catch (e) {}
+  }
+  function readStore(key) { try { return localStorage.getItem(key) || ''; } catch (e) { return ''; } }
+
+  function setMsg(id, text, kind) {
+    var el = $(id);
+    el.textContent = text || '';
+    el.className = 'msg' + (kind ? ' ' + kind : '');
+  }
+
+  // The date of the office (from the server), so a wrong phone clock cannot open the future
+  function todayStr() {
+    if (state && state.today) return state.today;
+    var d = new Date();
+    var m = ('0' + (d.getMonth() + 1)).slice(-2);
+    var day = ('0' + d.getDate()).slice(-2);
+    return d.getFullYear() + '-' + m + '-' + day;
+  }
+
+  var MAX_BACK_DAYS = 31;
+
+  function addDays(str, n) {
+    var p = str.split('-');
+    var d = new Date(Date.UTC(Number(p[0]), Number(p[1]) - 1, Number(p[2]) + n));
+    return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
+  }
+
+  function round2(n) { return Math.round(Number(n) * 100) / 100; }
+
+  function draft() { return drafts[state.type]; }
+
+  // Many stations can be ticked to look at Losses. New entries need exactly one station.
+  function isAll() { return state.station === 'MULTI'; }
+
+  function resetAllDrafts() {
+    drafts = { IDLE: newDraft(), RESCUE: newDraft(), CASH: newDraft() };
+  }
+
+  // ---------- Login ----------
+
+  function showLogin() {
+    $('boot').classList.add('hidden');
+    $('app').classList.add('hidden');
+    $('login').classList.remove('hidden');
+    $('pin').value = '';
+    $('pin').focus();
+  }
+
+  async function doLogin(pin, silent) {
+    $('loginBtn').disabled = true;
+    try {
+      // One call gives the sign in and the drivers (every call to Google costs a round trip). A server that does not know
+      // this (an older one) sends no drivers, and then they are asked for with a second call, as before.
+      var r = await call('apiLogin', pin, true);
+      if (!r.ok) {
+        store('od_pin', '');
+        showLogin();
+        if (!silent) setMsg('loginMsg', r.message, 'err');
+        return;
+      }
+      var withDrivers = Array.isArray(r.drivers) ? r.drivers : null;
+      delete r.drivers;
+      state.pin = pin;
+      state.user = r;
+      state.today = r.today || '';
+      store('od_pin', pin);
+
+      var d = withDrivers ? { ok: true, drivers: withDrivers } : await call('apiGetDrivers', pin);
+      state.drivers = d.ok ? d.drivers : [];
+      state.byTid = {};
+      var seen = {};
+      state.stationNames = r.stationNames || {};
+      (r.stationList || []).forEach(function (s) { if (s) seen[s] = true; });
+      state.drivers.forEach(function (x) {
+        state.byTid[x.t] = x;
+        if (x.s) seen[x.s] = true;
+      });
+      state.stations = Object.keys(seen).sort();
+      warmSearch(state.drivers);
+
+      $('officeName').textContent = r.office || 'Ops Desk';
+      $('whoLine').textContent = r.name;
+      resetAllDrafts();
+      state.recorded = {};
+      state.cash = {};
+      state.losses = [];
+      state.lossLoaded = false;
+      state.entriesLoaded = false;
+      setupStation();
+
+      $('boot').classList.add('hidden');
+      $('login').classList.add('hidden');
+      $('app').classList.remove('hidden');
+      loadDraftToForm();
+      setView('new');
+      loadLosses(true);
+      try { startNotices(); } catch (ignore) { }
+      try { startAppLink(); } catch (ignore) { }
+      if (pendingOpen) {
+        var po = pendingOpen;
+        pendingOpen = null;
+        try { openFromAlert(po); } catch (ignore) { }
+      }
+    } catch (e) {
+      showLogin();
+      setMsg('loginMsg', 'No connection. Please try again.', 'err');
+    } finally {
+      $('loginBtn').disabled = false;
+    }
+  }
+
+  $('loginBtn').addEventListener('click', function () {
+    var pin = $('pin').value.trim();
+    if (!pin) { setMsg('loginMsg', 'Enter your PIN.', 'err'); return; }
+    setMsg('loginMsg', '');
+    doLogin(pin, false);
+  });
+  $('pin').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('loginBtn').click(); });
+
+  $('logoutBtn').addEventListener('click', function () {
+    try { leaveAppLink(signOutForced); } catch (ignore) { }
+    signOutForced = false;
+    store('od_pin', '');
+    state.pin = ''; state.user = null; state.drivers = []; state.byTid = {};
+    state.recorded = {}; state.cash = {}; state.losses = []; state.lossLoaded = false;
+    resetAllDrafts();
+    closeModal();
+    closeRequest();
+    try { stopNotices(); } catch (ignore) { }
+    showLogin();
+  });
+
+  // ---------- Station ----------
+
+  function setupStation() {
+    var pick = $('stationPick');
+    var fixed = $('stationFixed');
+    pick.classList.add('hidden');
+    $('stationPanel').classList.add('hidden');
+    fixed.classList.add('hidden');
+
+    if (state.stations.length === 1) {
+      state.picked = [state.stations[0]];
+      syncStation();
+      fixed.textContent = stationFull(state.station);
+      fixed.classList.remove('hidden');
+      return;
+    }
+
+    // The page always opens with every station ticked
+    state.picked = state.stations.slice();
+    syncStation();
+    renderStationPanel();
+    pick.classList.remove('hidden');
+  }
+
+  // One station -> its code. Many stations -> MULTI. None -> empty.
+  function syncStation() {
+    if (state.picked.length === 1) state.station = state.picked[0];
+    else if (state.picked.length > 1) state.station = 'MULTI';
+    else state.station = '';
+  }
+
+  // Station code with the city when it is known, for example DEX5 - Alexandria
+  function stationFull(s) {
+    return state.stationNames[s] ? s + ' - ' + state.stationNames[s] : s;
+  }
+
+  function stationKey() { return state.picked.slice().sort().join(','); }
+
+  // What the server gets: ALL when every station is ticked
+  function lossStations() {
+    return state.picked.length === state.stations.length ? 'ALL' : state.picked.slice();
+  }
+
+  function stationLabel() {
+    if (!state.picked.length) return 'Tick the stations';
+    return state.stations.filter(function (s) { return state.picked.indexOf(s) > -1; }).join(', ');
+  }
+
+  function renderStationPanel() {
+    var html = '';
+    state.stations.forEach(function (s) {
+      html += '<div class="item' + (state.picked.indexOf(s) > -1 ? ' sel' : '') + '" data-s="' + esc(s) + '"><span class="box"></span><div class="n">' + esc(stationFull(s)) + '</div></div>';
+    });
+    $('stationPanel').innerHTML = html;
+    $('stationBtn').innerHTML = '<span>' + esc(stationLabel()) + '</span><span>&#9662;</span>';
+  }
+
+  $('stationBtn').addEventListener('click', function () {
+    $('stationPanel').classList.toggle('hidden');
+  });
+
+  document.addEventListener('pointerdown', function (e) {
+    if (!e.target.closest('#stationPick')) $('stationPanel').classList.add('hidden');
+  });
+
+  $('stationPanel').addEventListener('click', function (e) {
+    var it = e.target.closest('.item');
+    if (!it) return;
+    var s = it.getAttribute('data-s');
+    var at = state.picked.indexOf(s);
+    if (at > -1) state.picked.splice(at, 1); else state.picked.push(s);
+    applyStations();
+  });
+
+  var lossTimer = null;
+
+  function applyStations() {
+    syncStation();
+    renderStationPanel();
+    // Drivers of a station that was unticked are removed from the drafts
+    TYPES.forEach(function (t) {
+      drafts[t].sel = drafts[t].sel.filter(function (tid) {
+        var dr = state.byTid[tid];
+        var keep = !!dr && state.picked.indexOf(dr.s) > -1;
+        if (!keep) { delete drafts[t].amounts[tid]; delete drafts[t].files[tid]; }
+        return keep;
+      });
+    });
+    state.recorded = {};
+    state.cash = {};
+    state.losses = [];
+    state.lossLoaded = false;
+    closeList();
+    renderChosen();
+    fetchRecorded();
+    fetchCash();
+    renderLosses();
+    clearTimeout(lossTimer);
+    lossTimer = setTimeout(function () { loadLosses(false); }, 250);
+    if (!$('viewList').classList.contains('hidden')) renderEntries();
+  }
+
+  function stationDrivers() {
+    return state.drivers.filter(function (d) { return state.picked.indexOf(d.s) > -1; });
+  }
+
+  // ---------- Views ----------
+
+  function setView(v) {
+    $('viewNew').classList.toggle('hidden', v !== 'new');
+    $('viewLoss').classList.toggle('hidden', v !== 'loss');
+    $('viewList').classList.toggle('hidden', v !== 'list');
+    $('tabNew').classList.toggle('on', v === 'new');
+    $('tabLoss').classList.toggle('on', v === 'loss');
+    $('tabList').classList.toggle('on', v === 'list');
+    if (v === 'new') freshEntryDay();
+    if (v === 'list') { resetEntBox(); loadEntries(); }
+    if (v === 'loss') { resetLossBox(); renderLosses(); loadLosses(false); }
+    window.scrollTo(0, 0);
+  }
+  $('tabNew').addEventListener('click', function () { setView('new'); });
+  $('tabLoss').addEventListener('click', function () { setView('loss'); });
+  $('tabList').addEventListener('click', function () { setView('list'); });
+
+  // ---------- Type (each type keeps its own draft) ----------
+
+  function saveFormToDraft() {
+    var d = draft();
+    d.date = $('entryDate').value;
+    d.hours = $('hours').value;
+  }
+
+  function loadDraftToForm() {
+    var d = draft();
+    $('entryDate').value = d.date;
+    $('entryDate').max = todayStr();
+    $('entryDate').min = addDays(todayStr(), -MAX_BACK_DAYS);
+    $('hours').value = d.hours;
+    paintEntryDays();
+    $('fRescue').classList.toggle('hidden', state.type !== 'RESCUE');
+    $('driverSearch').value = '';
+    var btns = $('typeSeg').querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.toggle('on', btns[i].getAttribute('data-type') === state.type);
+    }
+    closeList();
+    renderChosen();
+    setMsg('saveMsg', '');
+    fetchRecorded();
+    fetchCash();
+  }
+
+  $('typeSeg').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    saveFormToDraft();
+    state.type = b.getAttribute('data-type');
+    loadDraftToForm();
+  });
+
+  $('entryDate').addEventListener('change', function () {
+    var v = $('entryDate').value;
+    var today = todayStr();
+    var oldest = addDays(today, -MAX_BACK_DAYS);
+    if (v && v > today) {
+      v = today;
+      $('entryDate').value = v;
+      setMsg('saveMsg', 'The date cannot be in the future.', 'err');
+    } else if (v && v < oldest) {
+      v = oldest;
+      $('entryDate').value = v;
+      setMsg('saveMsg', 'The date is too old. The most is ' + MAX_BACK_DAYS + ' days back.', 'err');
+    }
+    draft().date = v;
+    paintEntryDays();
+    fetchRecorded();
+    if (state.type === 'CASH') renderChosen();
+  });
+
+  // When New Entry is opened, a form with nothing chosen yet goes back to today.
+  // A form that is being filled keeps its date.
+  function freshEntryDay() {
+    saveFormToDraft();
+    var today = todayStr();
+    var types = ['IDLE', 'RESCUE', 'CASH'];
+    for (var i = 0; i < types.length; i++) {
+      var d = drafts[types[i]];
+      var empty = !d.sel.length && !d.hours && !Object.keys(d.amounts).length && !Object.keys(d.files).length;
+      if (empty && d.date !== today) d.date = today;
+    }
+    if ($('entryDate').value === draft().date) return;
+    $('entryDate').value = draft().date;
+    paintEntryDays();
+    fetchRecorded();
+    if (state.type === 'CASH') renderChosen();
+  }
+
+  // Yesterday / Today under the date of a new entry
+  function paintEntryDays() {
+    var v = $('entryDate').value;
+    var chips = $('entryDays').querySelectorAll('button[data-d]');
+    for (var i = 0; i < chips.length; i++) {
+      var day = chips[i].getAttribute('data-d') === 'TODAY' ? todayStr() : yesterdayStr();
+      var on = !!v && v === day;
+      chips[i].classList.toggle('on', on);
+      chips[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  }
+
+  $('entryDays').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-d]');
+    if (!b) return;
+    $('entryDate').value = b.getAttribute('data-d') === 'TODAY' ? todayStr() : yesterdayStr();
+    $('entryDate').dispatchEvent(new Event('change'));
+  });
+
+  // ---------- Already recorded (Idle and Rescue Hours) ----------
+
+  function recKey() { return state.type + '|' + draft().date; }
+
+  async function fetchRecorded() {
+    if (state.type === 'CASH' || !state.picked.length || !draft().date) return;
+    var key = recKey();
+    try {
+      var r = await call('apiRecordedTids', state.pin, state.type, draft().date);
+      if (r.ok) {
+        var set = {};
+        r.tids.forEach(function (t) { set[t] = true; });
+        state.recorded[key] = set;
+        if (state.open && key === recKey()) renderDriverList();
+      }
+    } catch (e) {}
+  }
+
+  function isRecorded(tid) {
+    var set = state.recorded[recKey()];
+    return !!(set && set[tid]);
+  }
+
+  // ---------- Earlier cash shortage (Cash Shortage) ----------
+
+  async function fetchCash() {
+    if (state.type !== 'CASH' || !state.picked.length) return;
+    var key = stationKey();
+    var stationArg = lossStations();
+    try {
+      var r = await call('apiCashHistory', state.pin, stationArg);
+      if (r.ok && key === stationKey()) {
+        state.cash = r.history || {};
+        if (state.type === 'CASH') {
+          renderChosen();
+          if (state.open) renderDriverList();
+        }
+      }
+    } catch (e) {}
+  }
+
+  function cashHistory(tid) { return state.cash[tid] || []; }
+
+  // Same date and same amount is probably a mistake
+  function isSameCash(tid, date, amount) {
+    if (!(Number(amount) > 0)) return false;
+    return cashHistory(tid).some(function (h) {
+      return h.date === date && round2(h.amount) === round2(amount);
+    });
+  }
+
+  function cashNote(tid) {
+    var h = cashHistory(tid);
+    if (!h.length) return '';
+    var d = drafts.CASH;
+    if (isSameCash(tid, d.date, d.amounts[tid])) {
+      return '<div class="note bad">Same amount and date is already recorded. This may be a mistake.</div>';
+    }
+    return '<div class="note">Already has: ' + h.map(function (x) {
+      return esc(x.amount) + ' on ' + esc(x.label) + ' (' + esc(x.status) + ')';
+    }).join(' | ') + '</div>';
+  }
+
+  // ---------- Driver picker ----------
+
+  function selIndex(tid) { return draft().sel.indexOf(tid); }
+
+  function driverHay(d) {
+    if (d._hay === undefined) d._hay = normText(d.n + ' ' + d.t);
+    return d._hay;
+  }
+
+  // Every word must be in the name or the ID. Arabic words find English names by sound, the best match first.
+  function filteredDrivers() {
+    var words = normText($('driverSearch').value).split(' ').filter(Boolean);
+    var list = stationDrivers();
+    return words.length ? rankMatches(list, words, driverHay) : list;
+  }
+
+  function renderDriverList() {
+    var box = $('driverList');
+    if (!state.picked.length) {
+      box.innerHTML = '<div class="list"><div class="empty">Tick at least one station first.</div></div>';
+      return;
+    }
+    var oldScroll = 0;
+    var oldEl = box.querySelector('.scroll');
+    if (oldEl) oldScroll = oldEl.scrollTop;
+
+    var list = filteredDrivers();
+    var shown = list.slice(0, LIST_LIMIT);
+
+    var bar = '<div class="listbar"><span>' + list.length + ' driver(s) - ' + esc(stationLabel()) + '</span><span>' +
+      '<button type="button" data-a="all">Select all shown</button>' +
+      '<button type="button" data-a="clear">Clear</button>' +
+      '<button type="button" data-a="done">Done</button></span></div>';
+
+    var body;
+    if (!shown.length) {
+      body = '<div class="empty">No driver found</div>';
+    } else {
+      body = shown.map(function (d) {
+        var done = state.type !== 'CASH' && isRecorded(d.t);
+        var on = !done && selIndex(d.t) > -1 ? ' sel' : '';
+        var tag = '';
+        if (done) {
+          tag = '<span class="tag">Already recorded</span>';
+        } else if (state.type === 'CASH' && cashHistory(d.t).length) {
+          tag = '<span class="tag warn">Has cash shortage</span>';
+        }
+        return '<div class="item' + on + (done ? ' done' : '') + '" data-t="' + esc(d.t) + '"><span class="box"></span><div><div class="n">' +
+          esc(d.n) + '</div><div class="s">' + esc(d.t) + (state.picked.length > 1 ? ' &middot; ' + esc(d.s) : '') + '</div></div>' + tag + '</div>';
+      }).join('');
+      if (list.length > LIST_LIMIT) body += '<div class="empty">Showing the first ' + LIST_LIMIT + ' drivers. Type to find others.</div>';
+    }
+
+    box.innerHTML = '<div class="list">' + bar + '<div class="scroll">' + body + '</div></div>';
+    var sc = box.querySelector('.scroll');
+    if (sc) sc.scrollTop = oldScroll;
+  }
+
+  function openList() {
+    state.open = true;
+    renderDriverList();
+    if (state.type !== 'CASH' && !state.recorded[recKey()]) fetchRecorded();
+  }
+  function closeList() { state.open = false; $('driverList').innerHTML = ''; }
+
+  $('driverSearch').addEventListener('focus', openList);
+  $('driverSearch').addEventListener('click', function () { if (!state.open) openList(); });
+  var driverTimer = null;
+  $('driverSearch').addEventListener('input', function () {
+    state.open = true;
+    clearTimeout(driverTimer);
+    if (ArSearch.hasArabic(this.value)) driverTimer = setTimeout(function () { if (state.open) renderDriverList(); }, 110);
+    else renderDriverList();
+  });
+
+  // Close the list when tapping outside of it
+  document.addEventListener('pointerdown', function (e) {
+    if (state.open && !e.target.closest('#searchBox')) closeList();
+  });
+
+  $('driverList').addEventListener('click', function (e) {
+    var d = draft();
+
+    var actBtn = e.target.closest('button[data-a]');
+    if (actBtn) {
+      var a = actBtn.getAttribute('data-a');
+      if (a === 'done') { closeList(); return; }
+      if (a === 'clear') {
+        d.sel = []; d.amounts = {}; d.files = {};
+        renderChosen(); renderDriverList(); return;
+      }
+      if (a === 'all') {
+        filteredDrivers().forEach(function (x) {
+          var skip = state.type !== 'CASH' && isRecorded(x.t);
+          if (!skip && d.sel.indexOf(x.t) === -1) d.sel.push(x.t);
+        });
+        renderChosen(); renderDriverList(); return;
+      }
+    }
+
+    var it = e.target.closest('.item');
+    if (!it || it.classList.contains('done')) return;
+    var tid = it.getAttribute('data-t');
+
+    var at = d.sel.indexOf(tid);
+    if (at > -1) {
+      d.sel.splice(at, 1);
+      delete d.amounts[tid]; delete d.files[tid];
+      it.classList.remove('sel');
+    } else {
+      d.sel.push(tid);
+      it.classList.add('sel');
+    }
+    renderChosen();
+  });
+
+  // ---------- Selected drivers ----------
+
+  function renderChosen() {
+    var d = draft();
+    var html = '';
+
+    if (state.type === 'CASH') {
+      html = d.sel.map(function (tid) {
+        var dr = state.byTid[tid];
+        if (!dr) return '';
+        var has = !!d.files[tid];
+        return '<div class="cashrow" data-tid="' + esc(tid) + '">' +
+          '<div class="cn"><div class="n">' + esc(dr.n) + '</div><div class="s">' + esc(tid) + (state.picked.length > 1 ? ' &middot; ' + esc(dr.s) : '') + '</div></div>' +
+          '<div class="line">' +
+          '<input type="number" class="camt" inputmode="decimal" step="0.01" min="0" placeholder="Amount" value="' + esc(d.amounts[tid] || '') + '">' +
+          '<button type="button" class="attach' + (has ? ' ok' : '') + '" data-attach="' + esc(tid) + '">' + (has ? 'Photo added' : 'Add photo') + '</button>' +
+          '<button type="button" class="rmx" data-rm="' + esc(tid) + '">&times;</button>' +
+          '</div><div class="notebox">' + cashNote(tid) + '</div></div>';
+      }).join('');
+    } else {
+      html = '<div class="chips">' + d.sel.map(function (tid) {
+        var dr = state.byTid[tid];
+        if (!dr) return '';
+        return '<span class="chip">' + esc(dr.n) + '<button type="button" data-rm="' + esc(tid) + '">&times;</button></span>';
+      }).join('') + '</div>';
+    }
+
+    $('chosen').innerHTML = html;
+    $('chosenCount').textContent = d.sel.length > 1 ? d.sel.length + ' drivers selected' : '';
+    $('saveBtn').textContent = d.sel.length > 1 ? 'Save (' + d.sel.length + ')' : 'Save';
+  }
+
+  $('chosen').addEventListener('click', function (e) {
+    var d = draft();
+    var rm = e.target.closest('button[data-rm]');
+    if (rm) {
+      var tid = rm.getAttribute('data-rm');
+      var at = d.sel.indexOf(tid);
+      if (at > -1) d.sel.splice(at, 1);
+      delete d.amounts[tid]; delete d.files[tid];
+      renderChosen();
+      if (state.open) renderDriverList();
+      return;
+    }
+    var att = e.target.closest('button[data-attach]');
+    if (att) {
+      state.attachTid = att.getAttribute('data-attach');
+      $('proofFile').click();
+    }
+  });
+
+  // Typing an amount only updates the note, so the keyboard stays open
+  $('chosen').addEventListener('input', function (e) {
+    if (!e.target.classList.contains('camt')) return;
+    var row = e.target.closest('.cashrow');
+    if (!row) return;
+    var tid = row.getAttribute('data-tid');
+    drafts.CASH.amounts[tid] = e.target.value;
+    row.querySelector('.notebox').innerHTML = cashNote(tid);
+  });
+
+  // ---------- Photos and files ----------
+
+  function readAsDataUrl(file) {
+    return new Promise(function (resolve, reject) {
+      var fr = new FileReader();
+      fr.onload = function () { resolve(fr.result); };
+      fr.onerror = function () { reject(new Error('Could not read the file.')); };
+      fr.readAsDataURL(file);
+    });
+  }
+
+  // Makes a photo smaller. Returns a JPEG data URL.
+  function resizeImage(file, max, quality) {
+    max = max || 1600;
+    quality = quality || 0.8;
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var scale = Math.min(1, max / Math.max(img.width, img.height));
+        var c = document.createElement('canvas');
+        c.width = Math.round(img.width * scale);
+        c.height = Math.round(img.height * scale);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('Could not open this image.')); };
+      img.src = url;
+    });
+  }
+
+  // Proof file of a Cash Shortage driver
+  $('proofFile').addEventListener('change', async function () {
+    var f = $('proofFile').files && $('proofFile').files[0];
+    var tid = state.attachTid;
+    $('proofFile').value = '';
+    if (!f || !tid) return;
+    setMsg('saveMsg', '');
+    try {
+      var dataUrl, mime;
+      if (f.type === 'application/pdf') {
+        if (f.size > MAX_PDF_BYTES) { setMsg('saveMsg', 'The PDF is too big. The most is 4 MB.', 'err'); return; }
+        dataUrl = await readAsDataUrl(f);
+        mime = 'application/pdf';
+      } else if (f.type.indexOf('image/') === 0) {
+        dataUrl = await resizeImage(f, 1600, 0.8);
+        mime = 'image/jpeg';
+      } else {
+        setMsg('saveMsg', 'Choose a photo or a PDF file.', 'err');
+        return;
+      }
+      drafts.CASH.files[tid] = { name: f.name || 'proof', mime: mime, data: dataUrl.split(',')[1] };
+      renderChosen();
+    } catch (e) {
+      setMsg('saveMsg', e.message || 'Could not use this file.', 'err');
+    }
+  });
+
+  // ---------- Save ----------
+
+  $('saveBtn').addEventListener('click', async function () {
+    setMsg('saveMsg', '');
+    saveFormToDraft();
+    var d = draft();
+    var type = state.type;
+
+    if (!state.picked.length) { setMsg('saveMsg', 'Tick at least one station.', 'err'); return; }
+    if (!d.sel.length) { setMsg('saveMsg', 'Select at least one driver.', 'err'); return; }
+    if (!d.date) { setMsg('saveMsg', 'Choose a date.', 'err'); return; }
+    if (d.date > todayStr()) { setMsg('saveMsg', 'The date cannot be in the future.', 'err'); return; }
+    if (d.date < addDays(todayStr(), -MAX_BACK_DAYS)) { setMsg('saveMsg', 'The date is too old. The most is ' + MAX_BACK_DAYS + ' days back.', 'err'); return; }
+
+    var p = { type: type, date: d.date };
+
+    if (type === 'IDLE') {
+      p.tids = d.sel.slice();
+    } else if (type === 'RESCUE') {
+      if (!(Number(d.hours) > 0)) { setMsg('saveMsg', 'Enter the hours.', 'err'); return; }
+      p.tids = d.sel.slice();
+      p.hours = d.hours;
+    } else {
+      p.items = [];
+      var repeated = [];
+      var earlier = [];
+      for (var i = 0; i < d.sel.length; i++) {
+        var tid = d.sel[i];
+        var dr = state.byTid[tid];
+        if (!(Number(d.amounts[tid]) > 0)) { setMsg('saveMsg', 'Enter an amount for every driver.', 'err'); return; }
+        if (isSameCash(tid, d.date, d.amounts[tid])) repeated.push(dr ? dr.n : tid);
+        else if (cashHistory(tid).length) {
+          earlier.push('- ' + (dr ? dr.n : tid) + ': ' + cashHistory(tid).map(function (h) {
+            return h.amount + ' on ' + h.label + ' (' + h.status + ')';
+          }).join(', '));
+        }
+        p.items.push({ tid: tid, amount: d.amounts[tid], file: d.files[tid] || null });
+      }
+
+      if (repeated.length) {
+        setMsg('saveMsg', 'Same amount and date is already recorded for: ' + repeated.join(', ') +
+          '. Remove them or change the amount.', 'err');
+        renderChosen();
+        return;
+      }
+      if (earlier.length) {
+        var ask = 'These drivers already have a cash shortage:\n\n' + earlier.join('\n') +
+          '\n\nAdd another cash shortage for them?';
+        if (!confirm(ask)) return;
+      }
+    }
+
+    $('saveBtn').disabled = true;
+    var oldLabel = $('saveBtn').textContent;
+    $('saveBtn').textContent = 'Saving...';
+    try {
+      var r = await call('apiSaveEntries', state.pin, p);
+      if (r.ok) {
+        var text = 'Saved ' + r.saved + (r.saved === 1 ? ' entry' : ' entries') + '.';
+        if (r.skipped && r.skipped.length) text += ' Already recorded, so skipped: ' + r.skipped.join(', ') + '.';
+        // Clear only this type, keep its date
+        var keepDate = d.date;
+        drafts[type] = newDraft();
+        drafts[type].date = keepDate;
+        delete state.recorded[type + '|' + keepDate];
+        loadDraftToForm();
+        setMsg('saveMsg', text, 'ok');
+      } else {
+        setMsg('saveMsg', r.message, 'err');
+        $('saveBtn').textContent = oldLabel;
+      }
+    } catch (e) {
+      setMsg('saveMsg', 'No connection. Please check My Entries before you try again.', 'err');
+      $('saveBtn').textContent = oldLabel;
+    } finally {
+      $('saveBtn').disabled = false;
+    }
+  });
+
+  // ---------- Losses ----------
+
+  async function loadLosses(silent) {
+    if (!state.picked.length) { state.losses = []; state.lossLoaded = true; renderLosses(); return; }
+    var key = stationKey();
+    var arg = lossStations();
+    if (!silent) {
+      $('lossList').innerHTML = '<div class="center">Loading...</div>';
+      setMsg('lossMsg', '');
+    }
+    try {
+      var r = await call('apiLosses', state.pin, arg);
+      if (key !== stationKey()) return;
+      if (!r.ok) {
+        if (!silent) { $('lossList').innerHTML = ''; setMsg('lossMsg', r.message, 'err'); }
+        return;
+      }
+      if (r.today) state.today = r.today;
+      state.losses = sortPeople((r.losses || []).map(function (l) {
+        // the counter runs only while the loss is Searching or Reply Amazon
+        if (l.status !== 'Searching' && l.status !== 'Reply Amazon') l.daysLeft = '';
+        if (!l.request) l.request = [];
+        return l;
+      }));
+      state.lossMore = r.more || 0;
+      state.lossLoaded = true;
+      state.contacts = r.contacts || [];
+      state.maxPhotos = r.maxPhotos || 10;
+      renderLosses();
+    } catch (e) {
+      if (!silent) { $('lossList').innerHTML = ''; setMsg('lossMsg', 'No connection. Please try again.', 'err'); }
+    }
+  }
+
+  function isNum(v) { return typeof v === 'number'; }
+
+  // The counter of a loss: Search (find the package) or Reply Amazon. It runs only in these two statuses.
+  function counterInfo(l) {
+    if (!l.open || !isNum(l.daysLeft)) return null;
+    var label = l.status === 'Reply Amazon' ? 'Reply Amazon' : 'Search';
+    var left = l.daysLeft;
+    if (left > 0) return { label: label, text: left + (left === 1 ? ' day left' : ' days left'), cls: '' };
+    if (left === 0) return { label: label, text: 'Ends today', cls: 'today' };
+    var late = Math.abs(left);
+    return { label: label, text: 'Late ' + late + (late === 1 ? ' day' : ' days'), cls: 'late' };
+  }
+
+  // ---------- Losses: the conversation (colors) ----------
+
+  var MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // One color for each person the POC talked to. Anything else is gray.
+  var CONTACT_CLASS = { 'Driver': 'c-driver', 'OTR': 'c-otr', 'Flow-up': 'c-flow', 'Operations': 'c-ops', 'RTS': 'c-cust' };
+
+  function pad2(n) { return ('0' + n).slice(-2); }
+
+  // '14-Oct 18:00' -> 'Today 18:00', 'Yesterday 18:00' or '14 Oct 18:00'. Anything else is shown as it is.
+  function whenInfo(t) {
+    var m = /^(\d{1,2})-([A-Za-z]{3})\s+(\d{1,2}:\d{2})$/.exec(String(t || '').trim());
+    var mo = m ? MONTH_NUM[m[2].toLowerCase()] : 0;
+    if (!mo) return { text: String(t || ''), fresh: false };
+    var today = todayStr();
+    var key = today.slice(0, 4) + '-' + pad2(mo) + '-' + pad2(m[1]);
+    if (key > today) key = (Number(today.slice(0, 4)) - 1) + key.slice(4);     // a December note seen in January
+    if (key === today) return { text: 'Today ' + m[3], fresh: true };
+    if (key === addDays(today, -1)) return { text: 'Yesterday ' + m[3], fresh: false };
+    return { text: Number(m[1]) + ' ' + MONTH_SHORT[mo - 1] + ' ' + m[3], fresh: false };
+  }
+
+  // One line of the Updates cell:  time | user | who | comment | N photos
+  // The comment and the photos can be missing. A line typed by hand in the sheet can be any text.
+  function parseUpdate(line) {
+    var out = { time: '', who: '', tags: [], text: '', photos: '', event: false };
+    var parts = String(line).split(' | ');
+    if (parts.length < 3) { out.text = String(line).trim(); return out; }
+    out.time = parts[0].trim();
+    out.who = parts[1].trim();
+    var rest = parts.slice(2);
+
+    var names = rest[0].split(',').map(function (n) { return n.trim(); }).filter(Boolean);
+    var known = names.length > 0 && names.every(function (n) {
+      return !!CONTACT_CLASS[n] || state.contacts.indexOf(n) > -1;
+    });
+    if (known) {
+      out.tags = names;
+      rest = rest.slice(1);
+    } else if (rest.length === 1 && /^marked as found$/i.test(rest[0].trim())) {
+      out.event = true;
+      out.text = 'Marked as found';
+      return out;
+    }
+    if (rest.length && /^\d+ photos?$/.test(rest[rest.length - 1].trim())) out.photos = rest.pop().trim();
+    out.text = rest.join(' - ').trim();
+    return out;
+  }
+
+  // One update of the conversation
+  function itemHtml(u) {
+    var when = whenInfo(u.time);
+    var main = u.event ? 'c-found' : (u.tags.length ? (CONTACT_CLASS[u.tags[0]] || 'c-other') : 'c-other');
+    var tags = u.event ? '<span class="ti-tag">Found</span>' : u.tags.map(function (t) {
+      return '<span class="ti-tag ' + (CONTACT_CLASS[t] || 'c-other') + '">' + esc(t) + '</span>';
+    }).join('');
+    var meta = [];
+    if (u.who) meta.push(esc(u.who));
+    if (when.text) meta.push(esc(when.text));
+    var top = (tags || meta.length)
+      ? '<div class="ti-top"><div class="ti-tags">' + tags + '</div><div class="ti-meta' + (when.fresh ? ' fresh' : '') + '">' + meta.join(' &middot; ') + '</div></div>'
+      : '';
+    var text = u.text ? '<div class="ti-text" dir="auto">' + esc(u.text) + '</div>' : '';
+    var foot = u.photos ? '<div class="ti-ph">&#128247; ' + esc(u.photos) + '</div>' : '';
+    return '<div class="ti ' + main + (u.event ? ' ev' : '') + '">' + top + text + foot + '</div>';
+  }
+
+  // The updates, newest first. The first 3 are shown.
+  function updatesHtml(l) {
+    if (!l.updates.length) return '';
+    var lines = l.updates.slice().reverse();
+    var all = !!state.expanded[l.id];
+    var shown = all ? lines : lines.slice(0, 3);
+    var html = '<div class="lc-updates"><div class="lc-sec" style="margin-top:0">' +
+      '<div class="lc-lab">Updates<span class="lc-count">' + lines.length + '</span></div>' +
+      '<div class="tl">' + shown.map(function (line) { return itemHtml(parseUpdate(line)); }).join('') + '</div>';
+    if (lines.length > 3) {
+      html += '<button type="button" class="morebtn" data-act="more" data-id="' + esc(l.id) + '">' +
+        (all ? 'Show fewer' : 'Show all updates (' + lines.length + ')') + '</button>';
+    }
+    return html + '</div></div>';
+  }
+
+  // Price and counter: the two numbers of the card, side by side
+  function stripHtml(l) {
+    var cells = [];
+    if (l.amount !== '') {
+      cells.push('<div class="lc-cell"><div class="lc-lab">Price</div><div class="lc-val">' + esc(l.amount) + '</div></div>');
+    }
+    var c = counterInfo(l);
+    if (c) {
+      cells.push('<div class="lc-cell"><div class="lc-lab">' + esc(c.label) + '</div><div class="lc-val' + (c.cls ? ' ' + c.cls : '') + '">' + esc(c.text) + '</div></div>');
+    }
+    return cells.length ? '<div class="lc-strip">' + cells.join('') + '</div>' : '';
+  }
+
+  // The card of a loss. Top to bottom: who, where, price and counter, notes, buttons, updates.
+  function lossCardHtml(l) {
+    var slug = l.status.toLowerCase().replace(/\s+/g, '-');
+    var id = esc(l.id);
+    var sub = [];
+    if (isAll() && l.station) sub.push('<b>' + esc(l.station) + '</b>');
+    sub.push(esc(l.tracking));
+    if (l.route) sub.push('Route ' + esc(l.route));
+
+    var actions = '';
+    if (l.open) {
+      actions = '<div class="lc-actions"><button class="main" data-act="upd" data-id="' + id + '">Add update</button>' +
+        '<button data-act="found" data-id="' + id + '">Mark as found</button></div>';
+    }
+
+    return '<div class="card lcard" data-id="' + id + '">' +
+      '<div class="lc-head"><div class="lc-who"><div class="lc-name">' + esc(l.name) + '</div>' +
+      '<div class="lc-sub">' + sub.join(' &middot; ') + '</div></div>' +
+      '<span class="badge st-' + esc(slug) + '">' + esc(l.status) + '</span></div>' +
+      '<div class="lc-sec"><div class="lc-addr">' + esc(l.address) + '</div>' +
+      '<div class="lc-meta">' + (l.reason ? esc(l.reason) + ' &middot; ' : '') + 'Last scan ' + esc(l.scanDate) + '</div></div>' +
+      stripHtml(l) +
+      (l.note ? '<div class="lc-sec"><div class="lc-box mgr"><div class="lc-lab" dir="auto">' + esc(l.noteBy || 'Audit') + '</div><div class="lc-text" dir="auto">' + esc(l.note) + '</div></div></div>' : '') +
+      actions +
+      updatesHtml(l) +
+      '</div>';
+  }
+
+  // ---------- Losses: search and day ----------
+
+  function yesterdayStr() { return addDays(todayStr(), -1); }
+
+  // 2026-10-15 -> 15 Oct (with the year when it is not this year)
+  function dayText(key) {
+    var p = String(key).split('-');
+    var t = Number(p[2]) + ' ' + MONTH_SHORT[Number(p[1]) - 1];
+    return p[0] === todayStr().slice(0, 4) ? t : t + ' ' + p[0];
+  }
+
+  // 'YESTERDAY' / 'TODAY' / 'ALL' / a date (yyyy-mm-dd) -> the date it means. Empty = all days.
+  function dayKeyOf(d) {
+    if (d === 'YESTERDAY') return yesterdayStr();
+    if (d === 'TODAY') return todayStr();
+    if (d === 'ALL' || !d) return '';
+    return d;
+  }
+
+  function dayTitleOf(d) {
+    if (d === 'YESTERDAY') return 'Yesterday, ' + dayText(yesterdayStr());
+    if (d === 'TODAY') return 'Today, ' + dayText(todayStr());
+    if (d === 'ALL' || !d) return 'All dates';
+    return dayText(d);
+  }
+
+  // The day the cards are limited to. Empty = all days.
+  function lossDayKey() { return dayKeyOf(state.lossDay); }
+  function lossDayTitle() { return dayTitleOf(state.lossDay); }
+  function entDayKey() { return dayKeyOf(state.entDay); }
+
+  // Lower case, no Arabic marks, one kind of alef / ya / ha, Arabic digits as 0-9
+  function normText(s) {
+    return String(s == null ? '' : s)
+      .toLowerCase()
+      .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, '')
+      .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g, '')
+      .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627')
+      .replace(/\u0649/g, '\u064A')
+      .replace(/\u06CC/g, '\u064A')
+      .replace(/\u06A9/g, '\u0643')
+      .replace(/\u0629/g, '\u0647')
+      .replace(/[\u0660-\u0669]/g, function (c) { return String(c.charCodeAt(0) - 0x0660); })
+      .replace(/[\u06F0-\u06F9]/g, function (c) { return String(c.charCodeAt(0) - 0x06F0); })
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function lossHay(l) {
+    if (l._hay === undefined) {
+      l._hay = normText([l.name, l.tid, l.tracking, l.route, l.address, l.reason, l.station, l.status,
+        l.amount, l.note, l.id, l.scanDate, (l.request || []).join(' '), (l.updates || []).join(' ')].join(' '));
+    }
+    return l._hay;
+  }
+
+  // ---------- Search: names can be typed in Arabic ----------
+
+  // The sound pieces of the name of a record (made once for each record)
+  function tokensOf(x) {
+    if (!x._tok) x._tok = ArSearch.nameTokens(x.name != null ? x.name : x.n);
+    return x._tok;
+  }
+
+  // -1 = the record does not match the words. Else the cost: 0 is the best (every word is found as it is).
+  function textCost(x, hay, words) {
+    return ArSearch.searchCost(hay, words, function () { return tokensOf(x); });
+  }
+
+  // The records that have all the words, best match first. Records with the same cost keep their order.
+  function rankMatches(list, words, hayFn) {
+    var hits = [];
+    for (var i = 0; i < list.length; i++) {
+      var c = textCost(list[i], hayFn(list[i]), words);
+      if (c >= 0) hits.push({ x: list[i], c: c, i: i });
+    }
+    hits.sort(function (a, b) { return (a.c - b.c) || (a.i - b.i); });
+    return hits.map(function (h) { return h.x; });
+  }
+
+  // The sound pieces of the drivers are made in the background, in small steps, so the first Arabic search is not slow.
+  var warmTimer = null;
+  function warmSearch(list) {
+    clearTimeout(warmTimer);
+    var i = 0;
+    function step() {
+      var t0 = Date.now();
+      while (i < list.length && Date.now() - t0 < 10) { tokensOf(list[i]); i++; }
+      if (i < list.length) warmTimer = setTimeout(step, 40);
+    }
+    warmTimer = setTimeout(step, 1500);
+  }
+
+  function searchingNow() { return normText(state.lossQ) !== ''; }
+
+  // ---------- The filter: one status, or "With comment" ----------
+
+  var LOSS_STATUS_ORDER = ['Searching', 'Reply Amazon', 'Replied', 'Found', 'Removed', 'Deducted', 'Cancelled'];
+  var ENTRY_STATUS_ORDER = ['Pending', 'Approved', 'Rejected', 'Cancelled'];
+  var COMMENT_FILTER = '@comment';
+
+  function lossHasComment(l) { return String(l.note || '').trim() !== ''; }
+  function entryHasComment(e) { return String(e.managerComment || '').trim() !== ''; }
+
+  // The name of the filter, as it is written in the lines of the page: "Searching" or "with comment"
+  function filterWords(f) { return f === COMMENT_FILTER ? 'with comment' : f; }
+
+  function passFilter(x, f, hasComment) {
+    if (!f) return true;
+    if (f === COMMENT_FILTER) return hasComment(x);
+    return x.status === f;
+  }
+
+  // How many items have each status, and how many have a comment (the items before the filter)
+  function filterCounts(items, hasComment) {
+    var c = { status: {}, comment: 0 };
+    items.forEach(function (x) {
+      if (x.status) c.status[x.status] = (c.status[x.status] || 0) + 1;
+      if (hasComment(x)) c.comment++;
+    });
+    return c;
+  }
+
+  // Fills the list of the filter button. Every status and "With comment" are always in the list,
+  // even when their number is 0, so the list never changes under the hand of the person.
+  function paintFilter(boxId, selId, c, order, selected) {
+    var names = order.slice();
+    Object.keys(c.status).sort().forEach(function (s) { if (names.indexOf(s) === -1) names.push(s); });
+    if (selected && selected !== COMMENT_FILTER && names.indexOf(selected) === -1) names.push(selected);
+    var html = '<option value="">Show all</option>' + names.map(function (s) {
+      return '<option value="' + esc(s) + '">' + esc(s) + ' - ' + (c.status[s] || 0) + '</option>';
+    }).join('');
+    html += '<option value="' + COMMENT_FILTER + '">With comment - ' + c.comment + '</option>';
+    var sel = $(selId);
+    if (sel.getAttribute('data-sig') !== html) { sel.innerHTML = html; sel.setAttribute('data-sig', html); }
+    sel.value = selected;
+    $(boxId).classList.toggle('on', !!selected);
+  }
+
+  // The Clear button of the line under the search box. It shows while anything is chosen on the page
+  // (words, filter, a day, a kind button). It takes all of it away.
+  function clearLink(on) {
+    return on ? '<button type="button" class="lclear" data-act="clearf">Clear</button>' : '';
+  }
+  function lossDirty() { return !!(state.lossQ || state.lossFilter || state.lossDay !== 'ALL'); }
+  function entDirty() { return !!(state.entQ || state.entFilter || state.entDay !== 'ALL' || state.filter !== 'ALL'); }
+
+  // What the Losses page shows now.
+  // Words typed = every loss that has all the words, on any day (open and closed).
+  // No words = the losses of the chosen day. scope = that day, open and closed.
+  // filtered = the scope after the filter. With a filter, closed losses are shown too.
+  function lossView() {
+    var words = normText(state.lossQ).split(' ').filter(Boolean);
+    var f = state.lossFilter;
+    var v = { searching: words.length > 0, scope: [], filtered: [], list: [], counts: null, other: 0, otherLate: 0 };
+    if (v.searching) {
+      v.scope = rankMatches(state.losses, words, lossHay);
+    } else {
+      var key = lossDayKey();
+      state.losses.forEach(function (l) {
+        if (!key || dateKeyOf(l) === key) {
+          v.scope.push(l);
+        } else if (f ? passFilter(l, f, lossHasComment) : l.open) {
+          v.other++;
+          if (l.open && isNum(l.daysLeft) && l.daysLeft < 0) v.otherLate++;
+        }
+      });
+    }
+    v.counts = filterCounts(v.scope, lossHasComment);
+    v.filtered = v.scope.filter(function (l) { return passFilter(l, f, lossHasComment); });
+    if (v.searching || f) v.list = v.filtered;
+    else v.list = v.filtered.filter(function (l) { return l.open; });
+    return v;
+  }
+
+  // Every time the Losses page is opened it starts on all dates, with an empty search and no filter
+  function resetLossBox() {
+    state.lossDay = 'ALL';
+    state.lossQ = '';
+    state.lossFilter = '';
+    $('lossQ').value = '';
+  }
+
+  // The look of the search box: the buttons, the clear sign, the date, the filter
+  function paintLossBox(counts) {
+    var searching = searchingNow();
+    paintFilter('lossFilterBox', 'lossFilter', counts, LOSS_STATUS_ORDER, state.lossFilter);
+    $('lossQClear').classList.toggle('hidden', !state.lossQ);
+    $('lossDays').classList.toggle('dim', searching);
+    var chips = $('lossDays').querySelectorAll('button[data-d]');
+    for (var i = 0; i < chips.length; i++) {
+      var on = !searching && chips[i].getAttribute('data-d') === state.lossDay;
+      chips[i].classList.toggle('on', on);
+      chips[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    // Other days: the list holds only the days that really have losses
+    var custom = /^\d{4}-\d{2}-\d{2}$/.test(state.lossDay);
+    var days = otherDays();
+    var known = days.some(function (d) { return d.key === state.lossDay; });
+    var html = '<option value="">Choose a day</option>' + days.map(function (d) {
+      return '<option value="' + esc(d.key) + '">' + esc(dayName(d.key)) + (d.open ? ' - ' + d.open + ' open' : ' - closed') + '</option>';
+    }).join('');
+    if (custom && !known) html += '<option value="' + esc(state.lossDay) + '">' + esc(dayName(state.lossDay)) + '</option>';
+    var sel = $('lossDate');
+    if (sel.getAttribute('data-sig') !== html) { sel.innerHTML = html; sel.setAttribute('data-sig', html); }
+    sel.value = custom ? state.lossDay : '';
+    $('lossDateChip').classList.toggle('hidden', !days.length && !custom);
+    $('lossDateChip').classList.toggle('on', !searching && custom);
+    $('lossDateTxt').textContent = custom ? dayText(state.lossDay) : 'Other days';
+  }
+
+  var WEEKDAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  // 2026-10-13 -> Tue 13 Oct
+  function dayName(key) {
+    var p = String(key).split('-');
+    var wd = WEEKDAY[new Date(Date.UTC(Number(p[0]), Number(p[1]) - 1, Number(p[2]))).getUTCDay()];
+    return wd + ' ' + dayText(key);
+  }
+
+  // The days that have losses, without today and yesterday (they have their own buttons). Newest first.
+  function otherDays() {
+    var seen = {};
+    var today = todayStr();
+    var yesterday = yesterdayStr();
+    state.losses.forEach(function (l) {
+      var k = dateKeyOf(l);
+      if (!k || k === today || k === yesterday) return;
+      var d = seen[k] || (seen[k] = { key: k, open: 0 });
+      if (l.open) d.open++;
+    });
+    return Object.keys(seen).sort().reverse().map(function (k) { return seen[k]; });
+  }
+
+  var lossQTimer = null;
+
+  $('lossQ').addEventListener('input', function () {
+    state.lossQ = this.value;
+    clearTimeout(lossQTimer);
+    lossQTimer = setTimeout(renderLosses, 120);
+  });
+  $('lossQ').addEventListener('keydown', function (e) { if (e.key === 'Enter') this.blur(); });
+  $('lossQClear').addEventListener('click', function () {
+    state.lossQ = '';
+    $('lossQ').value = '';
+    renderLosses();
+    $('lossQ').focus();
+  });
+
+  // Yesterday / Today. Tap the one that is on, and you see all dates.
+  // While a search is on, a tap on a day ends the search and goes to that day.
+  $('lossDays').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-d]');
+    if (!b) return;
+    var d = b.getAttribute('data-d');
+    if (searchingNow() || state.lossQ) {
+      state.lossQ = '';
+      $('lossQ').value = '';
+      state.lossDay = d;
+    } else {
+      state.lossDay = state.lossDay === d ? 'ALL' : d;
+    }
+    renderLosses();
+  });
+
+  $('lossDate').addEventListener('change', function () {
+    var v = this.value;
+    if (!v) { renderLosses(); return; }                       // "Choose a day" changes nothing
+    if (state.lossQ) { state.lossQ = ''; $('lossQ').value = ''; }
+    state.lossDay = v === todayStr() ? 'TODAY' : (v === yesterdayStr() ? 'YESTERDAY' : v);
+    renderLosses();
+  });
+
+  $('lossOthers').addEventListener('click', function () {
+    state.lossDay = 'ALL';
+    renderLosses();
+  });
+
+  // The filter: all, one status, or "With comment"
+  $('lossFilter').addEventListener('change', function () {
+    state.lossFilter = this.value;
+    renderLosses();
+  });
+
+  function renderLosses() {
+    var open = state.losses.filter(function (l) { return l.open; });
+
+    // Number on the tab: every open loss, on every day
+    var cnt = $('lossCnt');
+    cnt.textContent = open.length;
+    cnt.classList.toggle('hidden', open.length === 0);
+    renderCounts();
+
+    var v = state.picked.length ? lossView() : null;
+    paintLossBox(v ? v.counts : filterCounts([], lossHasComment));
+
+    if (!v) {
+      $('lossSummary').innerHTML = 'Tick at least one station.';
+      $('lossOthers').classList.add('hidden');
+      $('lossList').innerHTML = '';
+      return;
+    }
+
+    var f = state.lossFilter;
+    var fw = esc(filterWords(f));
+
+    // The line under the search box
+    if (v.searching) {
+      var n = v.list.length;
+      $('lossSummary').innerHTML = '<b>' + n + '</b> ' + (n === 1 ? 'result' : 'results') + ' in all dates' +
+        (f ? ' &middot; ' + fw : '') +
+        (state.lossMore > 0 ? ' &middot; older losses are not loaded' : '') + clearLink(lossDirty());
+    } else {
+      var counted = f ? v.filtered : v.scope;
+      var openNow = counted.filter(function (l) { return l.open; });
+      var endsToday = openNow.filter(function (l) { return isNum(l.daysLeft) && l.daysLeft === 0; }).length;
+      var late = openNow.filter(function (l) { return isNum(l.daysLeft) && l.daysLeft < 0; }).length;
+      $('lossSummary').innerHTML = esc(lossDayTitle()) + ': <b>' + (f ? counted.length : openNow.length) + '</b> ' + (f ? fw : 'open') +
+        (endsToday ? ' &middot; <b>' + endsToday + '</b> ends today' : '') +
+        (late ? ' &middot; <b>' + late + '</b> late' : '') + clearLink(lossDirty());
+    }
+
+    // Losses of other days must never be forgotten (the open ones, or the ones of the filter)
+    var others = $('lossOthers');
+    if (!v.searching && v.other > 0) {
+      others.innerHTML = '<b>+' + v.other + '</b> ' + (f ? fw : 'open') + ' on other days' +
+        (v.otherLate ? ' (<b>' + v.otherLate + '</b> late)' : '') + ' &rsaquo;';
+      others.classList.toggle('late', v.otherLate > 0);
+      others.classList.remove('hidden');
+    } else {
+      others.classList.add('hidden');
+    }
+
+    var list = v.list;
+    if (!list.length) {
+      var empty;
+      var showAll = '<div class="hint"><button type="button" class="refresh" data-act="nofilter">Show all</button></div>';
+      if (v.searching) {
+        empty = (f && v.scope.length) ? 'No results with this filter' + showAll
+          : 'No results<div class="hint">Try fewer words, or part of the ID.</div>';
+      } else if (!state.losses.length) {
+        empty = 'No losses';
+      } else if (!v.scope.length && state.lossDay !== 'ALL') {
+        empty = 'No losses for this day<div class="hint"><button type="button" class="refresh" data-act="alldays">Show all dates</button></div>';
+      } else if (f) {
+        empty = 'Nothing matches this filter' + showAll;
+      } else {
+        empty = 'No open losses';
+      }
+      $('lossList').innerHTML = '<div class="center">' + empty + '</div>';
+      return;
+    }
+
+    $('lossList').innerHTML = list.map(lossCardHtml).join('');
+  }
+
+  $('lossRefresh').addEventListener('click', function () { loadLosses(false); });
+
+  $('lossSummary').addEventListener('click', function (ev) {
+    if (!ev.target.closest('button[data-act="clearf"]')) return;
+    resetLossBox();
+    renderLosses();
+  });
+
+  $('lossList').addEventListener('click', async function (ev) {
+    var b = ev.target.closest('button[data-act]');
+    if (!b) return;
+    var id = b.getAttribute('data-id');
+    var act = b.getAttribute('data-act');
+
+    if (act === 'more') { state.expanded[id] = !state.expanded[id]; renderLosses(); return; }
+    if (act === 'alldays') { state.lossDay = 'ALL'; renderLosses(); return; }
+    if (act === 'nofilter') { state.lossFilter = ''; renderLosses(); return; }
+    if (act === 'upd') { openModal(id); return; }
+
+    if (act === 'found') {
+      if (!confirm('Mark this package as found? The loss will be closed.')) return;
+      b.disabled = true;
+      try {
+        var r = await call('apiMarkFound', state.pin, id);
+        if (!r.ok) setMsg('lossMsg', r.message, 'err');
+        else setMsg('lossMsg', 'Marked as found.', 'ok');
+        await loadLosses(true);
+      } catch (e) {
+        setMsg('lossMsg', 'No connection. Please try again.', 'err');
+        b.disabled = false;
+      }
+    }
+  });
+
+  // ---------- Add update window ----------
+
+  function findLoss(id) {
+    for (var i = 0; i < state.losses.length; i++) if (state.losses[i].id === id) return state.losses[i];
+    return null;
+  }
+
+  function openModal(id) {
+    var l = findLoss(id);
+    if (!l) return;
+    upd = { id: id, contacts: [], files: [] };
+    $('mSub').textContent = l.name + ' - ' + l.tracking;
+    $('mComment').value = '';
+    setMsg('mMsg', '');
+    $('mContacts').innerHTML = state.contacts.map(function (c) {
+      return '<button type="button" class="' + (CONTACT_CLASS[c] || 'c-other') + '" data-c="' + esc(c) + '">' + esc(c) + '</button>';
+    }).join('');
+    renderThumbs();
+    $('modal').classList.remove('hidden');
+  }
+
+  function closeModal() {
+    $('modal').classList.add('hidden');
+    upd = { id: '', contacts: [], files: [] };
+  }
+
+  function renderThumbs() {
+    $('mThumbs').innerHTML = upd.files.map(function (f, i) {
+      return '<div class="thumb"><img src="' + f.preview + '" alt=""><button type="button" data-rmp="' + i + '">&times;</button></div>';
+    }).join('');
+    $('mPhotoLabel').textContent = 'Photos (' + upd.files.length + ' of ' + state.maxPhotos + ')';
+    $('mAdd').disabled = upd.files.length >= state.maxPhotos;
+    $('mAdd').textContent = upd.files.length ? 'Add more photos' : 'Add photos';
+  }
+
+  $('mClose').addEventListener('click', closeModal);
+  $('modal').addEventListener('click', function (e) { if (e.target === $('modal')) closeModal(); });
+
+  $('mContacts').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-c]');
+    if (!b) return;
+    var c = b.getAttribute('data-c');
+    var at = upd.contacts.indexOf(c);
+    if (at > -1) upd.contacts.splice(at, 1); else upd.contacts.push(c);
+    b.classList.toggle('on', at === -1);
+  });
+
+  $('mThumbs').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-rmp]');
+    if (!b) return;
+    upd.files.splice(Number(b.getAttribute('data-rmp')), 1);
+    renderThumbs();
+  });
+
+  $('mAdd').addEventListener('click', function () { $('mFile').click(); });
+
+  $('mFile').addEventListener('change', async function () {
+    var list = Array.prototype.slice.call($('mFile').files || []);
+    $('mFile').value = '';
+    setMsg('mMsg', '');
+    var room = state.maxPhotos - upd.files.length;
+    if (list.length > room) {
+      setMsg('mMsg', 'You can add up to ' + state.maxPhotos + ' photos.', 'err');
+      list = list.slice(0, Math.max(room, 0));
+    }
+    $('mAdd').disabled = true;
+    $('mAdd').textContent = 'Preparing photos...';
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].type.indexOf('image/') !== 0) continue;
+      try {
+        var dataUrl = await resizeImage(list[i], 1280, 0.75);
+        upd.files.push({ name: list[i].name || 'photo', mime: 'image/jpeg', data: dataUrl.split(',')[1], preview: dataUrl });
+      } catch (e) {
+        setMsg('mMsg', 'One photo could not be used.', 'err');
+      }
+    }
+    renderThumbs();
+  });
+
+  $('mSave').addEventListener('click', async function () {
+    setMsg('mMsg', '');
+    var comment = $('mComment').value.trim();
+    if (!upd.contacts.length) { setMsg('mMsg', 'Choose who you talked to.', 'err'); return; }
+    if (!comment && !upd.files.length) { setMsg('mMsg', 'Write a comment or add a photo.', 'err'); return; }
+
+    var total = 0;
+    upd.files.forEach(function (f) { total += f.data.length; });
+    if (total > MAX_PHOTO_TOTAL) { setMsg('mMsg', 'The photos are too big. Remove some photos.', 'err'); return; }
+
+    $('mSave').disabled = true;
+    $('mSave').textContent = 'Saving...';
+    try {
+      var r = await call('apiAddLossUpdate', state.pin, {
+        id: upd.id,
+        contacts: upd.contacts,
+        comment: comment,
+        files: upd.files.map(function (f) { return { name: f.name, mime: f.mime, data: f.data }; })
+      });
+      if (r.ok) {
+        closeModal();
+        setMsg('lossMsg', 'Update saved.', 'ok');
+        await loadLosses(true);
+      } else {
+        setMsg('mMsg', r.message, 'err');
+      }
+    } catch (e) {
+      setMsg('mMsg', 'No connection. Please check the loss before you try again.', 'err');
+    } finally {
+      $('mSave').disabled = false;
+      $('mSave').textContent = 'Save update';
+    }
+  });
+
+  // ---------- My entries ----------
+
+  $('fchips').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    state.filter = b.getAttribute('data-f');
+    var all = $('fchips').querySelectorAll('button');
+    for (var i = 0; i < all.length; i++) all[i].classList.toggle('on', all[i] === b);
+    renderEntries();
+  });
+  $('refreshBtn').addEventListener('click', loadEntries);
+
+  async function loadEntries() {
+    setMsg('listMsg', '');
+    $('entries').innerHTML = '<div class="center">Loading...</div>';
+    try {
+      var r = await call('apiMyEntries', state.pin);
+      if (!r.ok) { $('entries').innerHTML = ''; setMsg('listMsg', r.message, 'err'); return; }
+      state.entries = sortPeople(r.entries || []);
+      state.entriesLoaded = true;
+      renderEntries();
+    } catch (e) {
+      $('entries').innerHTML = '';
+      setMsg('listMsg', 'No connection. Please try again.', 'err');
+    }
+  }
+
+  // The numbers on the chips: the cards of the ticked stations, on the chosen day (all dates while a search is on).
+  // Losses = the open losses (same as the red number on the tab).
+  function renderCounts() {
+    var n = { IDLE: 0, RESCUE: 0, CASH: 0 };
+    var total = 0;
+    var key = entWords().length ? '' : entDayKey();
+    state.entries.forEach(function (e) {
+      if (state.picked.length && state.picked.indexOf(e.station) === -1) return;
+      if (key && dateKeyOf(e) !== key) return;
+      if (n[e.kind] !== undefined) n[e.kind]++;
+      total++;
+    });
+    var shown = !!state.entriesLoaded;
+    $('nAll').textContent = shown ? total : '';
+    $('nIdle').textContent = shown ? n.IDLE : '';
+    $('nRescue').textContent = shown ? n.RESCUE : '';
+    $('nCash').textContent = shown ? n.CASH : '';
+
+  }
+
+  // What the search looks at: the text of the card
+  function entHay(e) {
+    if (e._hay === undefined) {
+      var requests = (e.request || []).map(function (line) {
+        var parts = line.split(' | ');
+        return (parts[0] || '') + ' ' + parts.slice(2).join(' ');
+      }).join(' ');
+      e._hay = normText([e.name, e.tid, e.id, e.date, e.dateKey, e.station, e.status, KIND_LABEL[e.kind], e.detail,
+        e.managerComment, requests].join(' '));
+    }
+    return e._hay;
+  }
+
+  function entWords() { return normText(state.entQ).split(' ').filter(Boolean); }
+
+  // The cards of the ticked stations and of the chip. The search, the day and the filter work on these.
+  function entBase() {
+    return state.entries.filter(function (e) {
+      if (state.picked.length && state.picked.indexOf(e.station) === -1) return false;
+      return state.filter === 'ALL' || e.kind === state.filter;
+    });
+  }
+
+  // Every time My Entries is opened it starts clean: all dates, no search, no filter
+  function resetEntBox() {
+    state.entQ = '';
+    state.entFilter = '';
+    state.entDay = 'ALL';
+    $('entQ').value = '';
+    $('entQClear').classList.add('hidden');
+    $('entSummary').classList.add('hidden');
+    $('entFilterBox').classList.remove('on');
+    $('entFilter').value = '';
+  }
+
+  // The days that have entries (of the ticked stations and the chip), without today and yesterday. Newest first.
+  function otherEntDays() {
+    var seen = {};
+    var today = todayStr();
+    var yesterday = yesterdayStr();
+    entBase().forEach(function (e) {
+      var k = dateKeyOf(e);
+      if (!k || k === today || k === yesterday) return;
+      var d = seen[k] || (seen[k] = { key: k, count: 0 });
+      d.count++;
+    });
+    return Object.keys(seen).sort().reverse().map(function (k) { return seen[k]; });
+  }
+
+  // The look of the day buttons of My Entries: Yesterday, Today, Other days
+  function paintEntDays(searching) {
+    $('entDays').classList.toggle('dim', searching);
+    var chips = $('entDays').querySelectorAll('button[data-d]');
+    for (var i = 0; i < chips.length; i++) {
+      var on = !searching && chips[i].getAttribute('data-d') === state.entDay;
+      chips[i].classList.toggle('on', on);
+      chips[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    var custom = /^\d{4}-\d{2}-\d{2}$/.test(state.entDay);
+    var days = otherEntDays();
+    var known = days.some(function (d) { return d.key === state.entDay; });
+    var html = '<option value="">Choose a day</option>' + days.map(function (d) {
+      return '<option value="' + esc(d.key) + '">' + esc(dayName(d.key)) + ' - ' + d.count + '</option>';
+    }).join('');
+    if (custom && !known) html += '<option value="' + esc(state.entDay) + '">' + esc(dayName(state.entDay)) + '</option>';
+    var sel = $('entDate');
+    if (sel.getAttribute('data-sig') !== html) { sel.innerHTML = html; sel.setAttribute('data-sig', html); }
+    sel.value = custom ? state.entDay : '';
+    $('entDateChip').classList.toggle('hidden', !days.length && !custom);
+    $('entDateChip').classList.toggle('on', !searching && custom);
+    $('entDateTxt').textContent = custom ? dayText(state.entDay) : 'Other days';
+  }
+
+  // Words typed = every entry that has all the words, on any day.
+  // No words = the entries of the chosen day (all dates when no day is chosen).
+  function renderEntries() {
+    renderCounts();
+    var base = entBase();
+    var f = state.entFilter;
+    var words = entWords();
+    var searching = words.length > 0;
+    var key = entDayKey();
+    var scope;
+    if (searching) scope = rankMatches(base, words, entHay);
+    else scope = key ? base.filter(function (e) { return dateKeyOf(e) === key; }) : base;
+
+    // The numbers in the filter are the numbers of what the search (or the day) found
+    paintFilter('entFilterBox', 'entFilter', filterCounts(scope, entryHasComment), ENTRY_STATUS_ORDER, f);
+    paintEntDays(searching);
+    $('entQClear').classList.toggle('hidden', !state.entQ);
+
+    var list = scope.filter(function (e) { return passFilter(e, f, entryHasComment); });
+
+    var fw = esc(filterWords(f));
+    var n = list.length;
+    var sum = $('entSummary');
+    if (searching) {
+      sum.innerHTML = '<b>' + n + '</b> ' + (n === 1 ? 'result' : 'results') + ' in all dates' + (f ? ' &middot; ' + fw : '') + clearLink(entDirty());
+    } else {
+      sum.innerHTML = esc(dayTitleOf(state.entDay)) + ': <b>' + n + '</b> ' + (f ? fw : (n === 1 ? 'entry' : 'entries')) + clearLink(entDirty());
+    }
+    sum.classList.remove('hidden');
+
+    if (!list.length) {
+      var showAll = '<div class="hint"><button type="button" class="refresh" data-act="nofilter">Show all</button></div>';
+      var empty;
+      if (searching) {
+        empty = (f && scope.length) ? 'No results with this filter' + showAll
+          : 'No results<div class="hint">Try fewer words, or part of the ID.</div>';
+      } else if (!base.length) {
+        empty = 'No entries';
+      } else if (!scope.length && key) {
+        empty = 'No entries for this day<div class="hint"><button type="button" class="refresh" data-act="alldays">Show all dates</button></div>';
+      } else if (f) {
+        empty = 'Nothing matches this filter' + showAll;
+      } else {
+        empty = 'No entries';
+      }
+      $('entries').innerHTML = '<div class="center">' + empty + '</div>';
+      return;
+    }
+    $('entries').innerHTML = list.map(function (e) {
+      var slug = e.status.toLowerCase().replace(/\s+/g, '-');
+      var decided = '';
+      var managerComment = e.managerComment ? '<div class="mcomment"><span dir="auto">' + esc(e.commentBy || 'Audit') + '</span> comment: <span dir="auto">' + esc(e.managerComment) + '</span></div>' : '';
+      var requests = (e.request || []).map(function (line) {
+        var parts = line.split(' | ');
+        return '<div class="note">Your request (' + esc(parts[0] || '') + '): <span dir="auto">' + esc(parts.slice(2).join(' - ')) + '</span></div>';
+      }).join('');
+      var actions = '';
+      if (e.canCancel) actions += '<button data-act="cancel" data-id="' + esc(e.id) + '">Cancel</button>';
+      actions += '<button data-act="request" data-id="' + esc(e.id) + '">Request change</button>';
+      return '<div class="card entry k-' + esc(String(e.kind).toLowerCase()) + '">' +
+        '<div class="row"><div class="name">' + esc(e.name) + '</div><span class="badge st-' + esc(slug) + '">' + esc(e.status) + '</span></div>' +
+        '<div class="sub">' + esc(KIND_LABEL[e.kind] || e.kind) + ' - ' + esc(e.date) + ' - ' + esc(e.station) + '</div>' +
+        '<div class="detail">' + esc(e.detail) + '</div>' +
+        decided + requests + managerComment +
+        '<div class="sub">' + esc(e.id) + '</div>' +
+        '<div class="actions">' + actions + '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  $('entSummary').addEventListener('click', function (ev) {
+    if (!ev.target.closest('button[data-act="clearf"]')) return;
+    resetEntBox();
+    state.filter = 'ALL';
+    var kinds = $('fchips').querySelectorAll('button');
+    for (var k = 0; k < kinds.length; k++) kinds[k].classList.toggle('on', kinds[k].getAttribute('data-f') === 'ALL');
+    renderEntries();
+  });
+
+  var entQTimer = null;
+
+  $('entQ').addEventListener('input', function () {
+    state.entQ = this.value;
+    clearTimeout(entQTimer);
+    entQTimer = setTimeout(renderEntries, 120);
+  });
+  $('entQ').addEventListener('keydown', function (e) { if (e.key === 'Enter') this.blur(); });
+  $('entQClear').addEventListener('click', function () {
+    state.entQ = '';
+    $('entQ').value = '';
+    renderEntries();
+    $('entQ').focus();
+  });
+  $('entFilter').addEventListener('change', function () {
+    state.entFilter = this.value;
+    renderEntries();
+  });
+
+  // Yesterday / Today. Tap the one that is on, and you see all dates.
+  // While a search is on, a tap on a day ends the search and goes to that day.
+  $('entDays').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-d]');
+    if (!b) return;
+    var d = b.getAttribute('data-d');
+    if (entWords().length || state.entQ) {
+      state.entQ = '';
+      $('entQ').value = '';
+      state.entDay = d;
+    } else {
+      state.entDay = state.entDay === d ? 'ALL' : d;
+    }
+    renderEntries();
+  });
+
+  $('entDate').addEventListener('change', function () {
+    var v = this.value;
+    if (!v) { renderEntries(); return; }                       // "Choose a day" changes nothing
+    if (state.entQ) { state.entQ = ''; $('entQ').value = ''; }
+    state.entDay = v === todayStr() ? 'TODAY' : (v === yesterdayStr() ? 'YESTERDAY' : v);
+    renderEntries();
+  });
+
+  $('entries').addEventListener('click', async function (ev) {
+    var b = ev.target.closest('button[data-act]');
+    if (!b) return;
+    var id = b.getAttribute('data-id');
+    var act = b.getAttribute('data-act');
+    if (act === 'clearfilters') { resetEntBox(); renderEntries(); return; }
+    if (act === 'alldays') { state.entDay = 'ALL'; renderEntries(); return; }
+    if (act === 'nofilter') { state.entFilter = ''; renderEntries(); return; }
+    if (act === 'request') { openRequest(id); return; }
+    if (act !== 'cancel') return;
+    if (!confirm('Cancel this entry?')) return;
+    b.disabled = true;
+    try {
+      var r = await call('apiCancelEntry', state.pin, id);
+      if (!r.ok) setMsg('listMsg', r.message, 'err');
+      state.recorded = {};
+      await loadEntries();
+    } catch (e) {
+      setMsg('listMsg', 'No connection. Please try again.', 'err');
+      b.disabled = false;
+    }
+  });
+
+
+  // ---------- Request a change ----------
+
+  var reqId = '';
+  var reqLoss = false;
+
+  function findEntry(id) {
+    for (var i = 0; i < state.entries.length; i++) if (state.entries[i].id === id) return state.entries[i];
+    return null;
+  }
+
+  // Any entry and any loss can get a request, in every status
+  function openRequest(id) {
+    var e = findEntry(id);
+    var l = e ? null : findLoss(id);
+    if (!e && !l) return;
+    reqId = id;
+    reqLoss = !!l;
+    $('rSub').textContent = e ? e.name + ' - ' + (KIND_LABEL[e.kind] || e.kind) + ' - ' + e.date
+      : l.name + ' - Loss - ' + l.tracking;
+    $('rText').value = '';
+    setMsg('rMsg', '');
+    $('reqModal').classList.remove('hidden');
+  }
+
+  function closeRequest() {
+    $('reqModal').classList.add('hidden');
+    reqId = '';
+    reqLoss = false;
+  }
+
+  $('rClose').addEventListener('click', closeRequest);
+  $('reqModal').addEventListener('click', function (e) { if (e.target === $('reqModal')) closeRequest(); });
+
+  $('rSave').addEventListener('click', async function () {
+    var text = $('rText').value.trim();
+    if (!text) { setMsg('rMsg', 'Write what you want to change.', 'err'); return; }
+    $('rSave').disabled = true;
+    $('rSave').textContent = 'Sending...';
+    try {
+      var r = await call('apiRequestChange', state.pin, reqId, text);
+      if (r.ok) {
+        var wasLoss = reqLoss;
+        closeRequest();
+        if (wasLoss) {
+          await loadLosses(true);
+          setMsg('lossMsg', 'Request sent. It will show in the sheet.', 'ok');
+        } else {
+          await loadEntries();
+          setMsg('listMsg', 'Request sent. It will show in the sheet.', 'ok');
+        }
+      } else {
+        setMsg('rMsg', r.message, 'err');
+      }
+    } catch (e) {
+      setMsg('rMsg', 'No connection. Please check before you try again.', 'err');
+    } finally {
+      $('rSave').disabled = false;
+      $('rSave').textContent = 'Send request';
+    }
+  });
+
+  // ---------- Excel file (made in the browser, no libraries needed) ----------
+
+  var CRC_TABLE = null;
+
+  function crc32(bytes) {
+    if (!CRC_TABLE) {
+      CRC_TABLE = [];
+      for (var n = 0; n < 256; n++) {
+        var c = n;
+        for (var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        CRC_TABLE[n] = c >>> 0;
+      }
+    }
+    var crc = 0xFFFFFFFF;
+    for (var i = 0; i < bytes.length; i++) crc = CRC_TABLE[(crc ^ bytes[i]) & 255] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  function utf8(text) { return new TextEncoder().encode(text); }
+
+  // A zip file without compression. files = [{ name, text }]
+  function makeZip(files) {
+    var parts = [];
+    var central = [];
+    var offset = 0;
+    files.forEach(function (f) {
+      var name = utf8(f.name);
+      var data = utf8(f.text);
+      var crc = crc32(data);
+
+      var local = new Uint8Array(30 + name.length);
+      var lv = new DataView(local.buffer);
+      lv.setUint32(0, 0x04034b50, true);
+      lv.setUint16(4, 20, true);
+      lv.setUint16(6, 0x0800, true);
+      lv.setUint16(8, 0, true);
+      lv.setUint16(10, 0, true);
+      lv.setUint16(12, 0x21, true);
+      lv.setUint32(14, crc, true);
+      lv.setUint32(18, data.length, true);
+      lv.setUint32(22, data.length, true);
+      lv.setUint16(26, name.length, true);
+      lv.setUint16(28, 0, true);
+      local.set(name, 30);
+
+      var cen = new Uint8Array(46 + name.length);
+      var cv = new DataView(cen.buffer);
+      cv.setUint32(0, 0x02014b50, true);
+      cv.setUint16(4, 20, true);
+      cv.setUint16(6, 20, true);
+      cv.setUint16(8, 0x0800, true);
+      cv.setUint16(10, 0, true);
+      cv.setUint16(12, 0, true);
+      cv.setUint16(14, 0x21, true);
+      cv.setUint32(16, crc, true);
+      cv.setUint32(20, data.length, true);
+      cv.setUint32(24, data.length, true);
+      cv.setUint16(28, name.length, true);
+      cv.setUint32(42, offset, true);
+      cen.set(name, 46);
+
+      parts.push(local, data);
+      central.push(cen);
+      offset += local.length + data.length;
+    });
+
+    var centralSize = 0;
+    central.forEach(function (c) { centralSize += c.length; });
+    var end = new Uint8Array(22);
+    var ev = new DataView(end.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(8, files.length, true);
+    ev.setUint16(10, files.length, true);
+    ev.setUint32(12, centralSize, true);
+    ev.setUint32(16, offset, true);
+
+    return new Blob(parts.concat(central, [end]),
+      { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  }
+
+  function xmlText(value) {
+    return String(value == null ? '' : value)
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function colName(n) {
+    var s = '';
+    n = n + 1;
+    while (n > 0) {
+      var m = (n - 1) % 26;
+      s = String.fromCharCode(65 + m) + s;
+      n = Math.floor((n - 1) / 26);
+    }
+    return s;
+  }
+
+  function sheetXml(headers, rows) {
+    var widths = headers.map(function (h) { return String(h).length + 2; });
+    rows.forEach(function (r) {
+      r.forEach(function (v, i) {
+        var first = String(v == null ? '' : v).split('\n')[0].length + 2;
+        if (first > widths[i]) widths[i] = first;
+      });
+    });
+
+    var cols = widths.map(function (w, i) {
+      return '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + Math.min(Math.max(w, 10), 60) + '" customWidth="1"/>';
+    }).join('');
+
+    var cell = function (v, ref, style) {
+      if (typeof v === 'number' && isFinite(v)) return '<c r="' + ref + '"><v>' + v + '</v></c>';
+      var text = String(v == null ? '' : v);
+      if (text === '') return '';
+      var s = style || (text.indexOf('\n') > -1 ? 2 : 0);
+      return '<c r="' + ref + '" t="inlineStr"' + (s ? ' s="' + s + '"' : '') +
+        '><is><t xml:space="preserve">' + xmlText(text) + '</t></is></c>';
+    };
+
+    var data = '<row r="1">' + headers.map(function (h, i) { return cell(String(h), colName(i) + '1', 1); }).join('') + '</row>';
+    rows.forEach(function (r, ri) {
+      data += '<row r="' + (ri + 2) + '">' + r.map(function (v, i) { return cell(v, colName(i) + (ri + 2)); }).join('') + '</row>';
+    });
+
+    var lastRef = colName(headers.length - 1) + (rows.length + 1);
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' +
+      '<cols>' + cols + '</cols>' +
+      '<sheetData>' + data + '</sheetData>' +
+      '<autoFilter ref="A1:' + lastRef + '"/>' +
+      '</worksheet>';
+  }
+
+  // sheets = [{ name, headers, rows }]
+  function makeXlsx(sheets) {
+    var files = [];
+    files.push({ name: '[Content_Types].xml', text:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+      '<Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+      sheets.map(function (s, i) {
+        return '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';
+      }).join('') +
+      '</Types>' });
+    files.push({ name: '_rels/.rels', text:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+      '</Relationships>' });
+    files.push({ name: 'xl/workbook.xml', text:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+      '<sheets>' + sheets.map(function (s, i) {
+        return '<sheet name="' + xmlText(String(s.name).replace(/[\[\]:*?\/\\]/g, ' ').slice(0, 31)) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>';
+      }).join('') + '</sheets></workbook>' });
+    files.push({ name: 'xl/_rels/workbook.xml.rels', text:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      sheets.map(function (s, i) {
+        return '<Relationship Id="rId' + (i + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>';
+      }).join('') +
+      '<Relationship Id="rId' + (sheets.length + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' +
+      '</Relationships>' });
+    files.push({ name: 'xl/styles.xml', text:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font>' +
+      '<font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts>' +
+      '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>' +
+      '<fill><patternFill patternType="solid"><fgColor rgb="FF1F3A5F"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+      '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
+      '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+      '<cellXfs count="3">' +
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+      '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>' +
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>' +
+      '</cellXfs>' +
+      '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>' +
+      '</styleSheet>' });
+    sheets.forEach(function (s, i) {
+      files.push({ name: 'xl/worksheets/sheet' + (i + 1) + '.xml', text: sheetXml(s.headers, s.rows) });
+    });
+    return makeZip(files);
+  }
+
+  function downloadXlsx(sheets, fileName) {
+    var blob = makeXlsx(sheets);
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 2000);
+  }
+
+  // The rows of one Excel sheet that the page would show with the same search, day and filter
+  function filterExport(kind, sh, words, f, dayKey) {
+    if (!words.length && !f && !dayKey) return { rows: sh.rows, dates: sh.dates || [] };
+    var iStatus = sh.headers.indexOf('Status');
+    var iComment = sh.headers.indexOf('Audit Comment');
+    var iName = sh.headers.indexOf('Name');
+    var hidden = ['Proof', 'Entered By', 'Entered At'];                 // the cards do not show these
+    var out = { rows: [], dates: [] };
+    sh.rows.forEach(function (row, i) {
+      var date = (sh.dates && sh.dates[i]) || '';
+      if (dayKey && date !== dayKey) return;
+      if (f === COMMENT_FILTER) {
+        if (iComment < 0 || String(row[iComment]).trim() === '') return;
+      } else if (f && (iStatus < 0 || row[iStatus] !== f)) {
+        return;
+      }
+      if (words.length) {
+        var cells = row.filter(function (v, c) { return hidden.indexOf(sh.headers[c]) === -1; });
+        var hay = normText([KIND_LABEL[kind], date].concat(cells).join(' '));
+        if (textCost({ name: iName < 0 ? '' : row[iName] }, hay, words) < 0) return;
+      }
+      out.rows.push(row);
+      out.dates.push(date);
+    });
+    return out;
+  }
+
+  // My Entries: downloads what the page shows - the chip, the day (or the search) and the filter.
+  // All = Idle, Rescue Hours and Cash Shortage in one file.
+  $('exportBtn').addEventListener('click', async function () {
+    var btn = $('exportBtn');
+    setMsg('listMsg', '');
+    btn.disabled = true;
+    btn.textContent = 'Preparing...';
+    try {
+      var r = await call('apiExportEntries', state.pin, lossStations());
+      if (!r.ok) { setMsg('listMsg', r.message, 'err'); return; }
+      var names = { IDLE: 'Idle', RESCUE: 'Rescue Hours', CASH: 'Cash Shortage' };
+      var keys = state.filter === 'ALL' ? ['IDLE', 'RESCUE', 'CASH'] : [state.filter];
+      var words = entWords();
+      var f = state.entFilter;
+      var dayKey = words.length ? '' : entDayKey();                     // a search looks at every day
+      var total = 0;
+      var sheets = keys.map(function (k) {
+        var sh = r.sheets[k];
+        var part = filterExport(k, sh, words, f, dayKey);
+        total += part.rows.length;
+        return { name: names[k], headers: sh.headers, rows: sortSheetRows(sh.headers, part.rows, part.dates) };
+      });
+      if ((words.length || f || dayKey) && !total) { setMsg('listMsg', 'There are no entries to download.', 'err'); return; }
+      var label = state.filter === 'ALL' ? 'All' : names[state.filter].replace(/ /g, '-');
+      if (dayKey) label += '-' + dayTitleOf(state.entDay).split(',')[0].replace(/[^A-Za-z0-9]+/g, '-');
+      if (f) label += '-' + filterWords(f).replace(/ /g, '-');
+      if (words.length) label += '-Search';
+      downloadXlsx(sheets, 'Ops-Desk-' + label + '-' + todayStr() + '.xlsx');
+      setMsg('listMsg', 'The Excel file is ready.', 'ok');
+    } catch (e) {
+      setMsg('listMsg', 'Could not make the file. Please try again.', 'err');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Download Excel';
+    }
+  });
+
+  // Losses: downloads what the page is on - the day (or the search) and the filter. Open and closed.
+  $('lossExport').addEventListener('click', function () {
+    var v = lossView();
+    if (!v.filtered.length) { setMsg('lossMsg', 'There are no losses to download.', 'err'); return; }
+    var headers = ['Entry ID', 'Date', 'Station', 'Transporter ID', 'Name', 'Tracking ID', 'Route', 'Address',
+      'Reason', 'Loss Amount', 'Days Left', 'Status', 'Request', 'Audit Comment', 'Updates'];
+    var rows = sortPeople(v.filtered).map(function (l) {
+      return [l.id, l.scanDate, l.station, l.tid, l.name, l.tracking, l.route, l.address, l.reason,
+        l.amount === '' ? '' : Number(l.amount), isNum(l.daysLeft) ? l.daysLeft : '',
+        l.status, (l.request || []).join('\n'), l.note || '', (l.updates || []).join('\n')];
+    });
+    var what = v.searching ? 'Search' : (state.lossDay === 'ALL' ? 'All dates' : lossDayTitle().split(',')[0]);
+    if (state.lossFilter) what += ', ' + filterWords(state.lossFilter);
+    var n = rows.length;
+    try {
+      downloadXlsx([{ name: 'Losses', headers: headers, rows: rows }],
+        'Ops-Desk-Losses-' + what.replace(/[^A-Za-z0-9]+/g, '-') + '-' + todayStr() + '.xlsx');
+      setMsg('lossMsg', 'The Excel file is ready: ' + n + (n === 1 ? ' loss' : ' losses') + ' (' + what + ').', 'ok');
+    } catch (e) {
+      setMsg('lossMsg', 'Could not make the file. Please try again.', 'err');
+    }
+  });
+
+  // ---------- Notices: the bell, the banner and the sound ----------
+  // The page asks the server every few seconds what is new (apiNotifications). A new notice makes a banner
+  // and a sound. The bell shows how many notices are not read yet. A notice is read when its window is closed.
+
+  var NOTIF_POLL_MS = 12000;
+  var NOTIF_POLL_HIDDEN_MS = 45000;
+  var NOTIF_KEEP = 60;
+  var notif = { seq: -1, items: [], lastRead: 0, seenAtOpen: 0, timer: null, busy: false, bad: 0, sound: true, run: 0, open: false, again: false };
+  var bannerTimer = null;
+  var audioCtx = null;
+
+  function nReadKey() { return 'od_nread_' + (state.user ? state.user.name : ''); }
+
+  function startNotices() {
+    stopNotices();
+    notif.sound = readStore('od_nsound') !== 'off';
+    paintBell();
+    pollNotices();
+  }
+
+  function stopNotices() {
+    clearTimeout(notif.timer);
+    notif.timer = null;
+    notif.run++;                                  // an answer that comes after a sign out is thrown away
+    notif.seq = -1; notif.items = []; notif.lastRead = 0; notif.seenAtOpen = 0;
+    notif.busy = false; notif.bad = 0; notif.again = false;
+    clearTimeout(bannerTimer);
+    $('nToast').classList.add('hidden');
+    closeNotices(false);
+    paintBell();
+  }
+
+  function scheduleNotices() {
+    clearTimeout(notif.timer);
+    notif.timer = null;
+    if (!state.pin) return;
+    notif.timer = setTimeout(pollNotices, document.hidden ? NOTIF_POLL_HIDDEN_MS : NOTIF_POLL_MS);
+  }
+
+  // C = computer, P = phone or tablet. Only used to show in the Users tab where the person has the page open.
+  function deviceKind() {
+    try {
+      var ua = navigator.userAgent || '';
+      if (/Android|iPhone|iPad|iPod|Mobile/i.test(ua)) return 'P';
+      if (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua)) return 'P';      // iPad that says Mac
+    } catch (e) { }
+    return 'C';
+  }
+
+  async function pollNotices() {
+    if (!state.pin || notif.busy) return;
+    notif.busy = true;
+    var run = notif.run;
+    try {
+      var r = await call('apiNotifications', state.pin, notif.seq < 0 ? null : notif.seq, deviceKind());
+      if (run !== notif.run) return;
+      handleNotices(r);
+    } catch (e) {
+      // no connection: the next try is soon, the person is not bothered
+    } finally {
+      if (run === notif.run) {
+        notif.busy = false;
+        if (notif.again) {
+          // the app said "something arrived" while this try was on its way: ask again at once
+          notif.again = false;
+          clearTimeout(notif.timer);
+          notif.timer = setTimeout(pollNotices, 300);
+        } else {
+          scheduleNotices();
+        }
+      }
+    }
+  }
+
+  function topNoticeId() {
+    var top = 0;
+    notif.items.forEach(function (n) { if (n.id > top) top = n.id; });
+    return top;
+  }
+
+  function findNotice(id) {
+    for (var i = 0; i < notif.items.length; i++) if (notif.items[i].id === id) return notif.items[i];
+    return null;
+  }
+
+  function handleNotices(r) {
+    if (!r) return;
+    if (!r.ok) {
+      // A wrong PIN twice in a row: the PIN was changed, so the person signs in again
+      if (r.signOut && ++notif.bad >= 2) {
+        signOutForced = true;
+        $('logoutBtn').click();
+        setMsg('loginMsg', 'Your PIN is not valid any more. Please sign in again.', 'err');
+      }
+      return;
+    }
+    notif.bad = 0;
+    var items = r.items || [];
+
+    if (notif.seq < 0 || r.reset) {
+      // The page was just opened: what is older than the last time the person looked is already read.
+      // A phone that never looked before starts with everything read.
+      notif.seq = r.seq;
+      notif.items = items.slice();
+      var saved = readStore(nReadKey());
+      var top = Math.max(r.seq, topNoticeId());
+      notif.lastRead = (saved === '' || r.reset) ? top : Math.min(Number(saved) || 0, top);
+      if (saved === '' || r.reset) store(nReadKey(), String(notif.lastRead));
+      paintBell();
+      var missed = notif.items.filter(function (n) { return n.id > notif.lastRead; });
+      if (missed.length) announce(missed);
+      return;
+    }
+
+    notif.seq = Math.max(notif.seq, r.seq);
+    var fresh = items.filter(function (n) { return !findNotice(n.id); });
+    if (!fresh.length) return;
+    notif.items = notif.items.concat(fresh).slice(-NOTIF_KEEP);
+    paintBell();
+    if (notif.open) renderNotices();
+    // a notice that the person already opened from an alert is not announced again
+    var loud = fresh.filter(function (n) { return n.id > notif.lastRead; });
+    if (loud.length) announce(loud);
+  }
+
+  // A new notice: the banner, the sound, a shake of the bell
+  function announce(list) {
+    if (!list.length) return;
+    if (!notif.open) showBanner(list);
+    if (notif.sound) playChime();
+    try { if (navigator.vibrate) navigator.vibrate([160, 80, 160]); } catch (e) {}
+    var b = $('bellBtn');
+    b.classList.remove('ring');
+    void b.offsetWidth;
+    b.classList.add('ring');
+    systemNotice(list);
+  }
+
+  // When the browser allows it, a notice also shows outside the page (only while the page is in the background)
+  function systemNotice(list) {
+    try {
+      if (!document.hidden || !window.Notification || Notification.permission !== 'granted') return;
+      var last = list[list.length - 1];
+      new Notification(list.length > 1 ? list.length + ' new notices' : last.title,
+        { body: list.length > 1 ? last.title + ': ' + last.text : last.text, tag: 'od-notice' });
+    } catch (e) {}
+  }
+
+  function showBanner(list) {
+    var last = list[list.length - 1];
+    var many = list.length > 1;
+    $('ntTitle').textContent = many ? list.length + ' new notices' : last.title;
+    $('ntText').textContent = many ? last.title + ': ' + last.text : last.text;
+    var b = $('nToast');
+    b.className = 'ntoast k-' + String(last.kind || '').toLowerCase();
+    b.setAttribute('data-n', many ? '' : String(last.id));
+    clearTimeout(bannerTimer);
+    bannerTimer = setTimeout(hideBanner, 9000);
+  }
+
+  function hideBanner() {
+    clearTimeout(bannerTimer);
+    $('nToast').classList.add('hidden');
+  }
+
+  function unreadCount() {
+    var c = 0;
+    notif.items.forEach(function (n) { if (n.id > notif.lastRead) c++; });
+    return c;
+  }
+
+  function paintBell() {
+    var n = unreadCount();
+    $('bellDot').textContent = n > 99 ? '99+' : (n ? String(n) : '');
+    $('bellBtn').setAttribute('aria-label', n ? 'Notifications, ' + n + ' new' : 'Notifications');
+  }
+
+  function markReadTo(id) {
+    if (id > notif.lastRead) {
+      notif.lastRead = id;
+      store(nReadKey(), String(id));
+    }
+    paintBell();
+  }
+
+  function openNotices() {
+    hideBanner();
+    notif.open = true;
+    notif.seenAtOpen = notif.lastRead;
+    renderNotices();
+    $('nModal').classList.remove('hidden');
+    try { refreshAppLink(); } catch (ignore) { }
+  }
+
+  function closeNotices(markRead) {
+    var wasOpen = notif.open;
+    notif.open = false;
+    $('nModal').classList.add('hidden');
+    if (markRead && wasOpen) markReadTo(topNoticeId());
+  }
+
+  function renderNotices() {
+    $('nSound').textContent = notif.sound ? 'Sound on' : 'Sound off';
+    var list = notif.items.slice().reverse();
+    if (!list.length) {
+      $('nList').innerHTML = '<div class="empty">No notices yet. You get one here when a request, an update or a comment arrives.</div>';
+      return;
+    }
+    $('nList').innerHTML = list.map(function (n) {
+      var w = whenInfo(n.time);
+      return '<div class="ni k-' + esc(String(n.kind || '').toLowerCase()) + (n.id > notif.seenAtOpen ? ' unread' : '') + '" data-n="' + n.id + '">' +
+        '<div class="ni-top"><span class="ni-title">' + esc(n.title) + '</span>' +
+        '<span class="ni-time' + (w.fresh ? ' fresh' : '') + '">' + esc(w.text) + '</span></div>' +
+        '<div class="ni-text" dir="auto">' + esc(n.text) + '</div></div>';
+    }).join('');
+  }
+
+  // A tap on a notice shows that entry: the Losses or My Entries page, with the ID in the search box
+  function openNoticeEntry(n) {
+    var id = String(n.entryId || '');
+    if (!id) return;
+    if (id.indexOf('LOS-') === 0) {
+      setView('loss');
+      state.lossQ = id;
+      $('lossQ').value = id;
+      renderLosses();
+    } else {
+      setView('list');
+      state.entQ = id;
+      $('entQ').value = id;
+      if (state.entriesLoaded) renderEntries();
+    }
+  }
+
+  $('bellBtn').addEventListener('click', function () { unlockAudio(); openNotices(); });
+  $('nClose').addEventListener('click', function () { closeNotices(true); });
+  $('nModal').addEventListener('click', function (e) { if (e.target === $('nModal')) closeNotices(true); });
+  $('nSound').addEventListener('click', function () {
+    notif.sound = !notif.sound;
+    store('od_nsound', notif.sound ? '' : 'off');
+    $('nSound').textContent = notif.sound ? 'Sound on' : 'Sound off';
+    if (notif.sound) { unlockAudio(); playChime(); }
+  });
+  $('nList').addEventListener('click', function (e) {
+    var it = e.target.closest('.ni');
+    if (!it) return;
+    var n = findNotice(Number(it.getAttribute('data-n')));
+    closeNotices(true);
+    if (n) openNoticeEntry(n);
+  });
+  $('nToast').addEventListener('click', function (e) {
+    var id = Number($('nToast').getAttribute('data-n')) || 0;
+    hideBanner();
+    if (e.target.closest('#ntClose')) return;
+    var n = id ? findNotice(id) : null;
+    if (n) { markReadTo(n.id); openNoticeEntry(n); } else { openNotices(); }
+  });
+
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && state.pin) pollNotices(); });
+  window.addEventListener('online', function () { if (state.pin) pollNotices(); });
+
+  // The sound: a short three note chime made in the browser (no file). A phone lets a page make
+  // sound only after the person touched the page once, so the first touch wakes the sound up.
+  function unlockAudio() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    } catch (e) {}
+  }
+  ['pointerdown', 'touchend', 'click', 'keydown'].forEach(function (ev) {
+    document.addEventListener(ev, function () { if (!audioCtx || audioCtx.state !== 'running') unlockAudio(); }, true);
+  });
+
+  function playChime() {
+    try {
+      unlockAudio();
+      var c = audioCtx;
+      if (!c) return;
+      var t0 = c.currentTime + 0.02;
+      [[784, 0], [1047, 0.17], [1319, 0.34]].forEach(function (n) {
+        var o = c.createOscillator();
+        var g = c.createGain();
+        o.type = 'triangle';
+        o.frequency.value = n[0];
+        g.gain.setValueAtTime(0.0001, t0 + n[1]);
+        g.gain.exponentialRampToValueAtTime(0.5, t0 + n[1] + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + n[1] + 0.3);
+        o.connect(g);
+        g.connect(c.destination);
+        o.start(t0 + n[1]);
+        o.stop(t0 + n[1] + 0.32);
+      });
+    } catch (e) {}
+  }
+
+  // ---------- Alerts when the app is closed ----------
+  // The Ops Desk app is a small page on the owner's web address that holds this page. It can show an alert with
+  // a sound on a phone or a computer even when this page is closed. This page and the app talk with messages.
+  // The PIN never goes to the app. When this page is opened from the plain link, this part only shows a hint.
+
+  var appLink = { key: '', stamp: '', run: 0, heard: false, st: null, timer: null, off: false, asking: false, saving: '',
+    note: '', noteTimer: null, enableNote: false, testing: false, saveError: '', saveTried: 0, saveFor: '', seen: null, autoFor: '' };
+  var pendingOpen = null;                         // a tap on an alert that came before the sign in
+  var signOutForced = false;
+
+  function tellApp(msg) {
+    try {
+      msg.od = 1;
+      window.top.postMessage(msg, '*');
+    } catch (e) {}
+  }
+
+  // After the sign in: get the public key from the server, then say hello to the app
+  function startAppLink() {
+    clearTimeout(appLink.timer);
+    appLink.timer = null;
+    appLink.key = ''; appLink.stamp = ''; appLink.heard = false; appLink.st = null; appLink.off = false; appLink.note = ''; appLink.saveError = ''; appLink.saveTried = 0;
+    appLink.asking = true; appLink.saving = '';
+    var run = ++appLink.run;
+    call('apiPushInfo', state.pin).then(function (r) {
+      if (run !== appLink.run) return;
+      appLink.asking = false;
+      if (r && r.ok && r.key) {
+        appLink.key = r.key;
+        appLink.stamp = r.stamp || '';          // it changes when the owner changes the PIN: the device is saved again then
+        sayHello();
+      } else {
+        appLink.off = true;
+      }
+      paintAlerts();
+    }).catch(function () {
+      if (run === appLink.run) appLink.asking = false;
+    });
+  }
+
+  function sayHello() {
+    if (!appLink.key) return;
+    tellApp({ type: 'hello', key: appLink.key });
+    clearTimeout(appLink.timer);
+    // no answer in 3 seconds: this page is not inside the app
+    appLink.timer = setTimeout(function () { appLink.timer = null; paintAlerts(); }, 3000);
+  }
+
+  // The alert address that the app gave, only when it looks right: { endpoint, keys: { p256dh, auth } }
+  function appSub() {
+    var sub = appLink.st && appLink.st.sub;
+    if (!sub || typeof sub.endpoint !== 'string' || sub.endpoint.indexOf('https://') !== 0) return null;
+    if (!sub.keys || typeof sub.keys.p256dh !== 'string' || typeof sub.keys.auth !== 'string') return null;
+    return { endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } };
+  }
+
+  // The app gave the alert address of this device: the server keeps it for this user
+  function saveDevice(sub, label) {
+    var name = state.user ? state.user.name : '';
+    if (!name || !state.pin || !sub) return;
+    var last = null;
+    try { last = JSON.parse(readStore('od_pushsaved') || 'null'); } catch (e) { last = null; }
+    if (last && last.u === name && last.e === sub.endpoint && (last.s || '') === (appLink.stamp || '') && Date.now() - last.t < 20 * 3600000) return;
+    if (appLink.saving === sub.endpoint) return;
+    if (appLink.saveError && appLink.saveFor === sub.endpoint && Date.now() - appLink.saveTried < 60000) return;      // it failed a moment ago: not again at once
+    appLink.saving = sub.endpoint;
+    appLink.saveTried = Date.now();
+    appLink.saveFor = sub.endpoint;
+    var run = appLink.run;
+    call('apiPushSubscribe', state.pin, sub, label || '').then(function (r) {
+      if (run !== appLink.run) return;
+      appLink.saving = '';
+      if (r && r.ok) {
+        appLink.saveError = '';
+        store('od_pushsaved', JSON.stringify({ u: name, e: sub.endpoint, s: appLink.stamp || '', t: Date.now() }));
+        // a device that was never tested is tested once by itself (an old server does not say, then nothing is done)
+        if (r.mode === '' && appLink.autoFor !== sub.endpoint) {
+          appLink.autoFor = sub.endpoint;
+          setTimeout(function () { if (run === appLink.run) runTest(sub.endpoint, true); }, 1500);
+        }
+      } else {
+        // the row says why, until a later try works (it is tried again when the bell is opened)
+        appLink.saveError = (r && r.message) || 'Could not save this device. Please try again.';
+      }
+      paintAlerts();
+    }).catch(function () {
+      if (run === appLink.run) appLink.saving = '';
+    });
+  }
+
+  // Sign out: this device stops getting the alerts of this person (not when the PIN was changed by the owner)
+  function leaveAppLink(forced) {
+    var pin = state.pin;
+    var ep = appSub() ? appSub().endpoint : '';
+    appLink.run++;
+    clearTimeout(appLink.timer);
+    clearTimeout(appLink.noteTimer);
+    store('od_pushsaved', '');
+    if (pin && ep && !forced) call('apiPushForget', pin, ep).catch(function () { });
+    tellApp({ type: 'bye' });
+    appLink.timer = null; appLink.noteTimer = null;
+    appLink.key = ''; appLink.stamp = ''; appLink.heard = false; appLink.st = null; appLink.off = false;
+    appLink.asking = false; appLink.saving = ''; appLink.note = ''; appLink.testing = false; appLink.saveError = ''; appLink.saveTried = 0;
+    appLink.seen = null; appLink.autoFor = '';
+    paintAlerts();
+  }
+
+  // The bell window is opened: ask the app again (the answer may have changed)
+  function refreshAppLink() {
+    if (state.pin) {
+      if (!appLink.key && !appLink.off && !appLink.asking) startAppLink();
+      else if (appLink.key && !appLink.heard) sayHello();
+      else if (appLink.heard) tellApp({ type: 'again' });
+    }
+    paintAlerts();
+  }
+
+  // The app says something arrived: ask the server now
+  function pollSoon() {
+    if (!state.pin) return;
+    if (notif.busy) { notif.again = true; return; }
+    clearTimeout(notif.timer);
+    pollNotices();
+  }
+
+  // A tap on an alert of the phone or the computer: show that entry
+  function openFromAlert(d) {
+    if (!d) return;
+    var id = Number(d.id) || 0;
+    if (!(id > 0 && id < 1e12)) id = 0;
+    var entryId = (typeof d.entryId === 'string' && /^[A-Za-z0-9_-]{1,60}$/.test(d.entryId)) ? d.entryId : '';
+    if (!state.pin || !state.user) { pendingOpen = { id: id, entryId: entryId }; return; }
+    closeNotices(false);
+    if (id) markReadTo(id);
+    var n = id ? findNotice(id) : null;
+    var target = entryId || (n ? String(n.entryId || '') : '');
+    if (target) openNoticeEntry({ entryId: target });
+    pollSoon();
+  }
+
+  function setNote(text, ms) {
+    clearTimeout(appLink.noteTimer);
+    appLink.noteTimer = null;
+    appLink.enableNote = false;
+    appLink.note = text || '';
+    if (text && ms) {
+      appLink.noteTimer = setTimeout(function () { appLink.note = ''; appLink.noteTimer = null; paintAlerts(); }, ms);
+    }
+    paintAlerts();
+  }
+
+  // The small row in the bell window
+  function paintAlerts() {
+    var st = appLink.st;
+    var text = '';
+    var act = '';
+    var quiet = false;
+
+    if (!state.pin || !state.user) {
+      // signed out: nothing to show
+    } else if (appLink.off) {
+      text = 'Alerts when the app is closed are not available right now.'; quiet = true;
+    } else if (!appLink.key) {
+      // still asking the server
+    } else if (!appLink.heard) {
+      if (!appLink.timer) { text = 'To get alerts when this page is closed, open Ops Desk from the app link of the owner.'; quiet = true; }
+    } else if (st.needsInstall) {
+      text = 'On iPhone: tap Share, then Add to Home Screen. Then open Ops Desk from the Home Screen and turn alerts on.'; quiet = true;
+    } else if (!st.supported) {
+      text = 'This phone or browser cannot show alerts when it is closed.'; quiet = true;
+    } else if (st.permission === 'denied') {
+      text = 'Alerts are blocked for Ops Desk. Allow notifications in the settings of this phone or browser.'; quiet = true;
+    } else if (st.permission !== 'granted') {
+      text = 'Alerts are off on this device.'; act = 'enable';
+    } else if (!appSub()) {
+      if (st.error) { text = 'Alerts could not be turned on for this device.'; act = 'enable'; }
+      else text = 'Turning alerts on...';
+    } else if (appLink.saveError) {
+      text = appLink.saveError; quiet = true;
+    } else {
+      text = 'Alerts are on for this device, even when the app is closed.'; act = 'test';
+    }
+    if (appLink.note && state.pin) { text = appLink.note; quiet = false; }
+
+    $('nPush').classList.toggle('hidden', !text);
+    $('nPush').classList.toggle('off', quiet);
+    $('nPushText').textContent = text;
+    var btn = $('nPushBtn');
+    btn.classList.toggle('hidden', !act);
+    btn.setAttribute('data-act', act);
+    btn.textContent = act === 'enable' ? 'Turn on' : (appLink.testing ? 'Sending...' : 'Send test');
+    btn.disabled = !!appLink.testing;
+  }
+
+  // ---------- The test: it shows if a message really arrives on this device ----------
+  // The server sends a full message. The app tells this page when something arrives (a "poke" that says if it had text).
+  // If the full message does not arrive but a plain alert does, this device is marked "plain" on the server
+  // and gets plain alerts from now on. A device that was never tested is tested once, by itself.
+
+  var TEST_WAIT_MS = 15000;                       // how long to wait for a message to arrive
+
+  // Something arrived on this device (the app says so). A test looks at what came.
+  function notePoke(d) {
+    var seen = appLink.seen;
+    if (!seen) return;
+    if (d.full === true) seen.full = true;
+    else seen.plain = true;
+  }
+
+  function waitFor(cond, ms, run) {
+    return new Promise(function (resolve) {
+      var t0 = Date.now();
+      (function tick() {
+        if (cond()) { resolve(true); return; }
+        if (run !== appLink.run || Date.now() - t0 >= ms) { resolve(false); return; }
+        setTimeout(tick, 150);
+      })();
+    });
+  }
+
+  function markDevice(ep, mode) {
+    if (!state.pin || !ep) return;
+    call('apiPushDeviceMode', state.pin, ep, mode).catch(function () { });
+  }
+
+  // quiet = the test starts by itself (nothing is shown unless the bell window is open)
+  function runTest(ep, quiet) {
+    if (appLink.testing || !state.pin || !ep) return;
+    var run = appLink.run;
+    var seen = appLink.seen = { full: false, plain: false };
+    appLink.testing = true;
+    var gone = function () { return run !== appLink.run || !state.pin; };
+    var finish = function (text, ms) {
+      if (run !== appLink.run) return;
+      appLink.seen = null;
+      appLink.testing = false;
+      if (text) setNote(text, ms); else paintAlerts();
+    };
+    var send = function (how) { return call('apiPushTest', state.pin, ep, how); };
+    var hardStop = function (r) { return !r || (r.ok === false && typeof r.sent !== 'number'); };
+
+    setNote('Sending a test message...', 0);
+    send('full').then(function (a) {
+      if (gone()) { finish(''); return; }
+      if (hardStop(a)) { finish(quiet ? '' : ((a && a.message) || 'The test did not go through.'), 9000); return; }
+      var wait = a.ok ? (setNote('Test sent. Waiting for it to arrive...', 0), waitFor(function () { return seen.full; }, TEST_WAIT_MS, run)) : Promise.resolve(false);
+      return wait.then(function (gotFull) {
+        if (gone()) { finish(''); return; }
+        if (gotFull) {
+          markDevice(ep, 'full');
+          finish('The test arrived. Alerts work on this device. If you did not hear it, check the sound and Do Not Disturb settings of this device.', 14000);
+          return;
+        }
+        setNote(a.ok ? 'The full test did not arrive. Trying a plain alert...' : 'The full test was refused. Trying a plain alert...', 0);
+        return send('plain').then(function (b) {
+          if (gone()) { finish(''); return; }
+          if (!b || !b.ok) {
+            finish((b && b.message) || (a && a.message) || 'The test did not go through.', 12000);
+            return;
+          }
+          return waitFor(function () { return seen.full || seen.plain; }, TEST_WAIT_MS, run).then(function (got) {
+            if (gone()) { finish(''); return; }
+            if (seen.full) {
+              markDevice(ep, 'full');
+              finish('The test arrived, a little late. Alerts work on this device.', 12000);
+            } else if (got) {
+              markDevice(ep, 'plain');
+              finish('A plain alert arrives here, but the full message does not. This device gets plain alerts from now on.', 14000);
+            } else {
+              finish('The test did not arrive on this device. Check that notifications are allowed for this browser in the settings of this device, and that Do Not Disturb is off. Then try again.', 16000);
+            }
+          });
+        });
+      });
+    }).catch(function () {
+      finish(quiet ? '' : 'No connection. Please try again.', 6000);
+    });
+    paintAlerts();
+  }
+
+  $('nPushBtn').addEventListener('click', function () {
+    var act = $('nPushBtn').getAttribute('data-act');
+    if (act === 'enable') {
+      tellApp({ type: 'enable' });
+      setNote(appLink.st && appLink.st.error ? 'Trying again... If it does not work, tap "Try again" in the bar at the bottom of the screen.' : 'Tap "Turn on alerts" in the bar at the bottom of the screen.', 10000);
+      appLink.enableNote = true;
+      return;
+    }
+    if (act !== 'test' || appLink.testing || !state.pin) return;
+    runTest(appSub() ? appSub().endpoint : '', false);
+  });
+
+  // Messages from the app around this page
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!d || d.od !== 1 || typeof d.type !== 'string') return;
+    if (e.source !== window.top && e.source !== window.parent) return;
+    try {
+      if (d.type === 'state' || d.type === 'sub') {
+        appLink.heard = true;
+        appLink.st = d;
+        clearTimeout(appLink.timer);
+        appLink.timer = null;
+        if (d.pendingOpen) openFromAlert(d.pendingOpen);
+        if (appSub()) saveDevice(appSub(), typeof d.label === 'string' ? d.label.slice(0, 60) : '');
+        if (appSub() && appLink.enableNote) setNote('');
+        paintAlerts();
+      } else if (d.type === 'poke') {
+        notePoke(d);
+        pollSoon();
+      } else if (d.type === 'open') {
+        openFromAlert(d);
+      }
+    } catch (err) {}
+  });
+
+  // ---------- Light or dark ----------
+  // The two small buttons at the top. Without a choice the page follows the phone.
+
+  function currentTheme() {
+    var t = document.documentElement.getAttribute('data-theme');
+    if (t === 'dark' || t === 'light') return t;
+    var dark = false;
+    try { dark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) {}
+    return dark ? 'dark' : 'light';
+  }
+
+  function paintTheme() {
+    var cur = currentTheme();
+    var bs = document.querySelectorAll('[data-theme-set]');
+    for (var i = 0; i < bs.length; i++) {
+      var on = bs[i].getAttribute('data-theme-set') === cur;
+      bs[i].classList.toggle('on', on);
+      bs[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-theme-set]');
+    if (!b) return;
+    var t = b.getAttribute('data-theme-set');
+    document.documentElement.setAttribute('data-theme', t);
+    store('od_theme', t);
+    paintTheme();
+  });
+
+  try {
+    var darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    if (darkQuery.addEventListener) darkQuery.addEventListener('change', paintTheme);
+    else if (darkQuery.addListener) darkQuery.addListener(paintTheme);
+  } catch (e) {}
+  paintTheme();
+
+  // ---------- Start ----------
+
+  window.addEventListener('load', function () {
+    var saved = readStore('od_pin');
+    if (saved) { doLogin(saved, true); } else { showLogin(); }
+
+    // If the automatic sign in is slow, show the PIN page after 10 seconds.
+    setTimeout(function () {
+      if (!$('boot').classList.contains('hidden')) {
+        showLogin();
+        setMsg('loginMsg', 'Sign in is slow. Please enter your PIN.', 'err');
+      }
+    }, 10000);
+  });
+</script>
+<div id="odSetup">
+  <h1>TechFlex is not set up yet</h1>
+  <p>Open the file <code>config.js</code> and put the web app address between the quotes.
+    The address ends with <code>/exec</code>.</p>
+</div>
+<div id="odBar" role="region" aria-label="Alerts" hidden>
+  <span id="odBarText"></span>
+  <button id="odBarBtn" type="button" hidden>Turn on alerts</button>
+  <button id="odBarX" type="button" aria-label="Hide this bar">&times;</button>
+</div>
 <script>
 (function () {
   'use strict';
 
-  // ---------- What this page is ----------
-  // This page holds the Ops Desk page (the Apps Script web app) in a frame and adds one thing to it: alerts with a
-  // sound on this phone or computer, even when the app is closed. The two pages talk with messages (od: 1).
-  // The PIN never comes here. The server sends the alerts; sw.js shows them.
+  // ---------- What this part is ----------
+  // This is the app of Ops Desk (TechFlex) on its own address. The page and this part are in the SAME window now (there is
+  // no frame). This part adds one thing to the page: alerts with a sound on this phone or computer, even when the app is
+  // closed. The page and this part talk with messages to the same window (od: 1), as they did when the page was in a frame.
+  // The PIN never goes to this part. The server sends the alerts; sw.js shows them.
 
   var APP_URL = String(window.OPS_DESK_APP_URL || '').trim();
   var el = function (id) { return document.getElementById(id); };
-  var frame = el('app'), bar = el('bar'), barText = el('barText'), barBtn = el('barBtn'), barX = el('barX');
+  var bar = el('odBar'), barText = el('odBarText'), barBtn = el('odBarBtn'), barX = el('odBarX');
 
   var ua = navigator.userAgent || '';
   var isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
@@ -67,13 +3842,13 @@
     standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
   } catch (e) { }
   var hasSW = 'serviceWorker' in navigator;
-  var hasPush = hasSW && 'PushManager' in window && 'Notification' in window;
+  var hasPush = hasSW && !!window.PushManager && !!window.Notification;      // a browser may have the name but no object
   var needsInstall = isIOS && !standalone;
   var swFailed = false;
 
   var key = '';                  // the public key of the server (the page gives it)
   var loggedIn = false;
-  var appWin = null;             // the window of the Ops Desk page
+  var appWin = null;             // the window that talks to this part: this window
   var appOrigin = '*';
   var pendingOpen = readOpenFromUrl();
   var chain = Promise.resolve();
@@ -81,11 +3856,16 @@
   var HIDE_KEY = 'odw_hide';
   var HIDE_MS = 3 * 24 * 3600 * 1000;
 
-  // ---------- The Ops Desk page in the frame ----------
+  // ---------- The address of the server ----------
 
-  // The address must be an https address that ends with /exec (a local address is allowed for tests)
+  // The address must be an https address that ends with /exec
   function validUrl(u) {
-    return /^(https:\/\/[^\s\/]+|http:\/\/(localhost|127\.\d+\.\d+\.\d+)(:\d+)?)(\/[^\s]*)?\/exec(\?[^\s]*)?$/.test(u) && u.indexOf('PASTE') === -1;
+    return /^https:\/\/[^\s\/]+(\/[^\s]*)?\/exec(\?[^\s]*)?$/.test(u) && u.indexOf('PASTE') === -1;
+  }
+
+  if (!validUrl(APP_URL)) {
+    var warn = el('odSetup');
+    if (warn) warn.style.display = 'block';
   }
 
   // A tap on an alert while the app was closed: the numbers come in the address
@@ -98,13 +3878,6 @@
       history.replaceState(null, '', location.pathname);          // a refresh does not open it again
       return { id: id, entryId: entry };
     } catch (e) { return null; }
-  }
-
-  if (validUrl(APP_URL)) {
-    frame.src = APP_URL;
-  } else {
-    el('setup').style.display = 'block';
-    frame.style.display = 'none';
   }
 
   // ---------- The service worker ----------
@@ -193,6 +3966,7 @@
     });
   }
 
+  // The page is in this same window: the message goes to this window
   function post(msg) {
     if (!appWin) return;
     try { appWin.postMessage(msg, appOrigin); } catch (e) { }
@@ -206,7 +3980,7 @@
     });
   }
 
-  // ---------- The bar at the bottom ----------
+  // ---------- The bar above the tabs ----------
 
   function hiddenByUser() {
     try {
@@ -215,13 +3989,23 @@
     } catch (e) { return false; }
   }
 
+  // The page has its own tab bar at the bottom: the alerts bar sits right above it
+  function placeBar() {
+    var h = 0;
+    try {
+      var tabs = document.querySelector('.tabs');
+      if (tabs) h = Math.round(tabs.getBoundingClientRect().height);
+    } catch (e) { }
+    bar.style.setProperty('--od-tabs', h + 'px');
+  }
+
   function paintBar(st) {
     var text = '', button = '';
     if (loggedIn && !hiddenByUser()) {
       if (st.needsInstall) {
-        text = 'To get alerts on iPhone: tap Share, then "Add to Home Screen", and open Ops Desk from the Home Screen.';
+        text = 'To get alerts on iPhone: tap Share, then "Add to Home Screen", and open TechFlex from the Home Screen.';
       } else if (st.supported && st.permission === 'denied') {
-        text = 'Alerts are blocked. Allow notifications for Ops Desk in the settings of this phone or browser.';
+        text = 'Alerts are blocked. Allow notifications for TechFlex in the settings of this phone or browser.';
       } else if (st.supported && st.permission === 'default') {
         text = 'Get an alert with a sound on this device, even when the app is closed.';
         button = 'Turn on alerts';
@@ -234,6 +4018,7 @@
     barBtn.textContent = button;
     barBtn.hidden = !button;
     bar.hidden = !text;
+    placeBar();
   }
 
   barBtn.addEventListener('click', function () {
@@ -251,25 +4036,21 @@
     bar.hidden = true;
   });
 
+  try {
+    window.addEventListener('resize', placeBar);
+    if (window.ResizeObserver) {
+      var tabsEl = document.querySelector('.tabs');
+      if (tabsEl) new ResizeObserver(placeBar).observe(tabsEl);
+    }
+  } catch (e) { }
+
   // ---------- Messages ----------
 
-  // Only a window inside the Ops Desk frame may talk to this page
-  function fromApp(src) {
-    try {
-      var w = src;
-      for (var i = 0; i < 6 && w; i++) {
-        if (w === frame.contentWindow) return true;
-        if (w === window || w.parent === w) return false;
-        w = w.parent;
-      }
-    } catch (e) { }
-    return false;
-  }
-
+  // Only this window may talk to this part (a message from another window or another site is not answered)
   window.addEventListener('message', function (e) {
     var d = e.data;
     if (!d || d.od !== 1 || typeof d.type !== 'string') return;
-    if (!fromApp(e.source)) return;
+    if (e.source !== window) return;
     appWin = e.source;
     appOrigin = (e.origin && e.origin !== 'null') ? e.origin : '*';
 

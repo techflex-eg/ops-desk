@@ -1,60 +1,46 @@
-OPS DESK APP  (alerts with a sound, even when the page is closed)
-=================================================================
+TECHFLEX APP   (the page, with alerts and a sound, on its own web address)
+====================================================================
 
 What is this?
 -------------
-A very small web site. It opens your Ops Desk page inside it and adds one thing:
-an alert with a sound on the phone or the computer, even when Ops Desk is closed.
-It keeps no data. Every PIN, entry and notice stays in your Google Sheet.
+The same TechFlex page that you use today, but it opens straight from GitHub Pages with NO Google page around it.
+So it does not matter how many Google accounts are signed in to the browser: the page opens, you sign in with your
+PIN, and it works. It talks to your Google Sheet only through the web app address of Apps Script (see config.js).
+It keeps no data: every PIN, entry and notice stays in your Google Sheet.
+It also gives an alert with a sound on a phone or a computer, even when the app is closed.
 
 The files
 ---------
-  config.js              the ONLY file you change (your Ops Desk address goes here)
-  index.html             the app page
+  index.html             the page (and the alerts part)
+  config.js              the ONLY file you may need to change: the web app address of Apps Script
   sw.js                  the part that receives the alerts
-  manifest.webmanifest   the name and the icons ("Add to Home Screen")
-  icons/                 the pictures
+  manifest.webmanifest   the name (TechFlex) and the icons ("Add to Home Screen")
+  icons/                 the pictures (the TF logo)
 
-Set up (one time)
------------------
-1. In Apps Script: Deploy > Manage deployments. Copy the "Web app" address.
-   It starts with https://script.google.com/macros/s/ and ends with /exec
-   (Who has access must be "Anyone", like it is today.)
-2. Open config.js with Notepad. Replace PASTE-THE-WEB-APP-ADDRESS-HERE with that address.
-   Keep the quotes. Save the file.
-3. Put the whole folder on a free web host. The easy ways:
-     - Netlify Drop: open app.netlify.com/drop, sign in (a free account is enough),
-       drag this folder onto the page.
-       IMPORTANT: a new Netlify project can start as PRIVATE. Then only you can open it.
-       Open the project and click "Make public"
-       (or Project configuration > General > Visitor access > Project visibility > Public).
-     - GitHub Pages: make a PUBLIC repository, upload these files, then
-       Settings > Pages > Deploy from a branch > main > Save.
-   You get an address like https://something.netlify.app  (or https://name.github.io/repo/)
-   CHECK: open that address in a private (incognito) window. You must see the Ops Desk sign in.
-   If you see a Netlify page, or a password or login question, the site is still private.
-4. Open that address on your phone or computer, sign in with your PIN.
-   A bar appears at the bottom: tap "Turn on alerts" and allow notifications.
-   A new device tests itself once: you get an alert "Ops Desk test" with a sound.
-5. Open the bell. The line at the top says if alerts are on. Tap "Send test" to test again:
-   the page waits for the test to arrive and tells you what happened.
-   If the full message does not arrive but a short alert does, this device gets short alerts
-   ("You have a new notice") and the page shows the details when you open it.
+Put it on GitHub (one time)
+---------------------------
+1. Open your repository  ops-desk  on github.com.
+2. Click  Add file > Upload files.
+3. Open this folder on your computer, select EVERYTHING inside it (index.html, config.js, sw.js,
+   manifest.webmanifest, README.txt and the folder  icons ), and drag it all into the GitHub page.
+   (Drag the contents of the folder, not the .zip file.)
+4. Wait until the files are listed, then click  Commit changes.
+5. Wait 1 or 2 minutes. Open  https://techflex-eg.github.io/ops-desk/  and press Ctrl+Shift+R (or close and open the page).
+   You should see the TechFlex tab title and the TechFlex sign in.
 
-Everybody who wants alerts opens Ops Desk from THIS address (add it to the bookmarks).
-The old Apps Script link still works, but it cannot give alerts when it is closed.
+First time on each phone or computer
+------------------------------------
+Sign in with the PIN once (this address is new for the browser, so it asks again; after that it remembers).
+A bar appears above the tabs: tap "Turn on alerts" and allow notifications.
+A new device tests itself once: you get an alert with a sound.
+iPhone: Safari > Share > Add to Home Screen > open TechFlex from that icon > sign in > Turn on alerts.
 
-iPhone and iPad
----------------
-Alerts work on iOS 16.4 or newer, and only for an app on the Home Screen:
-open the address in Safari > Share > Add to Home Screen > open Ops Desk from that icon > sign in > Turn on alerts.
+If the Apps Script address changes
+----------------------------------
+Only if you make a NEW deployment in Apps Script (Deploy > New deployment). Then the address changes:
+open config.js on GitHub, click the pencil, paste the new address between the quotes, Commit changes.
+(If you use Deploy > Manage deployments > Edit > Version: New version, the address stays the same.)
 
-Computers
----------
-The browser must be running (it can be minimized). If the browser is fully closed, the alert waits
-and arrives when the browser starts.
-
-If you change the files later
------------------------------
-Upload all the files again to the same place (on Netlify: drag the folder onto the drop zone at the
-bottom of the project's Deploys page). Keep your own config.js (with your address).
+The old Apps Script link still works
+------------------------------------
+It opens the same page inside Google, as before. Use it only if this address is not available.

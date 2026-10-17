@@ -1,7 +1,7 @@
 {
-  "name": "Ops Desk",
-  "short_name": "Ops Desk",
-  "description": "Ops Desk with alerts on your phone or computer",
+  "name": "TechFlex",
+  "short_name": "TechFlex",
+  "description": "TechFlex with alerts on your phone or computer",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
