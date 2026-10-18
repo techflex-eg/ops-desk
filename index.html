@@ -6,8 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1f3a5f">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=27">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=27">
+<link rel="shortcut icon" href="favicon.ico?v=27">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=27">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="TechFlex">
@@ -90,6 +92,9 @@
   .fchips button[data-f="CASH"] .n { background: var(--k-cash-line); color: var(--k-cash-ink); }
   .fchips button[data-f="CASH"].on .n { background: rgba(255, 255, 255, 0.25); color: #ffffff; }
   .card.entry.k-cash { background: var(--k-cash-bg); border-color: var(--k-cash-line); }
+  /* The chosen type is vivid, the others are pale, so the eye stays on one thing */
+  #typeSeg button:not(.on), .fchips button:not(.on) { opacity: .6; filter: saturate(.35); }
+  #typeSeg button.on, .fchips button.on { opacity: 1; filter: none; font-weight: 700; box-shadow: 0 2px 8px rgba(0, 0, 0, .22); }
   .card.entry .sub { color: var(--mu); }
   .lclear { margin-left: 8px; padding: 3px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card);
     color: var(--brand); font-size: 13px; font-weight: 700; cursor: pointer; }
@@ -164,6 +169,7 @@
     border-radius: 999px; padding: 6px 6px 6px 12px; font-size: 14px; font-weight: 600; }
   .chip button { border: 0; background: var(--card); color: var(--muted); width: 22px; height: 22px;
     border-radius: 50%; cursor: pointer; line-height: 1; }
+  .chip .carea { font-weight: 500; font-size: 12px; color: var(--muted); }
   .count { font-size: 13px; color: var(--muted); margin-top: 8px; }
 
   /* Cash rows */
@@ -527,7 +533,7 @@
 
         <input id="proofFile" type="file" accept="image/*,application/pdf" class="hidden">
 
-        <button id="saveBtn" class="primary">Save</button>
+        <button id="saveBtn" class="primary">Submit</button>
         <div id="saveMsg" class="msg"></div>
       </div>
     </div>
@@ -1682,13 +1688,14 @@
       html = '<div class="chips">' + d.sel.map(function (tid) {
         var dr = state.byTid[tid];
         if (!dr) return '';
-        return '<span class="chip">' + esc(dr.n) + '<button type="button" data-rm="' + esc(tid) + '">&times;</button></span>';
+        var areaLabel = state.type === 'RESCUE' && dr.a ? ' <span class="carea">Area: ' + esc(dr.a) + '</span>' : '';
+        return '<span class="chip">' + esc(dr.n) + areaLabel + '<button type="button" data-rm="' + esc(tid) + '">&times;</button></span>';
       }).join('') + '</div>';
     }
 
     $('chosen').innerHTML = html;
     $('chosenCount').textContent = d.sel.length > 1 ? d.sel.length + ' drivers selected' : '';
-    $('saveBtn').textContent = d.sel.length > 1 ? 'Save (' + d.sel.length + ')' : 'Save';
+    $('saveBtn').textContent = d.sel.length > 1 ? 'Submit (' + d.sel.length + ')' : 'Submit';
   }
 
   $('chosen').addEventListener('click', function (e) {
@@ -1833,7 +1840,7 @@
 
     $('saveBtn').disabled = true;
     var oldLabel = $('saveBtn').textContent;
-    $('saveBtn').textContent = 'Saving...';
+    $('saveBtn').textContent = 'Submitting...';
     try {
       var r = await call('apiSaveEntries', state.pin, p);
       if (r.ok) {

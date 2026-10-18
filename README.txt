@@ -27,6 +27,7 @@ Put it on GitHub (one time)
 4. Wait until the files are listed, then click  Commit changes.
 5. Wait 1 or 2 minutes. Open  https://techflex-eg.github.io/ops-desk/  and press Ctrl+Shift+R (or close and open the page).
    You should see the TechFlex tab title and the TechFlex sign in.
+   If the tab still shows the old small picture, close the tab and open it again (the browser keeps old pictures; this version has new picture names).
 
 First time on each phone or computer
 ------------------------------------
