@@ -29,6 +29,11 @@
     --waiting: #b45f06; --waiting-bg: #fce5cd;
     --error: #a12222;
     --mu: #56616e;
+    /* The chat on a card looks like WhatsApp */
+    --wa-bg: #efeae2; --wa-dots: rgba(11, 20, 26, .05); --wa-in: #ffffff; --wa-out: #d9fdd3; --wa-ink: #111b21;
+    --wa-time: #667781; --wa-time-out: #667781; --wa-pill: #ffffff; --wa-pill-ink: #54656f; --wa-sys: #fff5c4; --wa-sys-ink: #54656f;
+    --wa-quote: rgba(11, 20, 26, .06); --wa-shadow: rgba(11, 20, 26, .13);
+    --wn0: #d6336c; --wn1: #1971c2; --wn2: #e8590c; --wn3: #0c8599; --wn4: #7048e8; --wn5: #2f9e44; --wn6: #b5179e; --wn7: #a9680a;
   }
   /* Dark: the buttons at the top of the page choose it. Without a choice it follows the phone. */
   :root[data-theme="dark"] {
@@ -43,6 +48,10 @@
     --found: #9cc5ef; --found-bg: #1d3350;
     --waiting: #f1bd83; --waiting-bg: #4a3016;
     --error: #f3a5a5;
+    --wa-bg: #0b141a; --wa-dots: rgba(255, 255, 255, .04); --wa-in: #202c33; --wa-out: #005c4b; --wa-ink: #e9edef;
+    --wa-time: #8696a0; --wa-time-out: #99beb7; --wa-pill: #182229; --wa-pill-ink: #8696a0; --wa-sys: #182229; --wa-sys-ink: #ffd279;
+    --wa-quote: rgba(0, 0, 0, .22); --wa-shadow: rgba(0, 0, 0, .35);
+    --wn0: #ff8fb3; --wn1: #74b9ff; --wn2: #ffa94d; --wn3: #3bc9db; --wn4: #b197fc; --wn5: #69db7c; --wn6: #f0a3e8; --wn7: #e5b567;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) {
@@ -57,6 +66,10 @@
       --found: #9cc5ef; --found-bg: #1d3350;
       --waiting: #f1bd83; --waiting-bg: #4a3016;
       --error: #f3a5a5;
+      --wa-bg: #0b141a; --wa-dots: rgba(255, 255, 255, .04); --wa-in: #202c33; --wa-out: #005c4b; --wa-ink: #e9edef;
+      --wa-time: #8696a0; --wa-time-out: #99beb7; --wa-pill: #182229; --wa-pill-ink: #8696a0; --wa-sys: #182229; --wa-sys-ink: #ffd279;
+      --wa-quote: rgba(0, 0, 0, .22); --wa-shadow: rgba(0, 0, 0, .35);
+      --wn0: #ff8fb3; --wn1: #74b9ff; --wn2: #ffa94d; --wn3: #3bc9db; --wn4: #b197fc; --wn5: #69db7c; --wn6: #f0a3e8; --wn7: #e5b567;
     }
   }
   /* The three kinds have a soft color each. The button and the cards of a kind use the same color. */
@@ -214,6 +227,13 @@
   .entry .name { font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
   .entry .sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
   .entry .detail { margin-top: 8px; font-size: 14px; }
+  .es-strip { display: flex; margin-top: 10px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); }
+  .es-cell { flex: 1 1 0; min-width: 0; padding: 7px 12px; }
+  .es-cell:first-child { flex: 2 1 0; }
+  .es-cell + .es-cell { border-left: 1px solid var(--line); }
+  .es-lab { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .es-val { margin-top: 1px; font-size: 16px; font-weight: 800; word-break: break-word; overflow-wrap: anywhere; }
+  .es-val.none { color: var(--muted); font-weight: 600; }
   .badge { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
   .st-pending, .st-searching { background: var(--pending-bg); color: var(--pending); }
   .st-approved, .st-found, .st-removed { background: var(--approved-bg); color: var(--approved); }
@@ -324,26 +344,43 @@
   .lc-actions button { flex: 1 1 0; min-width: 0; min-height: 42px; padding: 6px 8px; border-radius: 10px; border: 1px solid var(--line);
     background: var(--bg); color: var(--ink); font-size: 14px; font-weight: 700; line-height: 1.15; cursor: pointer; }
   .lc-actions button.main { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
-  /* The talk on a card, like a chat: the POC side on the right (orange, or the color of the person he talked to), the
-     audit side on the left (blue). The oldest message is on top. */
+  /* The talk on a card looks like a WhatsApp chat. The messages of the POC side (Request, Updates) are green on the right, the messages of the
+     audit side are white on the left, with the names. The oldest message is on top. */
   .lc-chat { padding-top: 12px; border-top: 1px solid var(--line); margin-top: 16px; }
-  .chat { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-  .cm { max-width: 88%; min-width: 0; padding: 7px 11px 8px; border-radius: 14px; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
-  .cm-audit { align-self: flex-start; background: var(--found-bg); border-bottom-left-radius: 4px; border-left: 4px solid var(--found); }
-  .cm-poc { align-self: flex-end; background: var(--cb, var(--waiting-bg)); border-bottom-right-radius: 4px; border-right: 4px solid var(--cc, var(--waiting)); }
-  .cm-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 10px; font-size: 12px; }
-  .cm-who { font-weight: 800; }
-  .cm-audit .cm-who { color: var(--found); }
-  .cm-poc .cm-who { color: var(--cc, var(--waiting)); }
-  .cm-time { color: var(--muted); }
-  .cm-time.fresh { color: var(--ink); font-weight: 700; }
-  .cm-tags { display: flex; flex-wrap: wrap; gap: 0 10px; margin-top: 2px; }
-  .cm-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; color: var(--cc); }
-  .cm-tag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); }
-  .cm-ev .cm-tag::before { display: none; }
-  .cm-text { margin-top: 3px; white-space: pre-wrap; }
-  .cm-ph { margin-top: 5px; font-size: 12px; color: var(--muted); }
-  .chat .morebtn { align-self: center; }
+  .chat { display: flex; flex-direction: column; margin-top: 8px; padding: 10px 12px 12px; border-radius: 12px; background-color: var(--wa-bg);
+    background-image: radial-gradient(var(--wa-dots) 1.3px, transparent 1.7px), radial-gradient(var(--wa-dots) 1px, transparent 1.4px);
+    background-size: 24px 24px, 38px 38px; background-position: 0 0, 12px 18px; }
+  .chat .morebtn { align-self: center; margin: 0 0 6px; padding: 5px 12px; border-radius: 999px; background: var(--wa-pill); color: var(--wa-pill-ink);
+    font-size: 12.5px; font-weight: 600; box-shadow: 0 1px 1px var(--wa-shadow); }
+  .cm-day { align-self: center; margin: 8px 0 2px; padding: 4px 10px; border-radius: 8px; background: var(--wa-pill); color: var(--wa-pill-ink);
+    font-size: 12.5px; line-height: 1.2; box-shadow: 0 1px 1px var(--wa-shadow); }
+  .cm { position: relative; max-width: 84%; min-width: 0; margin-top: 2px; padding: 5px 8px 6px 9px; border-radius: 8px; color: var(--wa-ink);
+    font-size: 14.5px; line-height: 1.35; word-break: break-word; overflow-wrap: anywhere; box-shadow: 0 1px 1px var(--wa-shadow); }
+  .cm.first { margin-top: 8px; }
+  .cm-in { align-self: flex-start; background: var(--wa-in); }
+  .cm-out { align-self: flex-end; background: var(--wa-out); }
+  .cm-in.first { border-top-left-radius: 0; }
+  .cm-out.first { border-top-right-radius: 0; }
+  .cm-in.first::before, .cm-out.first::before { content: ""; position: absolute; top: 0; width: 9px; height: 13px; }
+  .cm-in.first::before { left: -8px; background: var(--wa-in); clip-path: polygon(100% 0, 100% 100%, 0 0); }
+  .cm-out.first::before { right: -8px; background: var(--wa-out); clip-path: polygon(0 0, 100% 0, 0 100%); }
+  .cm-who { margin-bottom: 1px; font-size: 13px; font-weight: 700; line-height: 1.3; }
+  .wn0 { color: var(--wn0); } .wn1 { color: var(--wn1); } .wn2 { color: var(--wn2); } .wn3 { color: var(--wn3); }
+  .wn4 { color: var(--wn4); } .wn5 { color: var(--wn5); } .wn6 { color: var(--wn6); } .wn7 { color: var(--wn7); }
+  .wa-to { display: flex; flex-wrap: wrap; gap: 0 10px; margin: 1px 0 4px; padding: 3px 8px; border-left: 4px solid var(--cc); border-radius: 6px; background: var(--wa-quote); }
+  .cm-tag { font-size: 12.5px; font-weight: 700; line-height: 1.35; color: var(--cc); }
+  .wa-body { position: relative; }
+  .cm-ph { margin: 1px 0 3px; padding: 6px 8px; border-radius: 6px; background: var(--wa-quote); font-size: 13px; color: var(--wa-time); }
+  .cm-out .cm-ph { color: var(--wa-time-out); }
+  .cm-text { white-space: pre-wrap; }
+  .wa-sp { display: inline-block; width: 50px; height: 1px; }
+  .cm-time { position: absolute; inset-inline-end: 0; bottom: -2px; font-size: 11px; line-height: 1; white-space: nowrap; color: var(--wa-time); }
+  .cm-out .cm-time { color: var(--wa-time-out); }
+  .cm-ev { align-self: center; max-width: 92%; margin-top: 8px; padding: 4px 10px; border-radius: 8px; background: var(--wa-sys); color: var(--wa-sys-ink);
+    font-size: 12.5px; line-height: 1.3; text-align: center; }
+  .cm-ev .cm-tag::before { content: "\2714\00a0"; }
+  .cm-ev .cm-who { display: inline; margin: 0; font-size: 12.5px; font-weight: 600; color: var(--wa-sys-ink); }
+  .cm-ev .cm-time { position: static; margin-left: 6px; font-size: 11.5px; color: var(--wa-sys-ink); }
 
   /* The two small buttons at the top: light or dark */
   .top-right { display: flex; align-items: center; gap: 8px; flex: none; }
@@ -483,7 +520,7 @@
     <div class="top-inner">
       <div>
         <h1 id="officeName">Ops Desk</h1>
-        <div class="who" id="whoLine"></div>
+        <div class="who"><span id="whoLine"></span><span class="ver" id="verTag"> &middot; v30</span></div>
       </div>
       <div class="top-right">
         <button type="button" class="bell" id="bellBtn" aria-label="Notifications" title="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg><span class="dot" id="bellDot"></span></button>
@@ -530,6 +567,9 @@
         <div id="fRescue" class="hidden">
           <label>Hours (the same for all selected drivers)</label>
           <input id="hours" type="number" inputmode="decimal" step="0.5" min="0" max="24" placeholder="0">
+          <label>Area (the same for all selected drivers)</label>
+          <input id="area" type="text" list="areaList" maxlength="60" placeholder="Optional (empty = driver Area)" autocomplete="off" autocapitalize="words" enterkeyhint="done">
+          <datalist id="areaList"></datalist>
         </div>
 
         <input id="proofFile" type="file" accept="image/*,application/pdf" class="hidden">
@@ -1062,7 +1102,7 @@
   var LIST_LIMIT = 300;
 
   // Every type has its own separate draft.
-  function newDraft() { return { date: todayStr(), sel: [], hours: '', amounts: {}, files: {} }; }
+  function newDraft() { return { date: todayStr(), sel: [], hours: '', area: '', amounts: {}, files: {} }; }
 
   var state = {
     pin: '', user: null, drivers: [], byTid: {}, stations: [], station: '',
@@ -1506,6 +1546,7 @@
     var d = draft();
     d.date = $('entryDate').value;
     d.hours = $('hours').value;
+    d.area = $('area').value;
   }
 
   function loadDraftToForm() {
@@ -1514,6 +1555,7 @@
     $('entryDate').max = todayStr();
     $('entryDate').min = addDays(todayStr(), -MAX_BACK_DAYS);
     $('hours').value = d.hours;
+    $('area').value = d.area || '';
     paintEntryDays();
     $('fRescue').classList.toggle('hidden', state.type !== 'RESCUE');
     $('driverSearch').value = '';
@@ -1563,7 +1605,7 @@
     var types = ['IDLE', 'RESCUE', 'CASH'];
     for (var i = 0; i < types.length; i++) {
       var d = drafts[types[i]];
-      var empty = !d.sel.length && !d.hours && !Object.keys(d.amounts).length && !Object.keys(d.files).length;
+      var empty = !d.sel.length && !d.hours && !d.area && !Object.keys(d.amounts).length && !Object.keys(d.files).length;
       if (empty && d.date !== today) d.date = today;
     }
     if ($('entryDate').value === draft().date) return;
@@ -1773,9 +1815,32 @@
 
   // ---------- Selected drivers ----------
 
+  // The Area typed in the Rescue Hours form (one Area for all the selected drivers). Empty = each driver keeps the Area of the Database.
+  function typedArea() {
+    return String(draft().area || '').replace(/\s+/g, ' ').trim();
+  }
+
+  // The Areas of the drivers of the ticked stations, to choose from while typing
+  var areaSig = '';
+  function renderAreaList() {
+    var seen = {};
+    var names = [];
+    stationDrivers().forEach(function (x) {
+      var a = String(x.a || '').trim();
+      var k = a.toLowerCase();
+      if (a && !seen[k]) { seen[k] = true; names.push(a); }
+    });
+    names.sort(function (p, q) { return p.localeCompare(q); });
+    var sig = names.join('|');
+    if (sig === areaSig) return;
+    areaSig = sig;
+    $('areaList').innerHTML = names.map(function (a) { return '<option value="' + esc(a) + '"></option>'; }).join('');
+  }
+
   function renderChosen() {
     var d = draft();
     var html = '';
+    if (state.type === 'RESCUE') renderAreaList();
 
     if (state.type === 'CASH') {
       html = d.sel.map(function (tid) {
@@ -1794,7 +1859,7 @@
       html = '<div class="chips">' + d.sel.map(function (tid) {
         var dr = state.byTid[tid];
         if (!dr) return '';
-        var areaLabel = state.type === 'RESCUE' && dr.a ? ' <span class="carea">Area: ' + esc(dr.a) + '</span>' : '';
+        var areaLabel = state.type === 'RESCUE' && !typedArea() && dr.a ? ' <span class="carea">Area: ' + esc(dr.a) + '</span>' : '';
         return '<span class="chip">' + esc(dr.n) + areaLabel + '<button type="button" data-rm="' + esc(tid) + '">&times;</button></span>';
       }).join('') + '</div>';
     }
@@ -1803,6 +1868,13 @@
     $('chosenCount').textContent = d.sel.length > 1 ? d.sel.length + ' drivers selected' : '';
     $('saveBtn').textContent = d.sel.length > 1 ? 'Submit (' + d.sel.length + ')' : 'Submit';
   }
+
+  // Typing the Area changes the chips (they show the Area of each driver only while nothing is typed)
+  $('area').addEventListener('input', function () {
+    draft().area = this.value;
+    renderChosen();
+  });
+  $('area').addEventListener('keydown', function (e) { if (e.key === 'Enter') this.blur(); });
 
   $('chosen').addEventListener('click', function (e) {
     var d = draft();
@@ -1914,6 +1986,7 @@
       if (!(Number(d.hours) > 0)) { setMsg('saveMsg', 'Enter the hours.', 'err'); return; }
       p.tids = d.sel.slice();
       p.hours = d.hours;
+      if (typedArea()) p.area = typedArea().slice(0, 60);
     } else {
       p.items = [];
       var repeated = [];
@@ -1952,13 +2025,16 @@
       if (r.ok) {
         var text = 'Saved ' + r.saved + (r.saved === 1 ? ' entry' : ' entries') + '.';
         if (r.skipped && r.skipped.length) text += ' Already recorded, so skipped: ' + r.skipped.join(', ') + '.';
+        // The Area was typed but the answer does not know about it: the Apps Script code is older than this page
+        var oldServer = !!p.area && r.area === undefined;
+        if (oldServer) text += ' The Area was NOT saved: the Apps Script code is old. Paste the new WebApp.gs and deploy a new version.';
         // Clear only this type, keep its date
         var keepDate = d.date;
         drafts[type] = newDraft();
         drafts[type].date = keepDate;
         delete state.recorded[type + '|' + keepDate];
         loadDraftToForm();
-        setMsg('saveMsg', text, 'ok');
+        setMsg('saveMsg', text, oldServer ? 'err' : 'ok');
       } else {
         setMsg('saveMsg', r.message, 'err');
         $('saveBtn').textContent = oldLabel;
@@ -2154,25 +2230,93 @@
     return mergeTalk(mine, auditMsgs(x));
   }
 
-  // One message
-  function bubbleHtml(m) {
+  // '14-Oct 18:00:07' -> '18:00' (the time inside a bubble). A time that is not in this shape is shown as it is.
+  function clockOf(t) {
+    var m = /^\d{1,2}-[A-Za-z]{3}\s+(\d{1,2}):(\d{2})(?::\d{2})?$/.exec(String(t || '').trim());
+    return m ? pad2(m[1]) + ':' + m[2] : String(t || '').trim();
+  }
+
+  // The day of a message ('2026-10-14', or '' when the message has no time) and its name in the separator
+  function dayOfMsg(m) {
+    var s = stampOf(m.time);
+    return s === null ? '' : new Date(s).toISOString().slice(0, 10);
+  }
+  function chatDayName(key) {
+    var today = todayStr();
+    if (key === today) return 'Today';
+    if (key === addDays(today, -1)) return 'Yesterday';
+    return Number(key.slice(8, 10)) + ' ' + MONTH_SHORT[Number(key.slice(5, 7)) - 1] + (key.slice(0, 4) === today.slice(0, 4) ? '' : ' ' + key.slice(0, 4));
+  }
+
+  // Every name has its own color in a chat: the color comes from the name, and the next free color is taken when two names get the same one.
+  // The colors are given from the whole talk (not only the messages on the screen), so a name keeps its color when the earlier messages are opened.
+  function nameSlots(talk) {
+    var slots = {};
+    var used = {};
+    talk.forEach(function (m) {
+      var key = String(m.who || '').trim().toLowerCase();
+      if (!key || slots[key] !== undefined) return;
+      var h = 0;
+      for (var i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+      var n = h % 8;
+      for (var tries = 0; tries < 8 && used[n]; tries++) n = (n + 1) % 8;
+      slots[key] = n;
+      used[n] = true;
+    });
+    return slots;
+  }
+
+  // Is this the person who looks at the card?
+  function isMe(name) {
+    var me = String(state.user && state.user.name || '').trim().toLowerCase();
+    return !!me && String(name || '').trim().toLowerCase() === me;
+  }
+
+  // One message. The POC side is green on the right, the audit side is white on the left.
+  // first = the message above it is from somebody else (or there is none): it gets the tail and the name.
+  // The name is shown on the left side always, and on the right side only when it is not the name of the person who looks at the card.
+  function bubbleHtml(m, first, slots) {
+    var out = m.side !== 'audit';
     var when = whenInfo(m.time);
-    var cls = 'cm ' + (m.side === 'audit' ? 'cm-audit' : 'cm-poc');
-    if (m.side !== 'audit') {
-      if (m.event) cls += ' c-found cm-ev';
-      else if (m.tags.length) cls += ' ' + (CONTACT_CLASS[m.tags[0]] || 'c-other');
-      else if (!m.who) cls += ' c-other';                    // a line typed by hand in the sheet (no time, no name): gray
+    var clock = clockOf(m.time);
+    var cls = 'cm ' + (out ? 'cm-poc cm-out' : 'cm-audit cm-in');
+    var data = ' data-who="' + esc(m.who) + '" data-when="' + esc(when.text) + '"';
+    if (m.event) {
+      return '<div class="' + cls + ' c-found cm-ev"' + data + '><span class="cm-tag">Found</span>' +
+        (m.who ? ' <span class="cm-who" dir="auto">' + esc(m.who) + '</span>' : '') +
+        (clock ? ' <span class="cm-time">' + esc(clock) + '</span>' : '') + '</div>';
     }
-    var tags = m.event ? '<span class="cm-tag">Found</span>' : m.tags.map(function (t) {
+    var slot = slots[String(m.who || '').trim().toLowerCase()] || 0;
+    var name = first && m.who && !(out && isMe(m.who)) ? '<div class="cm-who wn' + slot + '" dir="auto">' + esc(m.who) + '</div>' : '';
+    var tags = m.tags.length ? '<div class="wa-to ' + (CONTACT_CLASS[m.tags[0]] || 'c-other') + '">' + m.tags.map(function (t) {
       return '<span class="cm-tag ' + (CONTACT_CLASS[t] || 'c-other') + '">' + esc(t) + '</span>';
-    }).join('');
-    return '<div class="' + cls + '">' +
-      '<div class="cm-top"><span class="cm-who" dir="auto">' + esc(m.who) + '</span>' +
-      '<span class="cm-time' + (when.fresh ? ' fresh' : '') + '">' + esc(when.text) + '</span></div>' +
-      (tags ? '<div class="cm-tags">' + tags + '</div>' : '') +
-      (m.text && !m.event ? '<div class="cm-text" dir="auto">' + esc(m.text) + '</div>' : '') +
-      (m.photos ? '<div class="cm-ph">&#128247; ' + esc(m.photos) + '</div>' : '') +
+    }).join('') + '</div>' : '';
+    // The direction of the bubble comes from the text of the message (Arabic goes right to left, and the time goes to the other end)
+    var photos = m.photos ? '<div class="cm-ph" dir="ltr">&#128247; ' + esc(m.photos) + '</div>' : '';
+    var text = m.text ? '<span class="cm-text">' + esc(m.text) + '</span>' : '';
+    return '<div class="' + cls + (first ? ' first' : '') + '"' + data + '>' + name + tags +
+      '<div class="wa-body" dir="auto">' + photos + text + (clock ? '<span class="wa-sp"></span><span class="cm-time">' + esc(clock) + '</span>' : '') + '</div>' +
       '</div>';
+  }
+
+  // The messages with a separator at every new day, like WhatsApp: "Today", "Yesterday", "14 Oct".
+  // A message with no time of its own stays in the day of the message before it.
+  function bubblesHtml(list, slots) {
+    var out = '';
+    var day = '';
+    var before = '';
+    list.forEach(function (m) {
+      var d = dayOfMsg(m);
+      if (d && d !== day) {
+        day = d;
+        before = '';
+        out += '<div class="cm-day">' + esc(chatDayName(d)) + '</div>';
+      }
+      var who = m.event ? '' : m.side + '|' + String(m.who || '').trim().toLowerCase();
+      out += bubbleHtml(m, !who || who !== before, slots);
+      before = who;
+    });
+    return out;
   }
 
   // The chat: the last CHAT_SHOWN messages, and a button for the earlier ones. The newest message is at the bottom.
@@ -2189,7 +2333,7 @@
       more = '<button type="button" class="morebtn" data-act="more" data-id="' + esc(x.id) + '">' +
         (all ? 'Show fewer' : 'Show earlier messages (' + hidden + ')') + '</button>';
     }
-    return '<div class="chat">' + more + shown.map(bubbleHtml).join('') + '</div>';
+    return '<div class="chat">' + more + bubblesHtml(shown, nameSlots(talk)) + '</div>';
   }
 
   // Price and counter: the two numbers of the card, side by side
@@ -2903,6 +3047,18 @@
     $('entDateTxt').textContent = custom ? dayText(state.entDay) : 'Other days';
   }
 
+  // The line under the name of a card: Idle day, the Area and the Hours of a Rescue, the Amount of a Cash Shortage.
+  // A server that does not send area and hours yet (the old one) still gets its text line.
+  function detailHtml(e) {
+    if (e.kind === 'RESCUE' && e.hours !== undefined) {
+      return '<div class="es-strip">' +
+        '<div class="es-cell"><div class="es-lab">Area</div><div class="es-val' + (e.area ? '' : ' none') + '" dir="auto">' + (e.area ? esc(e.area) : '-') + '</div></div>' +
+        '<div class="es-cell"><div class="es-lab">Hours</div><div class="es-val">' + esc(e.hours) + '</div></div>' +
+        '</div>';
+    }
+    return '<div class="detail">' + esc(e.detail) + '</div>';
+  }
+
   // Words typed = every entry that has all the words, on any day.
   // No words = the entries of the chosen day (all dates when no day is chosen).
   function renderEntries() {
@@ -2960,7 +3116,7 @@
       return '<div class="card entry k-' + esc(String(e.kind).toLowerCase()) + '">' +
         '<div class="row"><div class="name">' + esc(e.name) + '</div><span class="badge st-' + esc(slug) + '">' + esc(e.status) + '</span></div>' +
         '<div class="sub">' + esc(KIND_LABEL[e.kind] || e.kind) + ' - ' + esc(e.date) + ' - ' + esc(e.station) + '</div>' +
-        '<div class="detail">' + esc(e.detail) + '</div>' +
+        detailHtml(e) +
         decided + chatHtml(e, false) +
         '<div class="sub">' + esc(e.id) + '</div>' +
         '<div class="actions">' + actions + '</div>' +
