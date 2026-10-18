@@ -1083,12 +1083,26 @@
     });
   }
 
-  // Every call to the server stops waiting after 45 seconds, so the page never hangs.
   // There are two ways to reach the server. The functions and the answers are the same:
   //  - this page is shown by Apps Script (the old address): google.script.run
   //  - this page is the app on its own address (no Google page around it): a plain web request to the web app
   //    (the address is OPS_DESK_APP_URL, from config.js). No Google account is involved, so any number of accounts
   //    in the same browser is no problem.
+  //
+  // A call that does not get through is tried again. It can fail for a reason that is not the internet: the server starts
+  // slowly, Google is busy for a moment, or the answer is lost on the way. So (web way):
+  //  - a read (the lists) is tried up to 3 times;
+  //  - a write (save, request, update, found) is tried up to 3 times with the SAME request number (rid), so the server writes only once
+  //    even when the first answer was lost;
+  //  - only when every try fails is the person told. The words say what happened (see failText).
+  var WRITE_CALLS = { apiSaveEntries: 1, apiCancelEntry: 1, apiRequestChange: 1, apiAddLossUpdate: 1, apiMarkFound: 1 };
+  var CALL_TRIES = 3;
+  var CALL_WAIT_MS = [700, 2000];             // the wait before the 2nd and the 3rd try
+  var CALL_READ_MS = 25000;                   // one try of a read
+  var CALL_WRITE_MS = 40000;                  // one try of a write
+  var CALL_FILES_MS = 100000;                 // one try of a write that carries photos
+  var CALL_RUNNER_MS = 45000;                 // google.script.run: one try
+
   function hasRunner() {
     return !!(window.google && google.script && google.script.run);
   }
@@ -1098,23 +1112,45 @@
     return /^https:\/\/[^\s\/]+(\/[^\s]*)?\/exec(\?[^\s]*)?$/.test(u) ? u : '';
   }
 
-  function callWeb(fn, args, signal) {
+  // kind: 'net' = the server was not reached or did not answer properly (worth trying again), 'app' = the server answered
+  // with an error, 'conf' = this page has no way to reach the server
+  function callError(kind, message) {
+    var e = new Error(message);
+    e.kind = kind;
+    return e;
+  }
+
+  function newRid() {
+    var a = '';
+    try {
+      var u = new Uint8Array(10);
+      crypto.getRandomValues(u);
+      a = Array.prototype.map.call(u, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+    } catch (e) {
+      a = (String(Math.random()).slice(2) + String(Math.random()).slice(2) + '00000000000000000000').slice(0, 20);
+    }
+    return 'r' + Date.now().toString(36) + a;
+  }
+
+  function callWeb(fn, args, signal, rid) {
+    var body = { fn: fn, args: args };
+    if (rid) body.rid = rid;
     return fetch(apiUrl(), {
       method: 'POST', credentials: 'omit', redirect: 'follow', cache: 'no-store',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },          // a simple request: no preflight
-      body: JSON.stringify({ fn: fn, args: args }),
+      body: JSON.stringify(body),
       signal: signal
     }).then(function (res) { return res.text(); }).then(function (txt) {
       var j = null;
       try { j = JSON.parse(txt); } catch (e) {}
-      if (!j) throw new Error('The server gave an answer that this page does not know.');
-      if (!j.ok) throw new Error(j.error || 'The server refused the call.');
+      if (!j) throw callError('net', 'The server gave an answer that this page does not know.');
+      if (!j.ok) throw callError('app', j.error || 'The server refused the call.');
       return j.r;
     });
   }
 
-  function call(fn) {
-    var args = Array.prototype.slice.call(arguments, 1);
+  // One try, with its own time limit
+  function callOnce(fn, args, rid, ms) {
     return new Promise(function (resolve, reject) {
       var done = false;
       var ctl = null;
@@ -1122,20 +1158,88 @@
         if (done) return;
         done = true;
         if (ctl) { try { ctl.abort(); } catch (e) {} }
-        reject(new Error('timeout'));
-      }, 45000);
+        reject(callError('net', 'timeout'));
+      }, ms);
       var good = function (r) { if (done) return; done = true; clearTimeout(timer); resolve(r); };
-      var bad = function (e) { if (done) return; done = true; clearTimeout(timer); reject(e); };
+      var bad = function (e) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        if (!e || typeof e !== 'object') e = new Error(String(e || 'failed'));
+        if (!e.kind) e.kind = 'net';                 // fetch itself failed (TypeError): the server was not reached
+        reject(e);
+      };
       if (hasRunner()) {
-        var runner = google.script.run.withSuccessHandler(good).withFailureHandler(bad);
+        var runner = google.script.run.withSuccessHandler(good).withFailureHandler(function (e) {
+          var err = new Error(e && e.message ? e.message : 'The server refused the call.');
+          err.kind = 'app';
+          bad(err);
+        });
         runner[fn].apply(runner, args);
       } else if (apiUrl() && window.fetch) {
         ctl = window.AbortController ? new AbortController() : null;
-        callWeb(fn, args, ctl ? ctl.signal : undefined).then(good, bad);
+        callWeb(fn, args, ctl ? ctl.signal : undefined, rid).then(good, bad);
       } else {
-        bad(new Error('This page is not connected to the server.'));
+        bad(callError('conf', 'This page is not connected to the server.'));
       }
     });
+  }
+
+  function carriesFiles(fn, args) {
+    try {
+      if (fn === 'apiAddLossUpdate') return !!(args[1] && args[1].files && args[1].files.length);
+      if (fn === 'apiSaveEntries') return !!(args[1] && args[1].items && args[1].items.some(function (x) { return x && x.file; }));
+    } catch (e) {}
+    return false;
+  }
+
+  // Is it worth trying again?  A read: the server was not reached, or it said it was busy. A write: only when the server was
+  // not reached (the request number keeps it from being written twice).
+  function canRetry(e, write) {
+    if (e.kind === 'net') return true;
+    if (e.kind === 'app' && !write) return /busy|timed out|time out|try again|too many|service|server error|unavailable|quota|rate limit|temporar/i.test(String(e.message));
+    return false;
+  }
+
+  function call(fn) {
+    return callWith(null, fn, Array.prototype.slice.call(arguments, 1));
+  }
+
+  // A question that is asked all the time (the notices): one try with a short limit. The next question comes soon anyway.
+  function callQuick(fn) {
+    return callWith({ tries: 1, ms: NOTIF_CALL_MS }, fn, Array.prototype.slice.call(arguments, 1));
+  }
+
+  function callWith(opt, fn, args) {
+    var runner = hasRunner();
+    var write = WRITE_CALLS[fn] === 1;
+    var rid = write && !runner ? newRid() : '';
+    var ms = runner ? CALL_RUNNER_MS : (write ? (carriesFiles(fn, args) ? CALL_FILES_MS : CALL_WRITE_MS) : CALL_READ_MS);
+    var tries = runner ? 1 : CALL_TRIES;
+    if (fn === 'apiPushTest') tries = 1;         // a test alert is not repeated: a lost answer would send it twice
+    if (opt && opt.ms) ms = opt.ms;
+    if (opt && opt.tries) tries = opt.tries;
+    return new Promise(function (resolve, reject) {
+      var n = 0;
+      (function attempt() {
+        n++;
+        callOnce(fn, args, rid, ms).then(resolve, function (e) {
+          if (n < tries && canRetry(e, write)) { setTimeout(attempt, CALL_WAIT_MS[Math.min(n, CALL_WAIT_MS.length) - 1]); return; }
+          try { if (e.kind === 'net' && navigator.onLine === false) e.kind = 'offline'; } catch (x) {}
+          reject(e);
+        });
+      })();
+    });
+  }
+
+  // The words for a call that failed after every try. Only a real loss of the internet says "internet": a server that is slow or busy
+  // says that. after = what the person does next ("Please try again." or, for a save, "Check ... before you try again.")
+  function failText(e, after) {
+    var k = e && e.kind;
+    var first = k === 'offline' ? 'No internet connection.'
+      : (k === 'app' ? 'The server could not do it now.'
+      : (k === 'conf' ? 'This page is not connected to the server.' : 'The server is slow or busy.'));
+    return first + ' ' + (after || 'Please try again.');
   }
 
   function store(key, value) {
@@ -1244,7 +1348,8 @@
       }
     } catch (e) {
       showLogin();
-      setMsg('loginMsg', 'No connection. Please try again.', 'err');
+      $('pin').value = pin;                       // the call did not get through: that is not a wrong PIN, so the PIN stays and one tap tries again
+      setMsg('loginMsg', failText(e), 'err');
     } finally {
       $('loginBtn').disabled = false;
     }
@@ -1859,7 +1964,7 @@
         $('saveBtn').textContent = oldLabel;
       }
     } catch (e) {
-      setMsg('saveMsg', 'No connection. Please check My Entries before you try again.', 'err');
+      setMsg('saveMsg', failText(e, 'Check My Entries before you try again.'), 'err');
       $('saveBtn').textContent = oldLabel;
     } finally {
       $('saveBtn').disabled = false;
@@ -1896,7 +2001,7 @@
       state.maxPhotos = r.maxPhotos || 10;
       renderLosses();
     } catch (e) {
-      if (!silent) { $('lossList').innerHTML = ''; setMsg('lossMsg', 'No connection. Please try again.', 'err'); }
+      if (!silent) { $('lossList').innerHTML = ''; setMsg('lossMsg', failText(e), 'err'); }
     }
   }
 
@@ -1922,9 +2027,10 @@
 
   function pad2(n) { return ('0' + n).slice(-2); }
 
-  // '14-Oct 18:00' -> 'Today 18:00', 'Yesterday 18:00' or '14 Oct 18:00'. Anything else is shown as it is.
+  // '14-Oct 18:00' or '14-Oct 18:00:07' -> 'Today 18:00', 'Yesterday 18:00' or '14 Oct 18:00' (the seconds only order the messages,
+  // they are not shown). Anything else is shown as it is.
   function whenInfo(t) {
-    var m = /^(\d{1,2})-([A-Za-z]{3})\s+(\d{1,2}:\d{2})$/.exec(String(t || '').trim());
+    var m = /^(\d{1,2})-([A-Za-z]{3})\s+(\d{1,2}:\d{2})(?::\d{2})?$/.exec(String(t || '').trim());
     var mo = m ? MONTH_NUM[m[2].toLowerCase()] : 0;
     if (!mo) return { text: String(t || ''), fresh: false };
     var today = todayStr();
@@ -1966,15 +2072,16 @@
   // The lines the user sent (Request, or Updates of a loss) and the messages of the audit side are shown in one chat, oldest on
   // top, in the order of their time. A message is { side: 'poc' | 'audit', time, who, text, tags, photos, event }.
 
-  // 'd-MMM HH:mm' -> a number that only orders the messages (the year of the office date; a date after today is last year's). null = no time.
+  // 'd-MMM HH:mm:ss' (or an old line with no seconds: 'd-MMM HH:mm', the start of that minute) -> a number that only orders the
+  // messages (the year of the office date; a date after today is last year's). null = no time.
   function stampOf(t) {
-    var m = /^(\d{1,2})-([A-Za-z]{3})\s+(\d{1,2}):(\d{2})$/.exec(String(t || '').trim());
+    var m = /^(\d{1,2})-([A-Za-z]{3})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(String(t || '').trim());
     var mo = m ? MONTH_NUM[m[2].toLowerCase()] : 0;
     if (!mo) return null;
     var today = todayStr();
     var year = Number(today.slice(0, 4));
     if (year + '-' + pad2(mo) + '-' + pad2(m[1]) > today) year--;
-    return Date.UTC(year, mo - 1, Number(m[1]), Number(m[3]), Number(m[4]));
+    return Date.UTC(year, mo - 1, Number(m[1]), Number(m[3]), Number(m[4]), Number(m[5] || 0));
   }
 
   // A message without a time stays after the one before it (an old comment with no time at all goes first).
@@ -1990,13 +2097,34 @@
     return list;
   }
 
-  // Two lists, each oldest first, become one list by time. At the same time the user's message goes first.
+  // The two lists become one chat, oldest first, by the exact time of each message (the seconds count): every message gets its
+  // place by its own time, so the two sides are never grouped one after the other.
+  // Messages with the very same time can only be old lines (they have no seconds, so a whole minute is one time). Nobody can
+  // tell their order, so the two sides take turns, and the side that did not speak last goes first (a reply comes after the message
+  // it answers). At the very start of a chat the user goes first. The order inside one side never changes.
   function mergeTalk(mine, audit) {
+    mine.forEach(function (m, i) { m.idx = i; });
+    audit.forEach(function (m, i) { m.idx = i; });
+    var all = mine.concat(audit);
+    all.sort(function (a, b) {
+      if (a.ts !== b.ts) return a.ts < b.ts ? -1 : 1;        // Infinity - Infinity is NaN, so the times are compared, not subtracted
+      if (a.side !== b.side) return a.side === 'poc' ? -1 : 1;
+      return a.idx - b.idx;
+    });
     var out = [];
-    var i = 0, j = 0;
-    while (i < mine.length || j < audit.length) {
-      if (j >= audit.length || (i < mine.length && mine[i].ts <= audit[j].ts)) out.push(mine[i++]);
-      else out.push(audit[j++]);
+    var i = 0;
+    while (i < all.length) {
+      var j = i;
+      while (j < all.length && all[j].ts === all[i].ts) j++;
+      var queue = { poc: [], audit: [] };
+      for (var k = i; k < j; k++) queue[all[k].side].push(all[k]);
+      var turn = out.length ? (out[out.length - 1].side === 'poc' ? 'audit' : 'poc') : 'poc';
+      while (queue.poc.length || queue.audit.length) {
+        if (!queue[turn].length) turn = turn === 'poc' ? 'audit' : 'poc';
+        out.push(queue[turn].shift());
+        turn = turn === 'poc' ? 'audit' : 'poc';
+      }
+      i = j;
     }
     return out;
   }
@@ -2496,11 +2624,16 @@
       b.disabled = true;
       try {
         var r = await call('apiMarkFound', state.pin, id);
-        if (!r.ok) setMsg('lossMsg', r.message, 'err');
-        else setMsg('lossMsg', 'Marked as found.', 'ok');
-        await loadLosses(true);
+        if (!r.ok) {
+          setMsg('lossMsg', r.message, 'err');
+          b.disabled = false;
+        } else {
+          setMsg('lossMsg', 'Marked as found.', 'ok');
+          markFoundLocal(id, r.line);                 // the card changes at once; the list is asked again in the background
+        }
+        loadLosses(true);
       } catch (e) {
-        setMsg('lossMsg', 'No connection. Please try again.', 'err');
+        setMsg('lossMsg', failText(e, 'Check the loss before you try again.'), 'err');
         b.disabled = false;
       }
     }
@@ -2597,6 +2730,7 @@
 
     $('mSave').disabled = true;
     $('mSave').textContent = 'Saving...';
+    var savedId = upd.id;
     try {
       var r = await call('apiAddLossUpdate', state.pin, {
         id: upd.id,
@@ -2607,12 +2741,13 @@
       if (r.ok) {
         closeModal();
         setMsg('lossMsg', 'Update saved.', 'ok');
-        await loadLosses(true);
+        addLocalLine(savedId, true, r.line);          // the card shows it at once; the list is asked again in the background
+        loadLosses(true);
       } else {
         setMsg('mMsg', r.message, 'err');
       }
     } catch (e) {
-      setMsg('mMsg', 'No connection. Please check the loss before you try again.', 'err');
+      setMsg('mMsg', failText(e, 'Check the loss before you try again.'), 'err');
     } finally {
       $('mSave').disabled = false;
       $('mSave').textContent = 'Save update';
@@ -2631,19 +2766,48 @@
   });
   $('refreshBtn').addEventListener('click', loadEntries);
 
-  async function loadEntries() {
-    setMsg('listMsg', '');
-    $('entries').innerHTML = '<div class="center">Loading...</div>';
+  // quiet = true: the list stays as it is while it is asked again, and a failure says nothing (the person did nothing wrong)
+  async function loadEntries(quiet) {
+    var silent = quiet === true;
+    if (!silent) {
+      setMsg('listMsg', '');
+      $('entries').innerHTML = '<div class="center">Loading...</div>';
+    }
     try {
       var r = await call('apiMyEntries', state.pin);
-      if (!r.ok) { $('entries').innerHTML = ''; setMsg('listMsg', r.message, 'err'); return; }
+      if (!r.ok) { if (!silent) { $('entries').innerHTML = ''; setMsg('listMsg', r.message, 'err'); } return; }
       state.entries = sortPeople(r.entries || []);
       state.entriesLoaded = true;
       renderEntries();
     } catch (e) {
-      $('entries').innerHTML = '';
-      setMsg('listMsg', 'No connection. Please try again.', 'err');
+      if (!silent) {
+        $('entries').innerHTML = '';
+        setMsg('listMsg', failText(e), 'err');
+      }
     }
+  }
+
+  // The line that the server wrote (a request, an update) is put on the card at once. The lists are asked again in the background
+  // and bring the same line, so nothing is shown twice.
+  function addLocalLine(id, isLoss, line) {
+    if (!line) return false;
+    var x = isLoss ? findLoss(id) : findEntry(id);
+    if (!x) return false;
+    var key = isLoss ? 'updates' : 'request';
+    x[key] = (x[key] || []).concat([String(line)]);
+    if (isLoss) renderLosses(); else renderEntries();
+    return true;
+  }
+
+  // The loss is marked as found: the card shows it at once
+  function markFoundLocal(id, line) {
+    var l = findLoss(id);
+    if (!l) return;
+    l.status = 'Found';
+    l.open = false;
+    l.daysLeft = '';
+    if (line) l.updates = (l.updates || []).concat([String(line)]);
+    renderLosses();
   }
 
   // The numbers on the chips: the cards of the ticked stations, on the chosen day (all dates while a search is on).
@@ -2871,11 +3035,17 @@
     b.disabled = true;
     try {
       var r = await call('apiCancelEntry', state.pin, id);
-      if (!r.ok) setMsg('listMsg', r.message, 'err');
+      if (!r.ok) {
+        setMsg('listMsg', r.message, 'err');
+        b.disabled = false;
+      } else {
+        var cancelled = findEntry(id);
+        if (cancelled) { cancelled.status = 'Cancelled'; cancelled.canCancel = false; renderEntries(); }       // at once
+      }
       state.recorded = {};
-      await loadEntries();
+      loadEntries(true);
     } catch (e) {
-      setMsg('listMsg', 'No connection. Please try again.', 'err');
+      setMsg('listMsg', failText(e, 'Check My Entries before you try again.'), 'err');
       b.disabled = false;
     }
   });
@@ -2923,19 +3093,16 @@
       var r = await call('apiRequestChange', state.pin, reqId, text);
       if (r.ok) {
         var wasLoss = reqLoss;
+        var sentId = reqId;
         closeRequest();
-        if (wasLoss) {
-          await loadLosses(true);
-          setMsg('lossMsg', 'Request sent. It will show in the sheet.', 'ok');
-        } else {
-          await loadEntries();
-          setMsg('listMsg', 'Request sent. It will show in the sheet.', 'ok');
-        }
+        addLocalLine(sentId, wasLoss, r.line);        // the card shows it at once; the list is asked again in the background
+        setMsg(wasLoss ? 'lossMsg' : 'listMsg', 'Request sent. It will show in the sheet.', 'ok');
+        if (wasLoss) loadLosses(true); else loadEntries(true);
       } else {
         setMsg('rMsg', r.message, 'err');
       }
     } catch (e) {
-      setMsg('rMsg', 'No connection. Please check before you try again.', 'err');
+      setMsg('rMsg', failText(e, 'Check before you try again.'), 'err');
     } finally {
       $('rSave').disabled = false;
       $('rSave').textContent = 'Send request';
@@ -3260,8 +3427,9 @@
   // The page asks the server every few seconds what is new (apiNotifications). A new notice makes a banner
   // and a sound. The bell shows how many notices are not read yet. A notice is read when its window is closed.
 
-  var NOTIF_POLL_MS = 12000;
-  var NOTIF_POLL_HIDDEN_MS = 45000;
+  var NOTIF_POLL_MS = 5000;                // a page that is in front asks every 5 seconds (and at once when the app says "something arrived")
+  var NOTIF_POLL_HIDDEN_MS = 30000;        // a page in the background: the alert of the app wakes it (push), this is the safety net
+  var NOTIF_CALL_MS = 15000;               // one question; a question that fails is not repeated, the next one is soon
   var NOTIF_KEEP = 60;
   var notif = { seq: -1, items: [], lastRead: 0, seenAtOpen: 0, timer: null, busy: false, bad: 0, sound: true, run: 0, open: false, again: false };
   var bannerTimer = null;
@@ -3292,7 +3460,9 @@
     clearTimeout(notif.timer);
     notif.timer = null;
     if (!state.pin) return;
-    notif.timer = setTimeout(pollNotices, document.hidden ? NOTIF_POLL_HIDDEN_MS : NOTIF_POLL_MS);
+    // a little different time for each page, so many pages do not ask in the same second
+    var wait = (document.hidden ? NOTIF_POLL_HIDDEN_MS : NOTIF_POLL_MS) + Math.floor(Math.random() * 700);
+    notif.timer = setTimeout(pollNotices, wait);
   }
 
   // C = computer, P = phone or tablet. Only used to show in the Users tab where the person has the page open.
@@ -3310,7 +3480,7 @@
     notif.busy = true;
     var run = notif.run;
     try {
-      var r = await call('apiNotifications', state.pin, notif.seq < 0 ? null : notif.seq, deviceKind());
+      var r = await callQuick('apiNotifications', state.pin, notif.seq < 0 ? null : notif.seq, deviceKind());
       if (run !== notif.run) return;
       handleNotices(r);
     } catch (e) {
@@ -3838,7 +4008,7 @@
         });
       });
     }).catch(function () {
-      finish(quiet ? '' : 'No connection. Please try again.', 6000);
+      finish(quiet ? '' : failText(null), 6000);
     });
     paintAlerts();
   }
