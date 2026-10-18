@@ -34,7 +34,16 @@ First time on each phone or computer
 Sign in with the PIN once (this address is new for the browser, so it asks again; after that it remembers).
 A bar appears above the tabs: tap "Turn on alerts" and allow notifications.
 A new device tests itself once: you get an alert with a sound.
-iPhone: Safari > Share > Add to Home Screen > open TechFlex from that icon > sign in > Turn on alerts.
+
+iPhone and iPad  (the page works in Safari on iOS 15 or newer; alerts need iOS 16.4 or newer)
+---------------------------------------------------------------------------------------------
+1. Open  https://techflex-eg.github.io/ops-desk/  in SAFARI (not inside WhatsApp or another app).
+2. Tap the Share button, then  Add to Home Screen,  then  Add.
+3. Close Safari. Open TechFlex from its new icon on the Home Screen. Alerts work only from that icon.
+4. Sign in with the PIN, tap  Turn on alerts,  and tap  Allow.
+5. If you tapped Don't Allow by mistake: Settings > Notifications > TechFlex > Allow Notifications.
+The sound of an alert follows the rules of the iPhone: the silent switch and the Focus modes can mute it.
+The Excel download opens the share sheet of the iPhone: choose  Save to Files  (or send it by Mail or WhatsApp).
 
 If the Apps Script address changes
 ----------------------------------

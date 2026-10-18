@@ -101,6 +101,9 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg); color: var(--ink);
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 16px; }
+  /* iPhone: the text keeps its size when the phone is turned, and a quick second tap on a button does not zoom the page */
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  button, a, select, label, input, textarea { touch-action: manipulation; }
   .wrap { max-width: 560px; margin: 0 auto; padding: 0 16px 96px; }
   .top { background: var(--brand); color: var(--brand-ink); padding: 14px 16px; }
   .top-inner { max-width: 560px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -150,7 +153,7 @@
   .scroll { max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 1px solid var(--line); cursor: pointer; }
   .item:last-child { border-bottom: 0; }
-  .item:hover { background: var(--brand-soft); }
+  @media (hover: hover) { .item:hover { background: var(--brand-soft); } }
   .item .n { font-weight: 600; }
   .item .s { font-size: 12px; color: var(--muted); }
   .item .tag { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; }
@@ -186,7 +189,6 @@
   .note { margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 13px; background: var(--waiting-bg); color: var(--waiting); }
   .note.bad { background: var(--rejected-bg); color: var(--rejected); font-weight: 700; }
   .note:empty { display: none; }
-  .mcomment { margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; background: var(--found-bg); color: var(--found); border-left: 4px solid var(--found); }
 
   .msg { margin-top: 12px; font-size: 14px; min-height: 20px; }
   .msg.err { color: var(--error); }
@@ -318,32 +320,30 @@
   .lc-val.today { color: var(--waiting); }
   .lc-val.late { color: var(--error); }
   .lc-val.info { color: var(--found); }
-  .lc-box { padding: 10px 12px; border-radius: 12px; }
-  .lc-box.mgr { background: var(--found-bg); }
-  .lc-box.mgr .lc-lab { color: var(--found); }
-  .lc-box.req { background: var(--waiting-bg); }
-  .lc-box.req .lc-lab { color: var(--waiting); }
-  .lc-text { margin-top: 4px; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
-  .lc-when { margin-top: 6px; font-size: 12px; color: var(--muted); }
-  .lc-when + .lc-text { margin-top: 2px; }
   .lc-actions { display: flex; gap: 8px; margin: 14px 16px 0; }
   .lc-actions button { flex: 1 1 0; min-width: 0; min-height: 42px; padding: 6px 8px; border-radius: 10px; border: 1px solid var(--line);
     background: var(--bg); color: var(--ink); font-size: 14px; font-weight: 700; line-height: 1.15; cursor: pointer; }
   .lc-actions button.main { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
-  .lc-updates { padding-top: 12px; border-top: 1px solid var(--line); margin-top: 16px; }
-  .tl { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-  .ti { border: 1px solid var(--line); border-left: 4px solid var(--cc); border-radius: 10px; padding: 8px 10px; background: var(--card); }
-  .ti-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 10px; }
-  .ti-tags { display: flex; flex-wrap: wrap; gap: 2px 10px; }
-  .ti-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; color: var(--ink); }
-  .ti-tag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); }
-  .ti.ev .ti-tag { color: var(--cc); }
-  .ti.ev .ti-tag::before { display: none; }
-  .ti-meta { font-size: 12px; color: var(--muted); }
-  .ti-meta.fresh { color: var(--ink); font-weight: 700; }
-  .ti-text { margin-top: 4px; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
-  .ti-ph { margin-top: 6px; font-size: 12px; color: var(--muted); }
-  .lc-updates .morebtn { display: block; margin-top: 6px; }
+  /* The talk on a card, like a chat: the POC side on the right (orange, or the color of the person he talked to), the
+     audit side on the left (blue). The oldest message is on top. */
+  .lc-chat { padding-top: 12px; border-top: 1px solid var(--line); margin-top: 16px; }
+  .chat { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .cm { max-width: 88%; min-width: 0; padding: 7px 11px 8px; border-radius: 14px; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+  .cm-audit { align-self: flex-start; background: var(--found-bg); border-bottom-left-radius: 4px; border-left: 4px solid var(--found); }
+  .cm-poc { align-self: flex-end; background: var(--cb, var(--waiting-bg)); border-bottom-right-radius: 4px; border-right: 4px solid var(--cc, var(--waiting)); }
+  .cm-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 10px; font-size: 12px; }
+  .cm-who { font-weight: 800; }
+  .cm-audit .cm-who { color: var(--found); }
+  .cm-poc .cm-who { color: var(--cc, var(--waiting)); }
+  .cm-time { color: var(--muted); }
+  .cm-time.fresh { color: var(--ink); font-weight: 700; }
+  .cm-tags { display: flex; flex-wrap: wrap; gap: 0 10px; margin-top: 2px; }
+  .cm-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; color: var(--cc); }
+  .cm-tag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); }
+  .cm-ev .cm-tag::before { display: none; }
+  .cm-text { margin-top: 3px; white-space: pre-wrap; }
+  .cm-ph { margin-top: 5px; font-size: 12px; color: var(--muted); }
+  .chat .morebtn { align-self: center; }
 
   /* The two small buttons at the top: light or dark */
   .top-right { display: flex; align-items: center; gap: 8px; flex: none; }
@@ -370,12 +370,13 @@
   }
 
   /* A long word without spaces must not push a card out of the screen */
-  .mcomment, .note, .entry .detail, .entry .sub { overflow-wrap: anywhere; }
+  .note, .entry .detail, .entry .sub { overflow-wrap: anywhere; }
 
   /* Add update window */
   .modal { position: fixed; left: 0; right: 0; top: 0; bottom: 0; background: rgba(0,0,0,.45);
     display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
-  .sheet { background: var(--card); width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
+  /* 92% of the window, not 92vh: on an iPhone in Safari the vh counts the bar below too, and the top of the sheet was cut off */
+  .sheet { background: var(--card); width: 100%; max-width: 560px; max-height: 92%; overflow-y: auto;
     border-radius: 18px 18px 0 0; padding: 16px 16px 24px; }
   .sheet-head { display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 800; }
   .x { border: 0; background: transparent; font-size: 30px; line-height: 1; color: var(--muted); cursor: pointer; }
@@ -1961,38 +1962,106 @@
     return out;
   }
 
-  // One update of the conversation
-  function itemHtml(u) {
-    var when = whenInfo(u.time);
-    var main = u.event ? 'c-found' : (u.tags.length ? (CONTACT_CLASS[u.tags[0]] || 'c-other') : 'c-other');
-    var tags = u.event ? '<span class="ti-tag">Found</span>' : u.tags.map(function (t) {
-      return '<span class="ti-tag ' + (CONTACT_CLASS[t] || 'c-other') + '">' + esc(t) + '</span>';
-    }).join('');
-    var meta = [];
-    if (u.who) meta.push(esc(u.who));
-    if (when.text) meta.push(esc(when.text));
-    var top = (tags || meta.length)
-      ? '<div class="ti-top"><div class="ti-tags">' + tags + '</div><div class="ti-meta' + (when.fresh ? ' fresh' : '') + '">' + meta.join(' &middot; ') + '</div></div>'
-      : '';
-    var text = u.text ? '<div class="ti-text" dir="auto">' + esc(u.text) + '</div>' : '';
-    var foot = u.photos ? '<div class="ti-ph">&#128247; ' + esc(u.photos) + '</div>' : '';
-    return '<div class="ti ' + main + (u.event ? ' ev' : '') + '">' + top + text + foot + '</div>';
+  // ---------- The talk on a card (a chat) ----------
+  // The lines the user sent (Request, or Updates of a loss) and the messages of the audit side are shown in one chat, oldest on
+  // top, in the order of their time. A message is { side: 'poc' | 'audit', time, who, text, tags, photos, event }.
+
+  // 'd-MMM HH:mm' -> a number that only orders the messages (the year of the office date; a date after today is last year's). null = no time.
+  function stampOf(t) {
+    var m = /^(\d{1,2})-([A-Za-z]{3})\s+(\d{1,2}):(\d{2})$/.exec(String(t || '').trim());
+    var mo = m ? MONTH_NUM[m[2].toLowerCase()] : 0;
+    if (!mo) return null;
+    var today = todayStr();
+    var year = Number(today.slice(0, 4));
+    if (year + '-' + pad2(mo) + '-' + pad2(m[1]) > today) year--;
+    return Date.UTC(year, mo - 1, Number(m[1]), Number(m[3]), Number(m[4]));
   }
 
-  // The updates, newest first. The first 3 are shown.
-  function updatesHtml(l) {
-    if (!l.updates.length) return '';
-    var lines = l.updates.slice().reverse();
-    var all = !!state.expanded[l.id];
-    var shown = all ? lines : lines.slice(0, 3);
-    var html = '<div class="lc-updates"><div class="lc-sec" style="margin-top:0">' +
-      '<div class="lc-lab">Updates<span class="lc-count">' + lines.length + '</span></div>' +
-      '<div class="tl">' + shown.map(function (line) { return itemHtml(parseUpdate(line)); }).join('') + '</div>';
-    if (lines.length > 3) {
-      html += '<button type="button" class="morebtn" data-act="more" data-id="' + esc(l.id) + '">' +
-        (all ? 'Show fewer' : 'Show all updates (' + lines.length + ')') + '</button>';
+  // A message without a time stays after the one before it (an old comment with no time at all goes first).
+  // The comment that is in the sheet but not in the log yet (latest) is the newest.
+  function stampAll(list) {
+    var prev = 0;
+    list.forEach(function (m) {
+      var s = m.latest ? Infinity : stampOf(m.time);
+      if (s === null) s = prev;
+      m.ts = s;
+      if (s !== Infinity) prev = s;
+    });
+    return list;
+  }
+
+  // Two lists, each oldest first, become one list by time. At the same time the user's message goes first.
+  function mergeTalk(mine, audit) {
+    var out = [];
+    var i = 0, j = 0;
+    while (i < mine.length || j < audit.length) {
+      if (j >= audit.length || (i < mine.length && mine[i].ts <= audit[j].ts)) out.push(mine[i++]);
+      else out.push(audit[j++]);
     }
-    return html + '</div></div>';
+    return out;
+  }
+
+  // The messages of the audit side, from the server: { when, by, text, latest }
+  function auditMsgs(l) {
+    return stampAll((l.audit || []).map(function (a) {
+      return { side: 'audit', time: a.when || '', who: a.by || 'Audit', text: a.text || '', tags: [], photos: '', event: false, latest: !!a.latest };
+    }));
+  }
+
+  // One line of Request:  time | user | text
+  function requestMsg(line) {
+    var p = String(line).split(' | ');
+    var m = { side: 'poc', time: '', who: '', text: String(line).trim(), tags: [], photos: '', event: false };
+    if (p.length >= 3) { m.time = p[0].trim(); m.who = p[1].trim(); m.text = p.slice(2).join(' - ').trim(); }
+    return m;
+  }
+
+  // The whole talk of an entry (Idle, Rescue, Cash) or of a loss
+  function talkOf(x, isLoss) {
+    var mine = stampAll((isLoss ? (x.updates || []) : (x.request || [])).map(function (line) {
+      var m = isLoss ? parseUpdate(line) : requestMsg(line);
+      m.side = 'poc';
+      return m;
+    }));
+    return mergeTalk(mine, auditMsgs(x));
+  }
+
+  // One message
+  function bubbleHtml(m) {
+    var when = whenInfo(m.time);
+    var cls = 'cm ' + (m.side === 'audit' ? 'cm-audit' : 'cm-poc');
+    if (m.side !== 'audit') {
+      if (m.event) cls += ' c-found cm-ev';
+      else if (m.tags.length) cls += ' ' + (CONTACT_CLASS[m.tags[0]] || 'c-other');
+      else if (!m.who) cls += ' c-other';                    // a line typed by hand in the sheet (no time, no name): gray
+    }
+    var tags = m.event ? '<span class="cm-tag">Found</span>' : m.tags.map(function (t) {
+      return '<span class="cm-tag ' + (CONTACT_CLASS[t] || 'c-other') + '">' + esc(t) + '</span>';
+    }).join('');
+    return '<div class="' + cls + '">' +
+      '<div class="cm-top"><span class="cm-who" dir="auto">' + esc(m.who) + '</span>' +
+      '<span class="cm-time' + (when.fresh ? ' fresh' : '') + '">' + esc(when.text) + '</span></div>' +
+      (tags ? '<div class="cm-tags">' + tags + '</div>' : '') +
+      (m.text && !m.event ? '<div class="cm-text" dir="auto">' + esc(m.text) + '</div>' : '') +
+      (m.photos ? '<div class="cm-ph">&#128247; ' + esc(m.photos) + '</div>' : '') +
+      '</div>';
+  }
+
+  // The chat: the last CHAT_SHOWN messages, and a button for the earlier ones. The newest message is at the bottom.
+  var CHAT_SHOWN = 4;
+
+  function chatHtml(x, isLoss) {
+    var talk = talkOf(x, isLoss);
+    if (!talk.length) return '';
+    var all = !!state.expanded[x.id];
+    var hidden = talk.length - CHAT_SHOWN;
+    var shown = (all || hidden <= 0) ? talk : talk.slice(hidden);
+    var more = '';
+    if (hidden > 0) {
+      more = '<button type="button" class="morebtn" data-act="more" data-id="' + esc(x.id) + '">' +
+        (all ? 'Show fewer' : 'Show earlier messages (' + hidden + ')') + '</button>';
+    }
+    return '<div class="chat">' + more + shown.map(bubbleHtml).join('') + '</div>';
   }
 
   // Price and counter: the two numbers of the card, side by side
@@ -2008,7 +2077,14 @@
     return cells.length ? '<div class="lc-strip">' + cells.join('') + '</div>' : '';
   }
 
-  // The card of a loss. Top to bottom: who, where, price and counter, notes, buttons, updates.
+  // The talk of a loss (updates of the POC and comments of the audit), under the buttons
+  function lossChatHtml(l) {
+    var chat = chatHtml(l, true);
+    if (!chat) return '';
+    return '<div class="lc-chat"><div class="lc-sec" style="margin-top:0"><div class="lc-lab">Conversation</div>' + chat + '</div></div>';
+  }
+
+  // The card of a loss. Top to bottom: who, where, price and counter, buttons, the conversation.
   function lossCardHtml(l) {
     var slug = l.status.toLowerCase().replace(/\s+/g, '-');
     var id = esc(l.id);
@@ -2030,9 +2106,8 @@
       '<div class="lc-sec"><div class="lc-addr">' + esc(l.address) + '</div>' +
       '<div class="lc-meta">' + (l.reason ? esc(l.reason) + ' &middot; ' : '') + 'Last scan ' + esc(l.scanDate) + '</div></div>' +
       stripHtml(l) +
-      (l.note ? '<div class="lc-sec"><div class="lc-box mgr"><div class="lc-lab" dir="auto">' + esc(l.noteBy || 'Audit') + '</div><div class="lc-text" dir="auto">' + esc(l.note) + '</div></div></div>' : '') +
       actions +
-      updatesHtml(l) +
+      lossChatHtml(l) +
       '</div>';
   }
 
@@ -2084,10 +2159,15 @@
       .trim();
   }
 
+  // The words of the audit side on a card (for the search)
+  function auditText(x) {
+    return (x.audit || []).map(function (a) { return a.text; }).join(' ');
+  }
+
   function lossHay(l) {
     if (l._hay === undefined) {
       l._hay = normText([l.name, l.tid, l.tracking, l.route, l.address, l.reason, l.station, l.status,
-        l.amount, l.note, l.id, l.scanDate, (l.request || []).join(' '), (l.updates || []).join(' ')].join(' '));
+        l.amount, l.note, l.id, l.scanDate, (l.request || []).join(' '), (l.updates || []).join(' '), auditText(l)].join(' '));
     }
     return l._hay;
   }
@@ -2594,7 +2674,7 @@
         return (parts[0] || '') + ' ' + parts.slice(2).join(' ');
       }).join(' ');
       e._hay = normText([e.name, e.tid, e.id, e.date, e.dateKey, e.station, e.status, KIND_LABEL[e.kind], e.detail,
-        e.managerComment, requests].join(' '));
+        e.managerComment, auditText(e), requests].join(' '));
     }
     return e._hay;
   }
@@ -2710,11 +2790,6 @@
     $('entries').innerHTML = list.map(function (e) {
       var slug = e.status.toLowerCase().replace(/\s+/g, '-');
       var decided = '';
-      var managerComment = e.managerComment ? '<div class="mcomment"><span dir="auto">' + esc(e.commentBy || 'Audit') + '</span> comment: <span dir="auto">' + esc(e.managerComment) + '</span></div>' : '';
-      var requests = (e.request || []).map(function (line) {
-        var parts = line.split(' | ');
-        return '<div class="note">Your request (' + esc(parts[0] || '') + '): <span dir="auto">' + esc(parts.slice(2).join(' - ')) + '</span></div>';
-      }).join('');
       var actions = '';
       if (e.canCancel) actions += '<button data-act="cancel" data-id="' + esc(e.id) + '">Cancel</button>';
       actions += '<button data-act="request" data-id="' + esc(e.id) + '">Request change</button>';
@@ -2722,7 +2797,7 @@
         '<div class="row"><div class="name">' + esc(e.name) + '</div><span class="badge st-' + esc(slug) + '">' + esc(e.status) + '</span></div>' +
         '<div class="sub">' + esc(KIND_LABEL[e.kind] || e.kind) + ' - ' + esc(e.date) + ' - ' + esc(e.station) + '</div>' +
         '<div class="detail">' + esc(e.detail) + '</div>' +
-        decided + requests + managerComment +
+        decided + chatHtml(e, false) +
         '<div class="sub">' + esc(e.id) + '</div>' +
         '<div class="actions">' + actions + '</div>' +
         '</div>';
@@ -2789,6 +2864,7 @@
     if (act === 'clearfilters') { resetEntBox(); renderEntries(); return; }
     if (act === 'alldays') { state.entDay = 'ALL'; renderEntries(); return; }
     if (act === 'nofilter') { state.entFilter = ''; renderEntries(); return; }
+    if (act === 'more') { state.expanded[id] = !state.expanded[id]; renderEntries(); return; }
     if (act === 'request') { openRequest(id); return; }
     if (act !== 'cancel') return;
     if (!confirm('Cancel this entry?')) return;
@@ -3055,8 +3131,7 @@
     return makeZip(files);
   }
 
-  function downloadXlsx(sheets, fileName) {
-    var blob = makeXlsx(sheets);
+  function plainDownload(blob, fileName) {
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
@@ -3064,6 +3139,27 @@
     document.body.appendChild(a);
     a.click();
     setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 2000);
+  }
+
+  // An iPhone or iPad: the Home Screen app has no download bar, so the file goes to the share sheet first
+  // (Save to Files, Mail, WhatsApp...). If the phone does not allow that, the plain download is used, as everywhere else.
+  var onIOS = /iPhone|iPad|iPod/.test(navigator.userAgent || '') ||
+    (/Macintosh/.test(navigator.userAgent || '') && navigator.maxTouchPoints > 1);
+
+  function downloadXlsx(sheets, fileName) {
+    var blob = makeXlsx(sheets);
+    if (onIOS && navigator.share && navigator.canShare && typeof File === 'function') {
+      try {
+        var file = new File([blob], fileName, { type: blob.type });
+        if (navigator.canShare({ files: [file] })) {
+          navigator.share({ files: [file] }).then(function () { }, function (err) {
+            if (!err || err.name !== 'AbortError') plainDownload(blob, fileName);      // closing the sheet is not an error
+          });
+          return;
+        }
+      } catch (e) { }
+    }
+    plainDownload(blob, fileName);
   }
 
   // The rows of one Excel sheet that the page would show with the same search, day and filter
@@ -3130,6 +3226,13 @@
     }
   });
 
+  // All the messages of the audit side, one line each:  time | name | text   (the same shape as the lines of the users)
+  function auditLines(x) {
+    return (x.audit || []).map(function (a) {
+      return [a.when || '-', a.by || 'Audit', String(a.text || '').replace(/\s+/g, ' ').trim()].join(' | ');
+    }).join('\n');
+  }
+
   // Losses: downloads what the page is on - the day (or the search) and the filter. Open and closed.
   $('lossExport').addEventListener('click', function () {
     var v = lossView();
@@ -3139,7 +3242,7 @@
     var rows = sortPeople(v.filtered).map(function (l) {
       return [l.id, l.scanDate, l.station, l.tid, l.name, l.tracking, l.route, l.address, l.reason,
         l.amount === '' ? '' : Number(l.amount), isNum(l.daysLeft) ? l.daysLeft : '',
-        l.status, (l.request || []).join('\n'), l.note || '', (l.updates || []).join('\n')];
+        l.status, (l.request || []).join('\n'), auditLines(l), (l.updates || []).join('\n')];
     });
     var what = v.searching ? 'Search' : (state.lossDay === 'ALL' ? 'All dates' : lossDayTitle().split(',')[0]);
     if (state.lossFilter) what += ', ' + filterWords(state.lossFilter);
@@ -3421,7 +3524,11 @@
       var AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return;
       if (!audioCtx) audioCtx = new AC();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
+      // 'suspended' = not woken up yet. An iPhone also says 'interrupted' (after a call, or after the app was in the background).
+      if (audioCtx.state !== 'running' && audioCtx.state !== 'closed') {
+        var woke = audioCtx.resume();
+        if (woke && woke.catch) woke.catch(function () {});
+      }
     } catch (e) {}
   }
   ['pointerdown', 'touchend', 'click', 'keydown'].forEach(function (ev) {
@@ -3619,9 +3726,15 @@
     } else if (st.needsInstall) {
       text = 'On iPhone: tap Share, then Add to Home Screen. Then open Ops Desk from the Home Screen and turn alerts on.'; quiet = true;
     } else if (!st.supported) {
-      text = 'This phone or browser cannot show alerts when it is closed.'; quiet = true;
+      text = (st.ios && st.hasPush === false)
+        ? 'Alerts on an iPhone need iOS 16.4 or newer. Update the iPhone in Settings, General, Software Update.'
+        : 'This phone or browser cannot show alerts when it is closed.';
+      quiet = true;
     } else if (st.permission === 'denied') {
-      text = 'Alerts are blocked for Ops Desk. Allow notifications in the settings of this phone or browser.'; quiet = true;
+      text = st.ios
+        ? 'Alerts are blocked for TechFlex. On the iPhone open Settings, Notifications, TechFlex, and allow notifications.'
+        : 'Alerts are blocked for Ops Desk. Allow notifications in the settings of this phone or browser.';
+      quiet = true;
     } else if (st.permission !== 'granted') {
       text = 'Alerts are off on this device.'; act = 'enable';
     } else if (!appSub()) {
@@ -3943,10 +4056,10 @@
   }
 
   function describe() {
-    var os = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' :
+    var os = /iPhone/.test(ua) ? 'iPhone' : (/iPad/.test(ua) || (isIOS && /Macintosh/.test(ua))) ? 'iPad' : /Android/.test(ua) ? 'Android' :
       /Windows/.test(ua) ? 'Windows' : /Macintosh/.test(ua) ? 'Mac' : /Linux/.test(ua) ? 'Linux' : 'Device';
-    var br = /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /Firefox\//.test(ua) ? 'Firefox' :
-      /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : 'Browser';
+    var br = /Edg\/|EdgiOS\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /Firefox\/|FxiOS\//.test(ua) ? 'Firefox' :
+      /Chrome\/|CriOS\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : 'Browser';
     return os + ', ' + br + (standalone ? ' app' : '');
   }
 
@@ -3958,6 +4071,8 @@
       supported: hasPush && !swFailed && !needsInstall,
       standalone: standalone,
       needsInstall: needsInstall,
+      ios: isIOS,
+      hasPush: hasPush,
       permission: hasPush ? Notification.permission : 'unsupported',
       subscribed: false, sub: null,
       label: describe(),
@@ -4011,8 +4126,12 @@
     if (loggedIn && !hiddenByUser()) {
       if (st.needsInstall) {
         text = 'To get alerts on iPhone: tap Share, then "Add to Home Screen", and open TechFlex from the Home Screen.';
+      } else if (isIOS && !hasPush) {
+        text = 'Alerts on an iPhone need iOS 16.4 or newer. Update the iPhone in Settings, General, Software Update.';
       } else if (st.supported && st.permission === 'denied') {
-        text = 'Alerts are blocked. Allow notifications for TechFlex in the settings of this phone or browser.';
+        text = isIOS
+          ? 'Alerts are blocked. On the iPhone open Settings, Notifications, TechFlex, and allow notifications.'
+          : 'Alerts are blocked. Allow notifications for TechFlex in the settings of this phone or browser.';
       } else if (st.supported && st.permission === 'default') {
         text = 'Get an alert with a sound on this device, even when the app is closed.';
         button = 'Turn on alerts';
