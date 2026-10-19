@@ -441,6 +441,7 @@
   .ni { margin-top: 10px; padding: 10px 12px; border: 1px solid var(--line); border-left: 5px solid var(--cc, var(--brand));
     border-radius: 12px; background: var(--card); cursor: pointer; }
   .ni.unread { background: var(--brand-soft); }
+  .nmore { display: block; margin: 12px auto 0; font-size: 13px; }
   .ni.k-request { --cc: var(--waiting); }
   .ni.k-comment, .ni.k-update { --cc: var(--found); }
   .ni.k-found { --cc: var(--approved); }
@@ -520,7 +521,7 @@
     <div class="top-inner">
       <div>
         <h1 id="officeName">Ops Desk</h1>
-        <div class="who"><span id="whoLine"></span><span class="ver" id="verTag"> &middot; v30</span></div>
+        <div class="who"><span id="whoLine"></span><span class="ver" id="verTag"> &middot; v33</span></div>
       </div>
       <div class="top-right">
         <button type="button" class="bell" id="bellBtn" aria-label="Notifications" title="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg><span class="dot" id="bellDot"></span></button>
@@ -699,7 +700,7 @@
 <div id="nModal" class="modal hidden">
   <div class="sheet">
     <div class="sheet-head"><span>Notifications</span><button class="x" id="nClose" aria-label="Close">&times;</button></div>
-    <div class="nbar"><span class="msub" id="nSub">The newest are on top.</span><button type="button" class="refresh" id="nSound">Sound on</button></div>
+    <div class="nbar"><span class="msub" id="nSub">You have no new notices.</span><button type="button" class="refresh" id="nSound">Sound on</button></div>
     <div class="npush hidden" id="nPush"><span class="npush-text" id="nPushText"></span><button type="button" class="refresh hidden" id="nPushBtn"></button></div>
     <div id="nList"></div>
     <div class="nfoot">You get a sound and a banner while this page is open on your phone or computer.</div>
@@ -3581,17 +3582,24 @@
 
   // ---------- Notices: the bell, the banner and the sound ----------
   // The page asks the server every few seconds what is new (apiNotifications). A new notice makes a banner
-  // and a sound. The bell shows how many notices are not read yet. A notice is read when its window is closed.
+  // and a sound. The bell shows how many notices are new. A notice stays new until the person opens THAT notice
+  // (a tap on it, on its banner or on its alert). Closing the window, or opening another notice, does not change it.
+  // The window lists only the new notices; the ones already opened are behind "Show earlier notices".
+  // What was opened is kept on this device, for this person: one number (everything up to a notice is read) and one small key
+  // for every single notice above it that was opened. One key for one notice: two tabs can never overwrite each other's work.
 
   var NOTIF_POLL_MS = 5000;                // a page that is in front asks every 5 seconds (and at once when the app says "something arrived")
   var NOTIF_POLL_HIDDEN_MS = 30000;        // a page in the background: the alert of the app wakes it (push), this is the safety net
   var NOTIF_CALL_MS = 15000;               // one question; a question that fails is not repeated, the next one is soon
-  var NOTIF_KEEP = 60;
-  var notif = { seq: -1, items: [], lastRead: 0, seenAtOpen: 0, timer: null, busy: false, bad: 0, sound: true, run: 0, open: false, again: false };
+  var NOTIF_KEEP = 100;                    // the notices kept in the page (the server sends at most this many when the page is opened)
+  var NOTIF_HARD = 300;                    // never more than this in the page, whatever is new
+  var NOTIF_OLD_SHOWN = 20;                // "Show earlier notices" lists this many
+  var notif = { seq: -1, items: [], base: 0, read: {}, showOld: false, timer: null, busy: false, bad: 0, sound: true, run: 0, open: false, again: false };
   var bannerTimer = null;
   var audioCtx = null;
 
-  function nReadKey() { return 'od_nread_' + (state.user ? state.user.name : ''); }
+  function nReadKey() { return 'od_nread_' + (state.user ? state.user.name : ''); }     // everything up to this number is read
+  function nOpenPrefix() { return 'od_nopen_' + (state.user ? state.user.name : '') + '_'; }     // + the number of a notice that was opened: od_nopen_Sara_17
 
   function startNotices() {
     stopNotices();
@@ -3604,11 +3612,11 @@
     clearTimeout(notif.timer);
     notif.timer = null;
     notif.run++;                                  // an answer that comes after a sign out is thrown away
-    notif.seq = -1; notif.items = []; notif.lastRead = 0; notif.seenAtOpen = 0;
+    notif.seq = -1; notif.items = []; notif.base = 0; notif.read = {}; notif.showOld = false;
     notif.busy = false; notif.bad = 0; notif.again = false;
     clearTimeout(bannerTimer);
     $('nToast').classList.add('hidden');
-    closeNotices(false);
+    closeNotices();
     paintBell();
   }
 
@@ -3682,16 +3690,20 @@
     var items = r.items || [];
 
     if (notif.seq < 0 || r.reset) {
-      // The page was just opened: what is older than the last time the person looked is already read.
-      // A phone that never looked before starts with everything read.
+      // The page was just opened: what is older than the last time the person looked is already read,
+      // and so is every notice the person opened before. A phone that never looked before starts with everything read.
       notif.seq = r.seq;
       notif.items = items.slice();
       var saved = readStore(nReadKey());
       var top = Math.max(r.seq, topNoticeId());
-      notif.lastRead = (saved === '' || r.reset) ? top : Math.min(Number(saved) || 0, top);
-      if (saved === '' || r.reset) store(nReadKey(), String(notif.lastRead));
+      var base = (saved === '' || r.reset) ? top : Math.min(Number(saved) || 0, top);
+      notif.base = base;
+      if (String(base) !== saved) store(nReadKey(), String(base));
+      if (r.reset) { notif.read = {}; openedKeys().forEach(function (k) { store(k, ''); }); }
+      pullOpened();
+      pruneOpened(top);
       paintBell();
-      var missed = notif.items.filter(function (n) { return n.id > notif.lastRead; });
+      var missed = notif.items.filter(isUnread);
       if (missed.length) announce(missed);
       return;
     }
@@ -3699,12 +3711,73 @@
     notif.seq = Math.max(notif.seq, r.seq);
     var fresh = items.filter(function (n) { return !findNotice(n.id); });
     if (!fresh.length) return;
-    notif.items = notif.items.concat(fresh).slice(-NOTIF_KEEP);
+    notif.items = notif.items.concat(fresh);
+    trimNotices();
+    pullOpened();
     paintBell();
     if (notif.open) renderNotices();
-    // a notice that the person already opened from an alert is not announced again
-    var loud = fresh.filter(function (n) { return n.id > notif.lastRead; });
+    // a notice that the person already opened (from an alert, or in another tab) is not announced again
+    var loud = fresh.filter(isUnread);
     if (loud.length) announce(loud);
+  }
+
+  // ---- What is new: a notice above the base that was not opened ----
+
+  function isUnread(n) {
+    return n.id > notif.base && !notif.read[n.id];
+  }
+
+  // The notices that the person opened are kept in the storage of this device: one key for each, od_nopen_<name>_<number>.
+  function openedKeys() {
+    var out = [];
+    try {
+      var p = nOpenPrefix();
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(p) === 0 && /^[0-9]{1,12}$/.test(k.slice(p.length))) out.push(k);
+      }
+    } catch (e) { }
+    return out;
+  }
+
+  // What the storage knows joins what the page knows: an opened notice never becomes new again
+  function pullOpened() {
+    var p = nOpenPrefix();
+    openedKeys().forEach(function (k) { notif.read[Number(k.slice(p.length))] = true; });
+  }
+
+  // When the page is opened: forget the opened notices that cannot come back (below the base, or older than the list)
+  function pruneOpened(top) {
+    var p = nOpenPrefix();
+    var have = {};
+    notif.items.forEach(function (n) { have[n.id] = true; });
+    var gone = function (id) { return id <= notif.base || (id <= top && !have[id]); };
+    openedKeys().forEach(function (k) { if (gone(Number(k.slice(p.length)))) store(k, ''); });
+    Object.keys(notif.read).forEach(function (k) { if (gone(Number(k))) delete notif.read[k]; });
+  }
+
+  // The list is kept short, but a new notice is never thrown away: the opened ones (the oldest first) go first.
+  function trimNotices() {
+    var extra = notif.items.length - NOTIF_KEEP;
+    if (extra > 0) {
+      notif.items = notif.items.filter(function (n) {
+        if (extra > 0 && !isUnread(n)) { extra--; return false; }
+        return true;
+      });
+    }
+    if (notif.items.length > NOTIF_HARD) notif.items = notif.items.slice(-NOTIF_HARD);
+  }
+
+  // The person opened this notice (its key is written at once, also when the page has not heard from the server yet)
+  function markRead(id) {
+    id = Number(id) || 0;
+    if (!(id > 0) || id !== Math.floor(id) || id >= 1e12) return;
+    if (id > notif.base) {
+      notif.read[id] = true;
+      store(nOpenPrefix() + id, '1');
+    }
+    paintBell();
+    if (notif.open) renderNotices();
   }
 
   // A new notice: the banner, the sound, a shake of the bell
@@ -3749,7 +3822,7 @@
 
   function unreadCount() {
     var c = 0;
-    notif.items.forEach(function (n) { if (n.id > notif.lastRead) c++; });
+    notif.items.forEach(function (n) { if (isUnread(n)) c++; });
     return c;
   }
 
@@ -3759,44 +3832,53 @@
     $('bellBtn').setAttribute('aria-label', n ? 'Notifications, ' + n + ' new' : 'Notifications');
   }
 
-  function markReadTo(id) {
-    if (id > notif.lastRead) {
-      notif.lastRead = id;
-      store(nReadKey(), String(id));
-    }
-    paintBell();
-  }
-
   function openNotices() {
     hideBanner();
+    pullOpened();
+    paintBell();
     notif.open = true;
-    notif.seenAtOpen = notif.lastRead;
+    notif.showOld = false;
     renderNotices();
     $('nModal').classList.remove('hidden');
     try { refreshAppLink(); } catch (ignore) { }
   }
 
-  function closeNotices(markRead) {
-    var wasOpen = notif.open;
+  // Closing the window does not change what is new
+  function closeNotices() {
     notif.open = false;
     $('nModal').classList.add('hidden');
-    if (markRead && wasOpen) markReadTo(topNoticeId());
   }
 
+  function noticeHtml(n, isNew) {
+    var w = whenInfo(n.time);
+    return '<div class="ni k-' + esc(String(n.kind || '').toLowerCase()) + (isNew ? ' unread' : '') + '" data-n="' + n.id + '">' +
+      '<div class="ni-top"><span class="ni-title">' + esc(n.title) + '</span>' +
+      '<span class="ni-time' + (w.fresh ? ' fresh' : '') + '">' + esc(w.text) + '</span></div>' +
+      '<div class="ni-text" dir="auto">' + esc(n.text) + '</div></div>';
+  }
+
+  // The window: the new notices (newest on top, all shaded). The ones already opened are behind a small button.
   function renderNotices() {
     $('nSound').textContent = notif.sound ? 'Sound on' : 'Sound off';
-    var list = notif.items.slice().reverse();
-    if (!list.length) {
-      $('nList').innerHTML = '<div class="empty">No notices yet. You get one here when a request, an update or a comment arrives.</div>';
-      return;
+    var fresh = [];
+    var old = [];
+    for (var i = notif.items.length - 1; i >= 0; i--) {
+      if (isUnread(notif.items[i])) fresh.push(notif.items[i]); else old.push(notif.items[i]);
     }
-    $('nList').innerHTML = list.map(function (n) {
-      var w = whenInfo(n.time);
-      return '<div class="ni k-' + esc(String(n.kind || '').toLowerCase()) + (n.id > notif.seenAtOpen ? ' unread' : '') + '" data-n="' + n.id + '">' +
-        '<div class="ni-top"><span class="ni-title">' + esc(n.title) + '</span>' +
-        '<span class="ni-time' + (w.fresh ? ' fresh' : '') + '">' + esc(w.text) + '</span></div>' +
-        '<div class="ni-text" dir="auto">' + esc(n.text) + '</div></div>';
-    }).join('');
+    $('nSub').textContent = fresh.length
+      ? (fresh.length === 1 ? '1 new notice. Tap it to open it.' : fresh.length + ' new notices. Tap one to open it.')
+      : 'You have no new notices.';
+    var html = '';
+    if (fresh.length) {
+      html += fresh.map(function (n) { return noticeHtml(n, true); }).join('');
+    } else {
+      html += '<div class="empty">No new notices. You get one here when a request, an update or a comment arrives.</div>';
+    }
+    if (old.length) {
+      html += '<button type="button" class="refresh nmore" id="nMore">' + (notif.showOld ? 'Hide earlier notices' : 'Show earlier notices') + '</button>';
+      if (notif.showOld) html += old.slice(0, NOTIF_OLD_SHOWN).map(function (n) { return noticeHtml(n, false); }).join('');
+    }
+    $('nList').innerHTML = html;
   }
 
   // A tap on a notice shows that entry: the Losses or My Entries page, with the ID in the search box
@@ -3817,30 +3899,52 @@
   }
 
   $('bellBtn').addEventListener('click', function () { unlockAudio(); openNotices(); });
-  $('nClose').addEventListener('click', function () { closeNotices(true); });
-  $('nModal').addEventListener('click', function (e) { if (e.target === $('nModal')) closeNotices(true); });
+  $('nClose').addEventListener('click', closeNotices);
+  $('nModal').addEventListener('click', function (e) { if (e.target === $('nModal')) closeNotices(); });
   $('nSound').addEventListener('click', function () {
     notif.sound = !notif.sound;
     store('od_nsound', notif.sound ? '' : 'off');
     $('nSound').textContent = notif.sound ? 'Sound on' : 'Sound off';
     if (notif.sound) { unlockAudio(); playChime(); }
   });
+  // A tap on a notice: that notice is opened (it leaves the list, the bell counts one less) and its entry is shown.
+  // The other notices stay new.
   $('nList').addEventListener('click', function (e) {
+    if (e.target.closest('#nMore')) { notif.showOld = !notif.showOld; renderNotices(); return; }
     var it = e.target.closest('.ni');
     if (!it) return;
     var n = findNotice(Number(it.getAttribute('data-n')));
-    closeNotices(true);
-    if (n) openNoticeEntry(n);
+    closeNotices();
+    if (n) { markRead(n.id); openNoticeEntry(n); }
   });
   $('nToast').addEventListener('click', function (e) {
     var id = Number($('nToast').getAttribute('data-n')) || 0;
     hideBanner();
     if (e.target.closest('#ntClose')) return;
     var n = id ? findNotice(id) : null;
-    if (n) { markReadTo(n.id); openNoticeEntry(n); } else { openNotices(); }
+    if (n) { markRead(n.id); openNoticeEntry(n); } else { openNotices(); }
   });
 
-  document.addEventListener('visibilitychange', function () { if (!document.hidden && state.pin) pollNotices(); });
+  // Another tab of the same person opened a notice: this tab counts it as opened too
+  window.addEventListener('storage', function (e) {
+    if (!state.pin || !state.user || !e || !e.key || e.newValue === null) return;
+    var p = nOpenPrefix();
+    if (e.key.indexOf(p) !== 0) return;
+    var tail = e.key.slice(p.length);
+    if (!/^[0-9]{1,12}$/.test(tail)) return;
+    notif.read[Number(tail)] = true;
+    paintBell();
+    if (notif.open) renderNotices();
+  });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden || !state.pin) return;
+    // a tab that slept may have missed what another tab opened: look at the storage again, then ask the server
+    pullOpened();
+    paintBell();
+    if (notif.open) renderNotices();
+    pollNotices();
+  });
   window.addEventListener('online', function () { if (state.pin) pollNotices(); });
 
   // The sound: a short three note chime made in the browser (no file). A phone lets a page make
@@ -4015,8 +4119,8 @@
     if (!(id > 0 && id < 1e12)) id = 0;
     var entryId = (typeof d.entryId === 'string' && /^[A-Za-z0-9_-]{1,60}$/.test(d.entryId)) ? d.entryId : '';
     if (!state.pin || !state.user) { pendingOpen = { id: id, entryId: entryId }; return; }
-    closeNotices(false);
-    if (id) markReadTo(id);
+    closeNotices();
+    if (id) markRead(id);
     var n = id ? findNotice(id) : null;
     var target = entryId || (n ? String(n.entryId || '') : '');
     if (target) openNoticeEntry({ entryId: target });

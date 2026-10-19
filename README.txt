@@ -45,6 +45,16 @@ iPhone and iPad  (the page works in Safari on iOS 15 or newer; alerts need iOS 1
 The sound of an alert follows the rules of the iPhone: the silent switch and the Focus modes can mute it.
 The Excel download opens the share sheet of the iPhone: choose  Save to Files  (or send it by Mail or WhatsApp).
 
+Updating to a new version (every time you get a new index.html)
+---------------------------------------------------------------
+1. On github.com open the repository  ops-desk,  then  Add file > Upload files.
+2. Drag the new  index.html  (and any other file that came with it) into the page, then  Commit changes.
+3. Wait 1 or 2 minutes. Open the app and press Ctrl+Shift+R. On a phone: close the app and open it again, two times.
+4. Look at the top of the page, under the office name: it shows the version (for example  Owner - v30).
+   If it shows an older version, the browser kept the old page: do step 3 again.
+5. The Apps Script files (WebApp.gs, PocApp.html, Sidebar.html) are a separate update: paste them in Apps Script, then
+   Deploy > Manage deployments > pencil > Version: New version > Deploy.  The page and the script should be the same version.
+
 If the Apps Script address changes
 ----------------------------------
 Only if you make a NEW deployment in Apps Script (Deploy > New deployment). Then the address changes:
