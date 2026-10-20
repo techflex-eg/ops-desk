@@ -77,17 +77,20 @@
     --k-idle: #6350a8; --k-idle-bg: #eeeaf8; --k-idle-line: #d6cdee; --k-idle-ink: #4a3a82;
     --k-rescue: #23788f; --k-rescue-bg: #e2f1f6; --k-rescue-line: #bddbe6; --k-rescue-ink: #1b5a6d;
     --k-cash: #a0621d; --k-cash-bg: #fbeedd; --k-cash-line: #efd5b0; --k-cash-ink: #7d4a12;
+    --k-loss: #b8405a; --k-loss-bg: #fbe8ec; --k-loss-line: #f0c4cd; --k-loss-ink: #8f2c42;
   }
   :root[data-theme="dark"] {
     --k-idle: #5b4cae; --k-idle-bg: #241f3e; --k-idle-line: #3b3465; --k-idle-ink: #d0c8f3;
     --k-rescue: #26788f; --k-rescue-bg: #15303a; --k-rescue-line: #255160; --k-rescue-ink: #b5e0ee;
     --k-cash: #94651f; --k-cash-bg: #382b1a; --k-cash-line: #5b4527; --k-cash-ink: #f0d4a8;
+    --k-loss: #b84a63; --k-loss-bg: #3a1b25; --k-loss-line: #5c2c3b; --k-loss-ink: #f2c0cc;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) {
       --k-idle: #5b4cae; --k-idle-bg: #241f3e; --k-idle-line: #3b3465; --k-idle-ink: #d0c8f3;
       --k-rescue: #26788f; --k-rescue-bg: #15303a; --k-rescue-line: #255160; --k-rescue-ink: #b5e0ee;
       --k-cash: #94651f; --k-cash-bg: #382b1a; --k-cash-line: #5b4527; --k-cash-ink: #f0d4a8;
+    --k-loss: #b84a63; --k-loss-bg: #3a1b25; --k-loss-line: #5c2c3b; --k-loss-ink: #f2c0cc;
     }
   }
   #typeSeg button[data-type="IDLE"], .fchips button[data-f="IDLE"] { background: var(--k-idle-bg); border-color: var(--k-idle-line); color: var(--k-idle-ink); }
@@ -446,9 +449,20 @@
     border-radius: 12px; background: var(--card); cursor: pointer; }
   .ni.unread { background: var(--brand-soft); }
   .nmore { display: block; margin: 12px auto 0; font-size: 13px; }
+  /* A notice has the color of the card it is about (the same colors as the cards) */
+  .ni.t-idl.unread { background: var(--k-idle-bg); border-color: var(--k-idle-line) var(--k-idle-line) var(--k-idle-line) var(--cc); }
+  .ni.t-rsc.unread { background: var(--k-rescue-bg); border-color: var(--k-rescue-line) var(--k-rescue-line) var(--k-rescue-line) var(--cc); }
+  .ni.t-csh.unread { background: var(--k-cash-bg); border-color: var(--k-cash-line) var(--k-cash-line) var(--k-cash-line) var(--cc); }
+  .ni.t-los.unread { background: var(--k-loss-bg); border-color: var(--k-loss-line) var(--k-loss-line) var(--k-loss-line) var(--cc); }
+  .ni.t-idl, .ni.t-rsc, .ni.t-csh, .ni.t-los { border-left: 5px solid var(--cc); }
+  .ni.unread .ni-title::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: var(--cc, var(--brand)); }
   .ni.k-request { --cc: var(--waiting); }
   .ni.k-comment, .ni.k-update { --cc: var(--found); }
   .ni.k-found { --cc: var(--approved); }
+  .ni.t-idl { --cc: var(--k-idle); }
+  .ni.t-rsc { --cc: var(--k-rescue); }
+  .ni.t-csh { --cc: var(--k-cash); }
+  .ni.t-los { --cc: var(--k-loss); }
   .ni-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; }
   .ni-title { font-size: 14px; font-weight: 800; }
   .ni-time { font-size: 12px; color: var(--muted); white-space: nowrap; }
@@ -467,6 +481,10 @@
   .ntoast.k-request { --cc: var(--waiting); }
   .ntoast.k-comment, .ntoast.k-update { --cc: var(--found); }
   .ntoast.k-found { --cc: var(--approved); }
+  .ntoast.t-idl { --cc: var(--k-idle); background: var(--k-idle-bg); }
+  .ntoast.t-rsc { --cc: var(--k-rescue); background: var(--k-rescue-bg); }
+  .ntoast.t-csh { --cc: var(--k-cash); background: var(--k-cash-bg); }
+  .ntoast.t-los { --cc: var(--k-loss); background: var(--k-loss-bg); }
   @keyframes od-drop { from { opacity: 0; transform: translate(-50%, -16px); } to { opacity: 1; transform: translate(-50%, 0); } }
   .nt-main { flex: 1; min-width: 0; }
   .nt-title { font-size: 14px; font-weight: 800; }
@@ -525,7 +543,7 @@
     <div class="top-inner">
       <div>
         <h1 id="officeName">Ops Desk</h1>
-        <div class="who"><span id="whoLine"></span><span class="ver" id="verTag"> &middot; v34</span></div>
+        <div class="who"><span id="whoLine"></span><span class="ver" id="verTag"> &middot; v35</span></div>
       </div>
       <div class="top-right">
         <button type="button" class="bell" id="bellBtn" aria-label="Notifications" title="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg><span class="dot" id="bellDot"></span></button>
@@ -3669,7 +3687,7 @@
   var NOTIF_KEEP = 100;                    // the notices kept in the page (the server sends at most this many when the page is opened)
   var NOTIF_HARD = 300;                    // never more than this in the page, whatever is new
   var NOTIF_OLD_SHOWN = 20;                // "Show earlier notices" lists this many
-  var notif = { seq: -1, items: [], base: 0, read: {}, showOld: false, timer: null, busy: false, bad: 0, sound: true, run: 0, open: false, again: false };
+  var notif = { seq: -1, items: [], base: 0, read: {}, pending: [], quiet: false, hiddenAt: 0, showOld: false, timer: null, busy: false, bad: 0, sound: true, run: 0, open: false, again: false };
   var bannerTimer = null;
   var audioCtx = null;
 
@@ -3687,7 +3705,7 @@
     clearTimeout(notif.timer);
     notif.timer = null;
     notif.run++;                                  // an answer that comes after a sign out is thrown away
-    notif.seq = -1; notif.items = []; notif.base = 0; notif.read = {}; notif.showOld = false;
+    notif.seq = -1; notif.items = []; notif.base = 0; notif.read = {}; notif.pending = []; notif.quiet = false; notif.showOld = false;
     notif.busy = false; notif.bad = 0; notif.again = false;
     clearTimeout(bannerTimer);
     $('nToast').classList.add('hidden');
@@ -3719,8 +3737,21 @@
     notif.busy = true;
     var run = notif.run;
     try {
-      var r = await callQuick('apiNotifications', state.pin, notif.seq < 0 ? null : notif.seq, deviceKind());
+      // What this device knows about what was opened goes to the server (kept there for every device of the person)
+      var sent = notif.pending.slice();
+      var sync = null;
+      if (notif.seq < 0) {
+        var p = nOpenPrefix();
+        var local = openedKeys().map(function (k) { return Number(k.slice(p.length)); });
+        sent.forEach(function (id) { if (local.indexOf(id) < 0) local.push(id); });
+        var sv = readStore(nReadKey());
+        sync = { base: sv === '' ? null : (Number(sv) || 0), ids: local };
+      } else if (sent.length) {
+        sync = { ids: sent };
+      }
+      var r = await callQuick('apiNotifications', state.pin, notif.seq < 0 ? null : notif.seq, deviceKind(), sync);
       if (run !== notif.run) return;
+      if (r && r.ok && sent.length) notif.pending = notif.pending.filter(function (id) { return sent.indexOf(id) < 0; });
       handleNotices(r);
     } catch (e) {
       // no connection: the next try is soon, the person is not bothered
@@ -3772,14 +3803,23 @@
       var saved = readStore(nReadKey());
       var top = Math.max(r.seq, topNoticeId());
       var base = (saved === '' || r.reset) ? top : Math.min(Number(saved) || 0, top);
+      var sr = r.read;                                  // what the server knows that the person opened (on any device)
+      if (sr && sr.base !== null && sr.base !== undefined) base = Math.min(Number(sr.base) || 0, top);
       notif.base = base;
       if (String(base) !== saved) store(nReadKey(), String(base));
       if (r.reset) { notif.read = {}; openedKeys().forEach(function (k) { store(k, ''); }); }
+      if (sr && sr.ids) sr.ids.forEach(function (id) {
+        id = Number(id);
+        if (id > base) { notif.read[id] = true; store(nOpenPrefix() + id, '1'); }
+      });
       pullOpened();
       pruneOpened(top);
       paintBell();
       var missed = notif.items.filter(isUnread);
-      if (missed.length) announce(missed);
+      var quiet = notif.quiet;
+      notif.quiet = false;
+      if (missed.length && !quiet) announce(missed);
+      if (notif.open) renderNotices();
       return;
     }
 
@@ -3850,6 +3890,8 @@
     if (id > notif.base) {
       notif.read[id] = true;
       store(nOpenPrefix() + id, '1');
+      if (notif.pending.indexOf(id) < 0) notif.pending.push(id);       // goes to the server with the next check
+      if (notif.pending.length > 300) notif.pending = notif.pending.slice(-300);
     }
     paintBell();
     if (notif.open) renderNotices();
@@ -3884,7 +3926,7 @@
     $('ntTitle').textContent = many ? list.length + ' new notices' : last.title;
     $('ntText').textContent = many ? last.title + ': ' + last.text : last.text;
     var b = $('nToast');
-    b.className = 'ntoast k-' + String(last.kind || '').toLowerCase();
+    b.className = 'ntoast k-' + String(last.kind || '').toLowerCase() + (many ? '' : noticeTypeClass(last));
     b.setAttribute('data-n', many ? '' : String(last.id));
     clearTimeout(bannerTimer);
     bannerTimer = setTimeout(hideBanner, 9000);
@@ -3924,9 +3966,15 @@
     $('nModal').classList.add('hidden');
   }
 
+  // IDL- = Idle, RSC- = Rescue Hours, CSH- = Cash Shortage, LOS- = Losses
+  function noticeTypeClass(n) {
+    var p = String((n && n.entryId) || '').slice(0, 4);
+    return p === 'IDL-' ? ' t-idl' : p === 'RSC-' ? ' t-rsc' : p === 'CSH-' ? ' t-csh' : p === 'LOS-' ? ' t-los' : '';
+  }
+
   function noticeHtml(n, isNew) {
     var w = whenInfo(n.time);
-    return '<div class="ni k-' + esc(String(n.kind || '').toLowerCase()) + (isNew ? ' unread' : '') + '" data-n="' + n.id + '">' +
+    return '<div class="ni k-' + esc(String(n.kind || '').toLowerCase()) + noticeTypeClass(n) + (isNew ? ' unread' : '') + '" data-n="' + n.id + '">' +
       '<div class="ni-top"><span class="ni-title">' + esc(n.title) + '</span>' +
       '<span class="ni-time' + (w.fresh ? ' fresh' : '') + '">' + esc(w.text) + '</span></div>' +
       '<div class="ni-text" dir="auto">' + esc(n.text) + '</div></div>';
@@ -4013,7 +4061,11 @@
   });
 
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden || !state.pin) return;
+    if (document.hidden) { notif.hiddenAt = Date.now(); return; }
+    if (!state.pin) return;
+    // a page that was away for a while may have missed what the person opened on another device: read it again from the server
+    if (notif.hiddenAt && Date.now() - notif.hiddenAt > 20000 && notif.seq >= 0) { notif.quiet = true; notif.seq = -1; }
+    notif.hiddenAt = 0;
     // a tab that slept may have missed what another tab opened: look at the storage again, then ask the server
     pullOpened();
     paintBell();
