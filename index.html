@@ -492,6 +492,148 @@
     -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   .nt-x { flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: transparent; color: var(--muted);
     font-size: 24px; line-height: 1; cursor: pointer; }
+
+  /* ---------- DAY0: the new drivers ---------- */
+  :root {
+    --k-d0: #2f7d4f; --k-d0-bg: #e4f3ea; --k-d0-line: #bfe0cb; --k-d0-ink: #1f5a37;
+    --d0-wait: #b45f06; --d0-att: #2f855a; --d0-act: #1d7f86; --d0-abs: #c0392b; --d0-res: #2b6cb0;
+    --d0-warn: #b36a00; --d0-warn-bg: #ffeacc; --d0-act-bg: #d9f1f0; --d0-act-ink: #146a70;
+  }
+  :root[data-theme="dark"] {
+    --k-d0: #3f9a68; --k-d0-bg: #17302a; --k-d0-line: #285242; --k-d0-ink: #b7e6cd;
+    --d0-wait: #d38a2e; --d0-att: #3fae7a; --d0-act: #2aa3ab; --d0-abs: #d9625d; --d0-res: #4f8fd4;
+    --d0-warn: #ffcf99; --d0-warn-bg: #4a3a22; --d0-act-bg: #173a3d; --d0-act-ink: #9fe3e8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --k-d0: #3f9a68; --k-d0-bg: #17302a; --k-d0-line: #285242; --k-d0-ink: #b7e6cd;
+      --d0-wait: #d38a2e; --d0-att: #3fae7a; --d0-act: #2aa3ab; --d0-abs: #d9625d; --d0-res: #4f8fd4;
+      --d0-warn: #ffcf99; --d0-warn-bg: #4a3a22; --d0-act-bg: #173a3d; --d0-act-ink: #9fe3e8;
+    }
+  }
+  .tabs button { padding: 0 2px; font-size: 14px; }
+  #viewDay0 .sbox { margin-top: 10px; }
+  .d0-recv { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; padding: 12px 16px; background: var(--k-d0-bg); border-color: var(--k-d0-line); }
+  .d0-recv .t { min-width: 0; font-size: 15px; line-height: 1.35; color: var(--k-d0-ink); overflow-wrap: anywhere; }
+  .d0-recv button { flex: none; min-height: 40px; padding: 0 18px; border: 0; border-radius: 10px; background: var(--k-d0); color: #ffffff; font-size: 14px; font-weight: 800; cursor: pointer; }
+  .d0-recv button:disabled { opacity: .6; cursor: default; }
+  .d0-scope { margin-top: 14px; font-size: 13px; color: var(--muted); }
+  .d0-scope b { color: var(--ink); }
+
+  .d0t { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 14px; }
+  .d0t button { --tc: var(--brand); position: relative; min-width: 0; padding: 8px 2px 6px; border: 1px solid var(--line); border-top: 4px solid var(--tc); border-radius: 12px;
+    background: var(--card); color: var(--ink); font: inherit; text-align: center; cursor: pointer; }
+  .d0t .n { display: block; font-size: 24px; font-weight: 800; line-height: 1.1; color: var(--tc); }
+  .d0t .l { display: block; margin-top: 2px; font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .d0t .f { display: block; min-height: 13px; margin-top: 3px; font-size: 10.5px; font-weight: 800; color: var(--rejected); }
+  .d0t button[data-f="W"] { --tc: var(--d0-wait); }
+  .d0t button[data-f="T"] { --tc: var(--d0-att); }
+  .d0t button[data-f="A"] { --tc: var(--d0-act); }
+  .d0t button[data-f="X"] { --tc: var(--d0-abs); }
+  .d0t button[data-f="R"] { --tc: var(--d0-res); }
+  .d0t button.on { background: var(--tc); border-color: var(--tc); }
+  .d0t button.on .n, .d0t button.on .l, .d0t button.on .f { color: #ffffff; }
+
+  .d0 { border-left-width: 5px; }
+  .d0-waiting { border-left-color: var(--d0-wait); }
+  .d0-attend { border-left-color: var(--d0-att); }
+  .d0-act { border-left-color: var(--d0-act); }
+  .d0-warn { border-left-color: #e0902b; }
+  .d0-late { border-left-color: var(--d0-abs); }
+  .d0-absent { border-left-color: var(--d0-abs); background: var(--rejected-bg); }
+  .d0-resched { border-left-color: var(--d0-res); }
+  .d0-done { border-left-color: var(--line); }
+  .d0-fresh { box-shadow: 0 0 0 2px var(--d0-att); }
+  .d0-pend .lc-actions { opacity: .5; pointer-events: none; }
+  .d0-absent .badge { background: var(--card); color: var(--rejected); border: 1px solid var(--rejected); }
+  .badge.b-act { background: var(--d0-act-bg); color: var(--d0-act-ink); }
+  .badge.b-warn { background: var(--d0-warn-bg); color: var(--d0-warn); }
+  .badge.b-late { background: var(--rejected); color: #ffffff; }
+  .d0-phone { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 10px; }
+  .d0-num { flex: none; font-size: 15px; font-weight: 700; letter-spacing: .01em; white-space: nowrap; }
+  .d0-btns { display: flex; gap: 6px; flex: none; }
+  .d0-pill { display: inline-flex; align-items: center; gap: 5px; min-height: 34px; padding: 0 11px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--card); color: var(--brand); font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; }
+  .d0-pill svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  @media (max-width: 380px) {
+    .d0-phone { column-gap: 6px; }
+    .d0-num { letter-spacing: 0; }
+    .d0-btns { gap: 5px; }
+    .d0-pill { padding: 0 8px; gap: 4px; }
+  }
+  .d0-reason { font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; }
+  .d0-attn { color: var(--d0-wait); font-weight: 800; }
+  .d0-next { display: flex; align-items: center; gap: 8px; margin: 10px 16px 0; padding: 8px 12px; border: 1px solid transparent; border-radius: 10px;
+    font-size: 14px; font-weight: 800; line-height: 1.3; }
+  .d0-next svg { flex: none; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .d0-next .tx { min-width: 0; overflow-wrap: anywhere; }
+  .d0-next .own { margin-left: auto; padding-left: 8px; font-size: 12px; font-weight: 800; white-space: nowrap; opacity: .9; }
+  .d0-next.info { background: var(--bg); border-color: var(--line); color: var(--muted); }
+  .d0-next.time { background: var(--pending-bg); color: var(--pending); }
+  .d0-next.ok { background: var(--approved-bg); color: var(--approved); }
+  .d0-next.act { background: var(--d0-act-bg); color: var(--d0-act-ink); }
+  .d0-next.warn { background: var(--d0-warn-bg); color: var(--d0-warn); }
+  .d0-next.late { background: var(--rejected-bg); color: var(--rejected); border-color: var(--rejected); }
+  .d0-next.res { background: var(--found-bg); color: var(--found); }
+  .d0-absent .d0-next { background: var(--card); border-color: var(--line); color: var(--muted); }
+  .d0 .lc-actions button { padding: 6px 4px; }
+  .d0 .lc-actions button:nth-child(3):last-child { flex-grow: 1.4; }
+
+  .d0-by { margin-top: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); overflow: hidden; }
+  .d0-by .h { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 11px 14px; font-size: 15px; font-weight: 800; }
+  .d0-by .h span { font-size: 12px; font-weight: 700; color: var(--muted); text-align: right; }
+  .d0-by table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .d0-by th { padding: 7px 6px; border-top: 1px solid var(--line); text-align: right; font-size: 10.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+  .d0-by td { padding: 8px 6px; border-top: 1px solid var(--line); text-align: right; font-weight: 700; }
+  .d0-by th:first-child, .d0-by td:first-child { padding-left: 14px; text-align: left; }
+  .d0-by th:last-child, .d0-by td:last-child { padding-right: 14px; }
+  .d0-by td.z { color: var(--muted); font-weight: 600; }
+  .d0-by td.r { color: var(--rejected); }
+  .d0-by td.g { color: var(--approved); }
+  .d0-by td.w { color: var(--d0-wait); }
+  .d0-by tbody tr { cursor: pointer; }
+  .d0-by tr.tot td { background: var(--bg); font-weight: 800; }
+  .d0-by tr.hot td { background: var(--brand-soft); }
+  .d0-by tr.hot td:first-child { color: var(--brand); }
+  .d0-by .tw { overflow-x: auto; }
+  @media (max-width: 400px) {
+    .d0-by th { padding: 7px 3px; font-size: 9.5px; letter-spacing: 0; }
+    .d0-by td { padding: 8px 3px; font-size: 13.5px; }
+    .d0-by th:first-child, .d0-by td:first-child { padding-left: 10px; }
+    .d0-by th:last-child, .d0-by td:last-child { padding-right: 10px; }
+  }
+  .d0-got { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 14px 12px; border-top: 1px solid var(--line); }
+  .d0-got .lab { margin-right: 4px; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .d0-got .c { padding: 3px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 700; }
+  .d0-got .c.ok { background: var(--approved-bg); color: var(--approved); }
+  .d0-got .c.wait { background: var(--pending-bg); color: var(--pending); }
+
+  .d0-toast { position: fixed; left: 12px; right: 12px; bottom: 74px; z-index: 40; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    max-width: 536px; margin: 0 auto; padding: 12px 14px; border-radius: 12px; background: #1f2a3a; color: #ffffff; font-size: 14px; line-height: 1.3;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .3); }
+  .d0-toast.err { background: #8f2424; }
+  .d0-toast b { font-weight: 800; }
+  .d0-toast span { min-width: 0; overflow-wrap: anywhere; }
+  .d0-toast button { flex: none; min-height: 34px; padding: 0 14px; border: 0; border-radius: 8px; background: #ffffff; color: #1f3a5f; font-size: 14px; font-weight: 800; cursor: pointer; }
+  .d0-write { display: flex; gap: 8px; margin-top: 12px; }
+  .d0-write input { flex: 1; min-width: 0; }
+  .d0-write button { flex: none; min-height: 46px; padding: 0 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink); font-size: 15px; font-weight: 800; cursor: pointer; }
+  .d0-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 52px; margin-top: 8px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px;
+    background: var(--bg); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+  .d0-row .nm { font-weight: 800; overflow-wrap: anywhere; }
+  .d0-row .sb { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .d0-row.same .sb { color: var(--k-d0-ink); font-weight: 700; }
+  .d0-date { margin-top: 12px; }
+  .d0-cal input[type="date"] { position: absolute; left: 0; top: 0; width: 100%; height: 100%; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 999px;
+    opacity: 0; cursor: pointer; font-size: 16px; }
+  .d0-cal input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; left: 0; top: 0; width: 100%; height: 100%; margin: 0; padding: 0; cursor: pointer; }
+  .d0-more { display: block; width: 100%; margin-top: 14px; min-height: 44px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--brand); font-weight: 700; cursor: pointer; }
+  .d0-empty { margin-top: 14px; padding: 18px 16px; border: 1px dashed var(--line); border-radius: 14px; color: var(--muted); font-size: 14px; line-height: 1.45; text-align: center; }
+  .d0-note { margin-top: 12px; font-size: 14px; color: var(--error); }
+  .d0-note .refresh { margin-left: 8px; padding: 0; }
+  .ni.t-d0.unread { background: var(--k-d0-bg); border-color: var(--k-d0-line) var(--k-d0-line) var(--k-d0-line) var(--cc); }
+  .ni.t-d0 { --cc: var(--k-d0); border-left: 5px solid var(--cc); }
+  .ntoast.t-d0 { --cc: var(--k-d0); background: var(--k-d0-bg); }
   /* The alerts bar of the app: it sits right above the tab bar of the page (the page measures it) */
   #odBar { position: fixed; left: 8px; right: 8px; bottom: calc(var(--od-tabs, 0px) + 8px); z-index: 30; max-width: 544px; margin: 0 auto;
     display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #1f3a5f; color: #ffffff;
@@ -543,7 +685,7 @@
     <div class="top-inner">
       <div>
         <h1 id="officeName">Ops Desk</h1>
-        <div class="who"><span id="whoLine"></span><span class="ver" id="verTag"> &middot; v35</span></div>
+        <div class="who"><span id="whoLine"></span><span class="ver" id="verTag"> &middot; v41</span></div>
       </div>
       <div class="top-right">
         <button type="button" class="bell" id="bellBtn" aria-label="Notifications" title="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg><span class="dot" id="bellDot"></span></button>
@@ -556,7 +698,7 @@
   <div class="wrap">
 
     <!-- Station -->
-    <div class="stationbar">
+    <div class="stationbar" id="stationBar">
       <span class="lbl">Station</span>
       <div id="stationPick" class="stpick hidden"><button type="button" id="stationBtn" class="stbtn"></button><div id="stationPanel" class="stpanel hidden"></div></div>
       <span id="stationFixed" class="fixed hidden"></span>
@@ -681,6 +823,33 @@
       <div id="listMsg" class="msg"></div>
     </div>
 
+    <!-- DAY0 -->
+    <div id="viewDay0" class="hidden">
+      <div id="d0Recv"></div>
+      <div class="d0-scope" id="d0Scope"></div>
+      <div class="sbox">
+        <div class="sline">
+          <svg class="sico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <input id="d0Q" type="search" placeholder="Search name, phone or station" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Search drivers">
+          <button type="button" class="sclear hidden" id="d0QClear" aria-label="Clear search">&times;</button>
+        </div>
+        <div class="sdays" id="d0Days">
+          <button type="button" class="dchip" data-d="OPEN">Open</button>
+          <button type="button" class="dchip" data-d="TODAY">Today</button>
+          <button type="button" class="dchip" data-d="TOMORROW">Tomorrow</button>
+          <span class="dchip d0-cal" id="d0DateChip">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>
+            <span id="d0DateTxt" class="hidden"></span>
+            <input type="date" id="d0Date" aria-label="Choose another day">
+          </span>
+        </div>
+      </div>
+      <div class="d0t" id="d0Tiles"></div>
+      <div id="d0By"></div>
+      <div id="d0List"></div>
+      <div id="d0Msg"></div>
+    </div>
+
   </div>
 
   <div class="tabs">
@@ -688,8 +857,12 @@
       <button id="tabNew" class="on">New Entry</button>
       <button id="tabLoss">Losses<span id="lossCnt" class="cnt hidden"></span></button>
       <button id="tabList">My Entries</button>
+      <button id="tabDay0">DAY0<span id="d0Cnt" class="cnt hidden"></span></button>
     </div>
   </div>
+
+  <!-- DAY0: what a tap did (with Undo) -->
+  <div id="d0Toast" class="d0-toast hidden" role="status" aria-live="polite"><span id="d0ToastText"></span><button type="button" id="d0ToastBtn" class="hidden">Undo</button></div>
 </div>
 
 <!-- Request a change window -->
@@ -743,6 +916,48 @@
 <div id="nToast" class="ntoast hidden" role="status" aria-live="polite">
   <div class="nt-main"><div class="nt-title" id="ntTitle"></div><div class="nt-text" id="ntText"></div></div>
   <button type="button" class="nt-x" id="ntClose" aria-label="Close">&times;</button>
+</div>
+
+<!-- DAY0: Absent (tap a reason) -->
+<div id="d0Absent" class="modal hidden">
+  <div class="sheet">
+    <div class="sheet-head"><span>Absent</span><button class="x" id="d0AbsentX" aria-label="Close">&times;</button></div>
+    <div class="msub" id="d0AbsentSub"></div>
+    <label>Reason (required)</label>
+    <div class="dayrow" id="d0Reasons">
+      <button type="button" class="dchip" data-r="Phone off">Phone off</button>
+      <button type="button" class="dchip" data-r="No answer">No answer</button>
+      <button type="button" class="dchip" data-r="Did not come">Did not come</button>
+      <button type="button" class="dchip" data-r="Sick">Sick</button>
+      <button type="button" class="dchip" data-r="">Other</button>
+    </div>
+    <div class="d0-write"><input type="text" id="d0Why" maxlength="120" placeholder="Or write the reason here" autocomplete="off" enterkeyhint="done"><button type="button" id="d0WhySave">Save</button></div>
+    <div id="d0AbsentMsg" class="msg">Tap a reason and it is saved. The row turns red in the Onboarding sheet.</div>
+  </div>
+</div>
+
+<!-- DAY0: Rescheduled (pick a date) -->
+<div id="d0Resch" class="modal hidden">
+  <div class="sheet">
+    <div class="sheet-head"><span>Rescheduled</span><button class="x" id="d0ReschX" aria-label="Close">&times;</button></div>
+    <div class="msub" id="d0ReschSub"></div>
+    <label>New date (required)</label>
+    <div class="dayrow" id="d0ReschDays"></div>
+    <input type="date" id="d0ReschDate" class="d0-date" aria-label="New date">
+    <button type="button" class="primary" id="d0ReschSave" disabled>Choose the new date</button>
+    <div id="d0ReschMsg" class="msg">He stays Rescheduled in the Onboarding sheet until that day.</div>
+  </div>
+</div>
+
+<!-- DAY0: Hand over -->
+<div id="d0Hand" class="modal hidden">
+  <div class="sheet">
+    <div class="sheet-head"><span>Hand over</span><button class="x" id="d0HandX" aria-label="Close">&times;</button></div>
+    <div class="msub" id="d0HandSub"></div>
+    <label>Who gets him?</label>
+    <div id="d0HandList"></div>
+    <div id="d0HandMsg" class="msg">He gets a notice and an alert on his phone.</div>
+  </div>
 </div>
 
 <script>
@@ -1169,7 +1384,8 @@
   //  - a write (save, request, update, found) is tried up to 3 times with the SAME request number (rid), so the server writes only once
   //    even when the first answer was lost;
   //  - only when every try fails is the person told. The words say what happened (see failText).
-  var WRITE_CALLS = { apiSaveEntries: 1, apiCancelEntry: 1, apiRequestChange: 1, apiAddLossUpdate: 1, apiMarkFound: 1 };
+  var WRITE_CALLS = { apiSaveEntries: 1, apiCancelEntry: 1, apiRequestChange: 1, apiAddLossUpdate: 1, apiMarkFound: 1,
+    apiDay0Attend: 1, apiDay0Absent: 1, apiDay0Resched: 1, apiDay0TrainDone: 1, apiDay0HandOver: 1, apiDay0Undo: 1, apiDay0Receive: 1 };
   var CALL_TRIES = 3;
   var CALL_WAIT_MS = [700, 2000];             // the wait before the 2nd and the 3rd try
   var CALL_READ_MS = 25000;                   // one try of a read
@@ -1413,6 +1629,7 @@
       loadDraftToForm();
       setView('new');
       loadLosses(true);
+      try { d0Start(); } catch (ignore) { }
       try { startNotices(); } catch (ignore) { }
       try { startAppLink(); } catch (ignore) { }
       if (pendingOpen) {
@@ -1447,6 +1664,7 @@
     closeModal();
     closeRequest();
     try { stopNotices(); } catch (ignore) { }
+    try { d0Stop(); } catch (ignore) { }
     showLogin();
   });
 
@@ -1562,9 +1780,13 @@
     $('viewNew').classList.toggle('hidden', v !== 'new');
     $('viewLoss').classList.toggle('hidden', v !== 'loss');
     $('viewList').classList.toggle('hidden', v !== 'list');
+    $('viewDay0').classList.toggle('hidden', v !== 'day0');
+    $('stationBar').classList.toggle('hidden', v === 'day0');          // DAY0 shows the drivers of all the stations of the person
     $('tabNew').classList.toggle('on', v === 'new');
     $('tabLoss').classList.toggle('on', v === 'loss');
     $('tabList').classList.toggle('on', v === 'list');
+    $('tabDay0').classList.toggle('on', v === 'day0');
+    if (v === 'day0') d0Open(); else d0Close();
     if (v === 'new') freshEntryDay();
     if (v === 'list') { resetEntBox(); loadEntries(); }
     if (v === 'loss') { resetLossBox(); renderLosses(); loadLosses(false); }
@@ -3793,6 +4015,7 @@
       return;
     }
     notif.bad = 0;
+    try { d0Note(r.d0); } catch (ignore) { }                 // the note of DAY0: a new one means the list changed
     var items = r.items || [];
 
     if (notif.seq < 0 || r.reset) {
@@ -3966,10 +4189,10 @@
     $('nModal').classList.add('hidden');
   }
 
-  // IDL- = Idle, RSC- = Rescue Hours, CSH- = Cash Shortage, LOS- = Losses
+  // IDL- = Idle, RSC- = Rescue Hours, CSH- = Cash Shortage, LOS- = Losses, DY0- = DAY0 (a list of new drivers)
   function noticeTypeClass(n) {
     var p = String((n && n.entryId) || '').slice(0, 4);
-    return p === 'IDL-' ? ' t-idl' : p === 'RSC-' ? ' t-rsc' : p === 'CSH-' ? ' t-csh' : p === 'LOS-' ? ' t-los' : '';
+    return p === 'IDL-' ? ' t-idl' : p === 'RSC-' ? ' t-rsc' : p === 'CSH-' ? ' t-csh' : p === 'LOS-' ? ' t-los' : p === 'DY0-' ? ' t-d0' : '';
   }
 
   function noticeHtml(n, isNew) {
@@ -4008,7 +4231,9 @@
   function openNoticeEntry(n) {
     var id = String(n.entryId || '');
     if (!id) return;
-    if (id.indexOf('LOS-') === 0) {
+    if (id.indexOf('DY0-') === 0) {
+      d0OpenDay(id.slice(4));
+    } else if (id.indexOf('LOS-') === 0) {
       setView('loss');
       state.lossQ = id;
       $('lossQ').value = id;
@@ -4435,6 +4660,969 @@
       }
     } catch (err) {}
   });
+
+  // ---------- DAY0: the new drivers ----------
+  // The tab shows the drivers of the Onboarding file that this person sees (the server decides who sees whom, Day0Web.gs).
+  // The page asks for the list only when the note of DAY0 changes (the answer about notices carries the note), so it is light.
+  // A tap shows its result at once and the server confirms it a moment later. If the server says no, the card goes back and the person is told why.
+  // Undo brings the last tap back (the server allows it for a short time, if nobody changed the driver after it).
+
+  var D0_PAGE = 60;                  // cards shown at first, and for each "Show more"
+  var D0_TICK_MS = 30000;            // while the tab is open: the minutes left are drawn again and the page asks if something changed
+  var D0_TOAST_MS = 10000;           // the message of a tap (with Undo)
+  var D0_ERR_MS = 7000;              // a message that says no
+  var D0_REASON_MAX = 120;
+  var D0_TILES = [['W', 'Waiting'], ['T', 'Training'], ['A', 'To Active'], ['X', 'Absent'], ['R', 'Resched.']];
+  var D0_STAGE = { W: 'Waiting', T: 'Training', A: 'To Active', X: 'Absent', R: 'Rescheduled', D: 'Active No Show', N: 'No Show' };
+  var D0_ICON = {
+    clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',
+    call: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>',
+    cal: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>',
+    flag: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4"></path><path d="M5 4h11l-2 4 2 4H5"></path></svg>',
+    warn: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l10 18H2L12 3z"></path><path d="M12 10v5M12 18v.5"></path></svg>',
+    wa: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>'
+  };
+
+  var d0 = {
+    run: 0, started: false, open: false, loaded: false, loading: false, again: false, bad: 0,
+    ver: '', note: '', pick: '', msg: '',
+    me: null, cfg: null, stations: [], people: [], rows: [], byE: {}, recv: [], got: {},
+    today: '', skew: 0,
+    day: 'OPEN', userDay: false, tile: '', by: '', q: '', words: [], shown: D0_PAGE,
+    tapping: {}, fresh: '', undo: null, act: '', reschPick: '',
+    tickTimer: null, soonTimer: null, toastTimer: null, freshTimer: null, qTimer: null, touchAt: 0
+  };
+
+  // ---- small helpers ----
+
+  function d0Now() { return Date.now() + d0.skew; }                 // the clock of the server (the phone clock may be wrong)
+  function d0Today() { return d0.today || todayStr(); }
+
+  function d0Copy(r) {
+    return { e: r.e, n: r.n, p: r.p, c: r.c, s: r.s, a: r.a, ss: r.ss, o: r.o, st: r.st, g: r.g, r: r.r, d: r.d, rd: r.rd, at: r.at, aa: r.aa, td: r.td, ac: r.ac, u: r.u };
+  }
+
+  // 2026-10-22 -> Thu 22-Oct
+  function d0Short(key) {
+    var p = String(key || '').split('-');
+    if (p.length !== 3 || !(Number(p[1]) >= 1 && Number(p[1]) <= 12)) return String(key || '');
+    var wd = WEEKDAY[new Date(Date.UTC(Number(p[0]), Number(p[1]) - 1, Number(p[2]))).getUTCDay()];
+    return wd + ' ' + Number(p[2]) + '-' + MONTH_SHORT[Number(p[1]) - 1];
+  }
+
+  // 2026-10-23 -> Fri 23
+  function d0Chip(key) {
+    var p = String(key).split('-');
+    return WEEKDAY[new Date(Date.UTC(Number(p[0]), Number(p[1]) - 1, Number(p[2]))).getUTCDay()] + ' ' + Number(p[2]);
+  }
+
+  function d0DayWord(key) {
+    var t = d0Today();
+    if (key === t) return 'Today';
+    if (key === addDays(t, 1)) return 'Tomorrow';
+    if (key === addDays(t, -1)) return 'Yesterday';
+    return d0Short(key);
+  }
+
+  function d0DaysBetween(a, b) {
+    var pa = String(a).split('-');
+    var pb = String(b).split('-');
+    return Math.round((Date.UTC(Number(pb[0]), Number(pb[1]) - 1, Number(pb[2])) - Date.UTC(Number(pa[0]), Number(pa[1]) - 1, Number(pa[2]))) / 86400000);
+  }
+
+  // 3h 20m, 45m
+  function d0Dur(ms) {
+    var min = Math.max(1, Math.floor(ms / 60000));
+    var h = Math.floor(min / 60);
+    var m = min % 60;
+    return h >= 1 ? h + 'h' + (m ? ' ' + m + 'm' : '') : m + 'm';
+  }
+
+  function d0HourWord(h) { return (h % 12 || 12) + (h < 12 ? ' AM' : ' PM'); }
+
+  // The phone as it is shown (010 1234 5678) and the two links. An Egyptian mobile number is found in any shape (0101..., +20101..., 101...).
+  function d0PhoneInfo(p) {
+    var raw = String(p == null ? '' : p).trim();
+    var d = raw.replace(/[^0-9]/g, '');
+    var out = { show: raw, tel: '', wa: '' };
+    if (!d) return out;
+    if (d.indexOf('00') === 0) d = d.slice(2);
+    var m = /^(?:20|0)?(1[0125][0-9]{8})$/.exec(d);
+    if (m) {
+      out.show = '0' + m[1].slice(0, 2) + ' ' + m[1].slice(2, 6) + ' ' + m[1].slice(6);
+      out.tel = '+20' + m[1];
+      out.wa = '20' + m[1];
+    } else if (d.length >= 7 && d.length <= 15) {
+      out.tel = (raw.charAt(0) === '+' ? '+' : '') + d;
+      if (raw.charAt(0) === '+' || raw.indexOf('00') === 0) out.wa = d;
+    }
+    return out;
+  }
+
+  function d0IsPerson(o) {
+    o = String(o || '').trim();
+    return o !== '' && d0.stations.indexOf(o.toUpperCase()) < 0;
+  }
+  function d0SameName(a, b) { return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase(); }
+  function d0IsMe(o) { return !!d0.me && d0SameName(o, d0.me.n); }
+
+  // The reason as the server keeps it: one line, no sign that makes a formula, not too long
+  function d0Why(v) {
+    return String(v == null ? '' : v).replace(/\s+/g, ' ').trim().replace(/^[=+\-@\s]+/, '').slice(0, D0_REASON_MAX).trim();
+  }
+
+  // ---- what a card says ----
+
+  // The strip of a card: { k: its color, i: the icon, t: the words, late, warn }
+  function d0Line(r) {
+    var now = d0Now();
+    var cfg = d0.cfg || {};
+    var th = cfg.th || 20;
+    var ah = cfg.ah || 48;
+    var wh = cfg.wh || 24;
+    var today = d0Today();
+    if (r.g === 'W') {
+      var at = (r.ss || r.s) ? 'Lecture at ' + (r.ss || r.s) : 'Lecture';
+      if (r.d > today) return { k: 'info', i: 'flag', t: at + ' \u00b7 ' + d0DayWord(r.d) };
+      if (r.d === today) return { k: 'info', i: 'flag', t: at + ' \u00b7 Today' };
+      return { k: 'warn', i: 'flag', t: at + ' \u00b7 ' + d0DayWord(r.d) + ' \u00b7 not decided', late: true };
+    }
+    if (r.g === 'T') {
+      if (!r.u) return { k: 'time', i: 'clock', t: 'Until ' + d0HourWord(th) };
+      var left = r.u - now;
+      if (left < 0) return { k: 'late', i: 'warn', t: 'Past ' + d0HourWord(th) + ' by ' + d0Dur(-left), late: true };
+      return { k: 'time', i: 'clock', t: 'Until ' + d0HourWord(th) + ' \u00b7 ' + d0Dur(left) + ' left' };
+    }
+    if (r.g === 'A') {
+      if (!r.u) return { k: 'act', i: 'clock', t: 'To Active' };
+      var left2 = r.u - now;
+      if (left2 < 0) return { k: 'late', i: 'warn', t: 'Over ' + ah + 'h by ' + d0Dur(-left2), late: true };
+      if (r.td && now - r.td >= wh * 3600000) return { k: 'warn', i: 'clock', t: 'To Active \u00b7 ' + d0Dur(left2) + ' left', warn: true };
+      return { k: 'ok', i: 'clock', t: 'To Active \u00b7 ' + d0Dur(left2) + ' left' };
+    }
+    if (r.g === 'X') return { k: 'info', i: 'call', t: 'Call center will call him' };
+    if (r.g === 'R') {
+      if (!r.rd) return { k: 'res', i: 'cal', t: 'Rescheduled' };
+      var n = d0DaysBetween(today, r.rd);
+      var when = n === 0 ? 'today' : (n === 1 ? 'tomorrow' : (n > 1 ? 'in ' + n + ' days' : (-n) + (n === -1 ? ' day' : ' days') + ' ago'));
+      return { k: 'res', i: 'cal', t: 'New date ' + d0Short(r.rd) + ' \u00b7 ' + when };
+    }
+    return null;
+  }
+
+  function d0Look(r, ln) {
+    var late = !!(ln && ln.late);
+    var warn = !!(ln && ln.warn);
+    if (r.g === 'W') return { card: 'd0-waiting', badge: 'st-pending', text: 'Waiting' };
+    if (r.g === 'T') return { card: late ? 'd0-late' : 'd0-attend', badge: late ? 'b-late' : 'st-approved', text: 'Training' };
+    if (r.g === 'A') return { card: late ? 'd0-late' : (warn ? 'd0-warn' : 'd0-act'), badge: late ? 'b-late' : (warn ? 'b-warn' : 'b-act'), text: 'To Active' };
+    if (r.g === 'X') return { card: 'd0-absent', badge: 'st-rejected', text: 'Absent' };
+    if (r.g === 'R') return { card: 'd0-resched', badge: 'st-replied', text: 'Rescheduled' };
+    if (r.g === 'D') return { card: 'd0-done', badge: 'st-found', text: 'Active No Show' };
+    return { card: 'd0-done', badge: 'st-cancelled', text: r.st || 'No Show' };
+  }
+
+  // "Open" = everything that is not finished. An Absent driver stays for 2 days (then the call center has him), a Rescheduled one until his new day.
+  function d0IsOpen(r, today) {
+    if (r.g === 'W' || r.g === 'T' || r.g === 'A') return true;
+    if (r.g === 'X') return r.d >= addDays(today, -2);
+    if (r.g === 'R') return !r.rd || r.rd >= today;
+    return false;
+  }
+
+  // The order of the cards: what is late, what waits for a decision, the training, to active (soonest first), absent, rescheduled, the days to come
+  function d0RankOf(r, ln, today) {
+    if ((r.g === 'A' || r.g === 'T') && ln && ln.late) return 0;
+    if (r.g === 'W' && r.d <= today) return 1;
+    if (r.g === 'T') return 2;
+    if (r.g === 'A' && ln && ln.warn) return 3;
+    if (r.g === 'A') return 4;
+    if (r.g === 'X') return 5;
+    if (r.g === 'R') return 6;
+    if (r.g === 'W') return 7;
+    return 8;
+  }
+
+  function d0Cmp(a, b) {
+    if (a._rank !== b._rank) return a._rank - b._rank;
+    var k = a._rank;
+    if (k === 0 || k === 2 || k === 3 || k === 4) { if (a.u !== b.u) return a.u - b.u; }
+    if (k === 5) { if (a.d !== b.d) return a.d < b.d ? 1 : -1; }
+    else if (k === 6) { if (a.rd !== b.rd) return a.rd < b.rd ? -1 : 1; }
+    else if (a.d !== b.d) return a.d < b.d ? -1 : 1;
+    var n = String(a.n).localeCompare(String(b.n));
+    return n || (a.e < b.e ? -1 : (a.e > b.e ? 1 : 0));
+  }
+
+  function d0Hay(r) {
+    if (r._hay === undefined) {
+      var ph = String(r.p || '');
+      r._hay = normText([r.n, ph, ph.replace(/[^0-9]/g, ''), r.s, r.ss, r.a, r.c, r.o, r.r, D0_STAGE[r.g], r.d, d0Short(r.d)].join(' '));
+    }
+    return r._hay;
+  }
+
+  // The drivers that need a decision or the end of the training: the number on the tab
+  function d0Needs() {
+    var n = 0;
+    var today = d0Today();
+    d0.rows.forEach(function (r) { if ((r.g === 'W' && r.d <= today) || r.g === 'T') n++; });
+    return n;
+  }
+
+  // ---- start, stop, open, close ----
+
+  function d0Reset() {
+    clearTimeout(d0.tickTimer); clearTimeout(d0.soonTimer); clearTimeout(d0.toastTimer); clearTimeout(d0.freshTimer); clearTimeout(d0.qTimer);
+    d0.run++;
+    d0.started = false; d0.open = false; d0.loaded = false; d0.loading = false; d0.again = false; d0.bad = 0;
+    d0.ver = ''; d0.note = ''; d0.pick = ''; d0.msg = '';
+    d0.me = null; d0.cfg = null; d0.stations = []; d0.people = []; d0.rows = []; d0.byE = {}; d0.recv = []; d0.got = {};
+    d0.today = ''; d0.skew = 0;
+    d0.day = 'OPEN'; d0.userDay = false; d0.tile = ''; d0.by = ''; d0.q = ''; d0.words = []; d0.shown = D0_PAGE;
+    d0.tapping = {}; d0.fresh = ''; d0.undo = null; d0.act = ''; d0.reschPick = '';
+    d0CloseWindows();
+    $('d0Toast').classList.add('hidden');
+    $('d0Q').value = '';
+    $('d0List').innerHTML = '';
+    $('d0Tiles').innerHTML = '';
+    $('d0By').innerHTML = '';
+    $('d0Recv').innerHTML = '';
+    $('d0Msg').innerHTML = '';
+    $('d0Cnt').classList.add('hidden');
+  }
+
+  // After the sign in: the list is asked for a moment later, so the first tab is not slowed down
+  function d0Start() {
+    d0Reset();
+    d0.started = true;
+    var run = d0.run;
+    setTimeout(function () { if (run === d0.run) d0Load(false); }, 1500);
+  }
+
+  function d0Stop() { d0Reset(); }
+
+  function d0Open() {
+    if (!d0.started) return;
+    d0.open = true;
+    d0.day = d0.me && d0.me.boss ? 'TODAY' : 'OPEN';
+    d0.userDay = false;
+    d0.tile = ''; d0.by = ''; d0.q = ''; d0.words = []; d0.shown = D0_PAGE; d0.pick = '';
+    $('d0Q').value = '';
+    d0Render();
+    d0Load(true);
+    d0TickStart();
+  }
+
+  function d0Close() {
+    d0.open = false;
+    clearTimeout(d0.tickTimer);
+    d0CloseWindows();
+    d0HideToast();
+  }
+
+  function d0TickStart() {
+    clearTimeout(d0.tickTimer);
+    d0.tickTimer = setTimeout(function () {
+      if (!d0.open) return;
+      if (!document.hidden) {
+        if (Date.now() - d0.touchAt > 2500) d0Render();           // the minutes left (not while a finger is on the page)
+        d0Load(false);
+      }
+      d0TickStart();
+    }, D0_TICK_MS);
+  }
+
+  // A day that opens from a notice: Today, Tomorrow, or a date
+  function d0OpenDay(day) {
+    setView('day0');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(day || ''))) return;
+    d0SetDay(day === d0Today() ? 'TODAY' : (day === addDays(d0Today(), 1) ? 'TOMORROW' : day));
+  }
+
+  // OPEN, TODAY, TOMORROW or a date
+  function d0SetDay(v) {
+    d0.day = v;
+    d0.userDay = true;
+    d0.shown = D0_PAGE;
+    var custom = /^\d{4}-\d{2}-\d{2}$/.test(v);
+    var pick = custom ? v : '';
+    var changed = pick !== d0.pick;
+    d0.pick = pick;
+    d0Render();
+    if (changed) d0Load(true);               // a day outside the usual days is asked for
+  }
+
+  // ---- asking the server ----
+
+  function d0Soon(ms) {
+    clearTimeout(d0.soonTimer);
+    var run = d0.run;
+    d0.soonTimer = setTimeout(function () { if (run === d0.run) d0Load(false); }, ms === undefined ? 1200 : ms);
+  }
+
+  // The note of DAY0 came with the answer about notices: a different note means the list changed
+  function d0Note(v) {
+    if (!d0.started || typeof v !== 'string' || !v) return;
+    d0.note = v;
+    if (v !== d0.ver) d0Load(false);
+  }
+
+  function d0SignOut() {
+    signOutForced = true;
+    $('logoutBtn').click();
+    setMsg('loginMsg', 'Your PIN is not valid any more. Please sign in again.', 'err');
+  }
+
+  // manual = the person asked (opened the tab, tapped Try again): the call tries again if it fails. Else one try, the next one is soon.
+  function d0Load(manual) {
+    if (!d0.started || !state.pin || !state.user) return;
+    if (d0.loading) { d0.again = true; return; }
+    d0.loading = true;
+    var run = d0.run;
+    var t0 = Date.now();
+    var pick = d0.pick;
+    var since = d0.me ? d0.ver + (pick ? '|' + pick : '') : '';
+    var opt = manual ? null : { tries: 1, ms: 20000 };
+    callWith(opt, 'apiDay0List', [state.pin, since, pick]).then(function (r) {
+      if (run !== d0.run) return;
+      d0.loading = false;
+      try { d0Answer(r, t0); } catch (e) { }
+    }, function (e) {
+      if (run !== d0.run) return;
+      d0.loading = false;
+      d0.msg = d0.loaded ? '' : failText(e, 'Please try again.');
+      d0Paint();
+    }).then(function () {
+      if (run !== d0.run) return;
+      if (d0.again) { d0.again = false; d0Soon(300); }
+    });
+  }
+
+  function d0Answer(r, t0) {
+    if (!r) return;
+    if (!r.ok) {
+      if (r.signOut) { if (++d0.bad >= 2) d0SignOut(); return; }
+      d0.msg = r.message || 'DAY0 could not be loaded.';
+      d0.ver = d0.note || d0.ver;                         // the same note is not asked again and again; a new note is
+      d0.loaded = true;
+      d0Paint();
+      return;
+    }
+    d0.bad = 0;
+    d0.msg = '';
+    if (typeof r.now === 'number' && r.now > 0) d0.skew = r.now - (t0 + Date.now()) / 2;
+    if (r.today) d0.today = r.today;
+    d0.ver = r.ver || d0.ver;
+    d0.loaded = true;
+    if (r.same) { d0Paint(); return; }
+    var first = !d0.me;
+    d0.me = r.me || d0.me;
+    d0.cfg = r.cfg || d0.cfg;
+    d0.stations = r.stations || [];
+    d0.people = r.people || [];
+    d0.recv = r.recv || [];
+    d0.got = r.got || {};
+    // a driver with a tap on its way keeps the row of the page (the answer may be older than the tap)
+    d0.rows = (r.rows || []).map(function (x) { return d0.tapping[x.e] && d0.byE[x.e] ? d0.byE[x.e] : x; });
+    d0.byE = {};
+    d0.rows.forEach(function (x) { d0.byE[x.e] = x; });
+    if (first && d0.open && !d0.userDay && d0.me && d0.me.boss) d0.day = 'TODAY';
+    d0Paint();
+  }
+
+  // A new look of one driver
+  function d0Put(row) {
+    var at = -1;
+    for (var i = 0; i < d0.rows.length; i++) { if (d0.rows[i].e === row.e) { at = i; break; } }
+    if (at < 0) d0.rows.push(row); else d0.rows[at] = row;
+    d0.byE[row.e] = row;
+  }
+
+  // ---- drawing ----
+
+  function d0Paint() {
+    var n = d0Needs();
+    var c = $('d0Cnt');
+    c.textContent = n > 99 ? '99+' : String(n);
+    c.classList.toggle('hidden', n === 0);
+    if (d0.open) d0Render();
+  }
+
+  function d0RecvHtml() {
+    return d0.recv.map(function (x) {
+      var word = d0DayWord(x.d);
+      var rel = word === 'Today' || word === 'Tomorrow' || word === 'Yesterday';
+      return '<div class="card d0-recv"><div class="t"><b>New list</b> &middot; ' + esc(d0Short(x.d)) + (rel ? ' (' + word + ')' : '') + '<br>' +
+        x.n + (x.n === 1 ? ' new driver' : ' new drivers') + ' for you</div><button type="button" data-got="' + esc(x.d) + '">I got it</button></div>';
+    }).join('');
+  }
+
+  function d0ScopeHtml() {
+    if (!d0.me) return '';
+    var st = d0.me.st || [];
+    var all = st.indexOf('ALL') >= 0;
+    var today = ' &middot; ' + esc(d0Short(d0Today()));
+    if (all) return '<b>All stations</b>' + today;
+    if (d0.me.boss) return 'Stations: <b>' + esc(st.join(', ')) + '</b>' + today;
+    return 'Your stations: <b>' + esc(st.join(', ')) + '</b>';
+  }
+
+  function d0TilesHtml(cnt, late) {
+    return D0_TILES.map(function (t) {
+      var k = t[0];
+      var on = d0.tile === k;
+      return '<button type="button" data-f="' + k + '" class="' + (on ? 'on' : '') + '" aria-pressed="' + (on ? 'true' : 'false') + '"><span class="n">' + cnt[k] + '</span><span class="l">' + t[1] +
+        '</span><span class="f">' + (late[k] ? late[k] + ' late' : '') + '</span></button>';
+    }).join('');
+  }
+
+  // The owner and the managers: how every station is doing, and who got the list
+  function d0ByHtml(base, dayKey) {
+    var mine = d0.me && d0.me.st && d0.me.st.indexOf('ALL') < 0 ? d0.me.st : d0.stations;
+    var stations = mine.slice();
+    base.forEach(function (r) { var s = r.s || '-'; if (stations.indexOf(s) < 0) stations.push(s); });
+    var tot = { t: 0, a: 0, x: 0, r: 0, w: 0 };
+    function td(v, c) { return '<td class="' + (v === 0 ? 'z' : c) + '">' + v + '</td>'; }
+    var body = stations.map(function (s) {
+      var c = { t: 0, a: 0, x: 0, r: 0, w: 0 };
+      base.forEach(function (r) {
+        if ((r.s || '-') !== s) return;
+        c.t++;
+        if (r.g === 'T' || r.g === 'A' || r.g === 'D') c.a++;
+        else if (r.g === 'X') c.x++;
+        else if (r.g === 'R') c.r++;
+        else if (r.g === 'W') c.w++;
+      });
+      tot.t += c.t; tot.a += c.a; tot.x += c.x; tot.r += c.r; tot.w += c.w;
+      return '<tr data-s="' + esc(s) + '"' + (d0.by === s ? ' class="hot"' : '') + '><td>' + esc(s) + '</td><td>' + c.t + '</td>' + td(c.a, 'g') + td(c.x, 'r') + td(c.r, '') + td(c.w, 'w') + '</tr>';
+    }).join('');
+    body += '<tr class="tot" data-s=""><td>All</td><td>' + tot.t + '</td><td>' + tot.a + '</td><td>' + tot.x + '</td><td>' + tot.r + '</td><td>' + tot.w + '</td></tr>';
+    var what = d0.words.length ? 'Search' : (d0.day === 'OPEN' ? 'Open' : d0DayWord(dayKey));
+    return '<div class="d0-by"><div class="h">By station <span>' + esc(what) + ' &middot; tap a station to filter</span></div>' +
+      '<div class="tw"><table><thead><tr><th>Station</th><th>Total</th><th>Attend</th><th>Absent</th><th>Resch.</th><th>Wait</th></tr></thead><tbody>' + body + '</tbody></table></div>' +
+      d0GotHtml(dayKey) + '</div>';
+  }
+
+  // Who confirmed the list of the day ("I got it"). Today, tomorrow or the day that was chosen; for Open the first list from today on.
+  function d0GotHtml(dayKey) {
+    var key = dayKey;
+    if (!key || !d0.got[key]) {
+      key = '';
+      Object.keys(d0.got).sort().forEach(function (k) { if (!key && k >= d0Today()) key = k; });
+    }
+    var chips = key ? d0.got[key] : null;
+    if (!chips || !chips.length) return '';
+    var lab = 'Got it' + (key === d0Today() ? '' : ' &middot; ' + esc(d0Short(key)));
+    return '<div class="d0-got"><span class="lab">' + lab + '</span>' + chips.map(function (c) {
+      return c.ok ? '<span class="c ok">' + esc(c.n) + (c.hm ? ' ' + esc(c.hm) : '') + '</span>' : '<span class="c wait">' + esc(c.n) + '</span>';
+    }).join('') + '</div>';
+  }
+
+  function d0CardHtml(r) {
+    var ln = r._ln;
+    var look = d0Look(r, ln);
+    var today = d0Today();
+    var sub = '<b>' + esc(r.s || '-') + '</b>';
+    if (r.a) sub += ' &middot; ' + esc(r.a);
+    if (r.c) sub += ' &middot; ' + esc(r.c);
+    if (r.g !== 'W' && r.d && r.d !== today) sub += ' &middot; ' + esc(d0Short(r.d));
+    if (r.at > 1) sub += ' &middot; <span class="d0-attn">Attempt ' + r.at + '</span>';
+    var ph = d0PhoneInfo(r.p);
+    var phone = '<div class="lc-sec d0-phone"><span class="d0-num" dir="ltr">' + (ph.show ? esc(ph.show) : 'No phone') + '</span><span class="d0-btns">' +
+      (ph.tel ? '<a class="d0-pill" href="tel:' + esc(ph.tel) + '">' + D0_ICON.call + 'Call</a>' : '') +
+      (ph.wa ? '<a class="d0-pill" href="https://wa.me/' + esc(ph.wa) + '" target="_blank" rel="noopener noreferrer">' + D0_ICON.wa + 'WhatsApp</a>' : '') + '</span></div>';
+    var reason = r.g === 'X' && r.r ? '<div class="lc-sec"><div class="lc-lab">Reason</div><div class="d0-reason" dir="auto">' + esc(r.r) + '</div></div>' : '';
+    var strip = '';
+    if (ln) {
+      var own = '';
+      if ((r.g === 'T' || r.g === 'A' || r.g === 'W') && d0IsPerson(r.o)) own = '<span class="own">' + esc(r.o) + (d0IsMe(r.o) ? ' (you)' : '') + '</span>';
+      strip = '<div class="d0-next ' + ln.k + '">' + D0_ICON[ln.i] + '<span class="tx">' + esc(ln.t) + '</span>' + own + '</div>';
+    }
+    var actions = '';
+    if (r.g === 'W') {
+      actions = r.d > today
+        ? '<button type="button" data-act="resched">Rescheduled</button>'
+        : '<button type="button" class="main" data-act="attend">Attend</button><button type="button" data-act="absent">Absent</button><button type="button" data-act="resched">Rescheduled</button>';
+    } else if (r.g === 'T') {
+      actions = '<button type="button" class="main" data-act="train">Training done</button><button type="button" data-act="hand">Hand over</button>';
+    }
+    return '<div class="card lcard d0 ' + look.card + (d0.tapping[r.e] ? ' d0-pend' : '') + (d0.fresh === r.e ? ' d0-fresh' : '') + '" data-e="' + esc(r.e) + '">' +
+      '<div class="lc-head"><div class="lc-who"><div class="lc-name" dir="auto">' + esc(r.n) + '</div><div class="lc-sub">' + sub + '</div></div><span class="badge ' + look.badge + '">' + esc(look.text) + '</span></div>' +
+      phone + reason + strip + (actions ? '<div class="lc-actions">' + actions + '</div>' : '') + '</div>';
+  }
+
+  function d0Empty(searching, tileOn) {
+    if (searching) return 'No driver matches your search.';
+    if (tileOn || d0.by) return 'No drivers here with this filter.';
+    if (d0.day === 'OPEN') return 'Nothing is open. A new list shows here when it arrives.';
+    if (d0.day === 'TODAY') return 'No drivers on the list of today.';
+    if (d0.day === 'TOMORROW') return 'No drivers on the list of tomorrow.';
+    return 'No drivers on ' + d0Short(d0.day) + '.';
+  }
+
+  function d0Render() {
+    var today = d0Today();
+    var searching = d0.words.length > 0;
+    var custom = /^\d{4}-\d{2}-\d{2}$/.test(d0.day);
+    var boss = !!(d0.me && d0.me.boss);
+    var dayKey = d0.day === 'TODAY' ? today : (d0.day === 'TOMORROW' ? addDays(today, 1) : (custom ? d0.day : ''));
+
+    $('d0Scope').innerHTML = d0ScopeHtml();
+    $('d0Recv').innerHTML = d0RecvHtml();
+    $('d0QClear').classList.toggle('hidden', !d0.q);
+    $('d0Days').classList.toggle('dim', searching);
+    var chips = $('d0Days').querySelectorAll('button[data-d]');
+    for (var i = 0; i < chips.length; i++) {
+      var on = !searching && chips[i].getAttribute('data-d') === d0.day;
+      chips[i].classList.toggle('on', on);
+      chips[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    $('d0DateChip').classList.toggle('on', !searching && custom);
+    $('d0DateTxt').classList.toggle('hidden', !custom);
+    $('d0DateTxt').textContent = custom ? d0Short(d0.day) : '';
+    if ($('d0Date').value !== (custom ? d0.day : '')) $('d0Date').value = custom ? d0.day : '';
+
+    // the drivers of the day (or of the search), then the station, then the status
+    var base = [];
+    d0.rows.forEach(function (r) {
+      r._ln = d0Line(r);
+      if (searching) { if (textCost(r, d0Hay(r), d0.words) < 0) return; }
+      else if (d0.day === 'OPEN') { if (!d0IsOpen(r, today)) return; }
+      else if (r.d !== dayKey) return;
+      base.push(r);
+    });
+    var scoped = d0.by ? base.filter(function (r) { return (r.s || '-') === d0.by; }) : base;
+    var cnt = { W: 0, T: 0, A: 0, X: 0, R: 0 };
+    var late = { W: 0, T: 0, A: 0, X: 0, R: 0 };
+    scoped.forEach(function (r) {
+      if (cnt[r.g] === undefined) return;
+      cnt[r.g]++;
+      if (r._ln && r._ln.late) late[r.g]++;
+    });
+    var list = d0.tile ? scoped.filter(function (r) { return r.g === d0.tile; }) : scoped;
+    list.forEach(function (r) { r._rank = d0RankOf(r, r._ln, today); });
+    list.sort(d0Cmp);
+
+    $('d0Tiles').innerHTML = d0TilesHtml(cnt, late);
+    $('d0By').innerHTML = boss ? d0ByHtml(base, dayKey) : '';
+
+    var html = '';
+    if (!d0.me) {
+      html = d0.msg ? '' : '<div class="d0-empty">Loading...</div>';
+    } else if (!list.length) {
+      html = '<div class="d0-empty">' + esc(d0Empty(searching, !!d0.tile)) + '</div>';
+    } else {
+      var shown = list.slice(0, d0.shown);
+      html = shown.map(d0CardHtml).join('');
+      if (list.length > shown.length) {
+        html += '<button type="button" class="d0-more" data-act="more">Show ' + Math.min(D0_PAGE, list.length - shown.length) + ' more (' + (list.length - shown.length) + ' left)</button>';
+      }
+    }
+    $('d0List').innerHTML = html;
+    $('d0Msg').innerHTML = d0.msg ? '<div class="d0-note">' + esc(d0.msg) + '<button type="button" class="refresh" data-act="retry">Try again</button></div>' : '';
+  }
+
+  // ---- the message of a tap ----
+
+  function d0Say(html, opt) {
+    opt = opt || {};
+    $('d0ToastText').innerHTML = html;
+    $('d0ToastBtn').classList.toggle('hidden', !opt.undo);
+    $('d0Toast').classList.toggle('err', !!opt.err);
+    $('d0Toast').classList.remove('hidden');
+    clearTimeout(d0.toastTimer);
+    d0.toastTimer = setTimeout(d0HideToast, opt.err ? D0_ERR_MS : D0_TOAST_MS);
+  }
+
+  function d0HideToast() {
+    clearTimeout(d0.toastTimer);
+    d0.undo = null;
+    $('d0Toast').classList.add('hidden');
+  }
+
+  // ---- one tap on a driver ----
+  // change(copy) gives the new look of the card at once. sayFn(row) gives the words of the message.
+  // The answer of the server replaces the look. A "no" puts the card back and tells why.
+
+  async function d0Do(e, fn, extra, change, sayFn) {
+    var row = d0.byE[e];
+    if (!row || d0.tapping[e]) return;
+    var run = d0.run;
+    var before = d0Copy(row);
+    d0.tapping[e] = true;
+    d0Put(change(d0Copy(row)));
+    d0HideToast();
+    d0Paint();
+    var r = null;
+    var err = null;
+    try {
+      r = await callWith(null, fn, [state.pin, e].concat(extra || []));
+    } catch (x) { err = x; }
+    if (run !== d0.run) return;
+    delete d0.tapping[e];
+
+    if (err) {
+      // the answer did not come: the card goes back, and the list is asked again (the tap may have reached the sheet)
+      d0Put(before);
+      d0Say(esc(failText(err, 'Check the driver and try again.')), { err: true });
+      d0Paint();
+      d0Soon(2500);
+      return;
+    }
+    if (r && r.ok && r.row) {
+      d0Put(r.row);
+      if (r.same) {
+        d0Say('<b>' + esc(r.row.n) + '</b> &middot; ' + esc(r.message || 'Nothing changed.'));
+      } else {
+        d0.fresh = e;
+        clearTimeout(d0.freshTimer);
+        d0.freshTimer = setTimeout(function () { if (d0.fresh === e) { d0.fresh = ''; if (d0.open) d0Render(); } }, 4000);
+        if (r.undo) {
+          d0.undo = { e: e, before: before };
+          d0Say(sayFn(r.row), { undo: true });
+        } else {
+          d0Say(sayFn(r.row));
+        }
+      }
+      d0Paint();
+      d0Soon(1200);
+      return;
+    }
+    if (r && r.changed && r.row) {
+      d0Put(r.row);
+      d0Say('<b>' + esc(r.row.n) + '</b> &middot; ' + esc(r.message || 'He was changed.'), { err: true });
+      d0Paint();
+      d0Soon(800);
+      return;
+    }
+    d0Put(before);
+    if (r && r.signOut) { d0Paint(); if (++d0.bad >= 2) d0SignOut(); return; }
+    d0Say(esc((r && r.message) || 'It did not work. Please try again.'), { err: true });
+    d0Paint();
+    d0Soon(1500);
+  }
+
+  async function d0UndoTap() {
+    var u = d0.undo;
+    d0HideToast();
+    if (!u) return;
+    var e = u.e;
+    var row = d0.byE[e];
+    if (!row || d0.tapping[e]) return;
+    var run = d0.run;
+    var cur = d0Copy(row);
+    d0.tapping[e] = true;
+    d0Put(d0Copy(u.before));
+    d0Paint();
+    var r = null;
+    var err = null;
+    try {
+      r = await callWith(null, 'apiDay0Undo', [state.pin, e]);
+    } catch (x) { err = x; }
+    if (run !== d0.run) return;
+    delete d0.tapping[e];
+    if (err) {
+      d0Put(cur);
+      d0Say(esc(failText(err, 'Please try again.')), { err: true });
+      d0Paint();
+      d0Soon(2500);
+      return;
+    }
+    if (r && r.ok && r.row) {
+      d0Put(r.row);
+      d0Say('Undone. <b>' + esc(r.row.n) + '</b> is ' + esc(D0_STAGE[r.row.g] || r.row.st) + ' again.');
+    } else if (r && r.changed && r.row) {
+      d0Put(r.row);
+      d0Say('<b>' + esc(r.row.n) + '</b> &middot; ' + esc(r.message || 'He was changed.'), { err: true });
+    } else {
+      d0Put(cur);
+      d0Say(esc((r && r.message) || 'It did not work. Please try again.'), { err: true });
+    }
+    d0Paint();
+    d0Soon(1200);
+  }
+
+  // "I got it": the person saw the list of a day
+  async function d0Receive(day) {
+    var keep = d0.recv.slice();
+    var run = d0.run;
+    d0.recv = d0.recv.filter(function (x) { return x.d !== day; });
+    d0Paint();
+    var r = null;
+    var err = null;
+    try {
+      r = await callWith(null, 'apiDay0Receive', [state.pin, day]);
+    } catch (x) { err = x; }
+    if (run !== d0.run) return;
+    if (err || !r || !r.ok) {
+      d0.recv = keep;
+      d0Say(esc(err ? failText(err, 'Please tap I got it again.') : ((r && r.message) || 'It did not work. Please try again.')), { err: true });
+      d0Paint();
+      return;
+    }
+    d0Soon(800);
+  }
+
+  function d0Attend(e) {
+    var me = d0.me;
+    d0Do(e, 'apiDay0Attend', [], function (row) {
+      row.st = 'Attend'; row.g = 'T'; row.aa = d0Now(); row.td = 0; row.r = ''; row.rd = '';
+      row.u = (d0.cfg && d0.cfg.dl) || 0;
+      if (me && me.r === 'POC' && (row.o === '' || d0.stations.indexOf(String(row.o).toUpperCase()) >= 0)) row.o = me.n;
+      return row;
+    }, function (row) { return '<b>' + esc(row.n) + '</b> is now Training'; });
+  }
+
+  function d0TrainDone(e) {
+    d0Do(e, 'apiDay0TrainDone', [], function (row) {
+      row.td = d0Now(); row.g = 'A';
+      row.u = row.td + ((d0.cfg && d0.cfg.ah) || 48) * 3600000;
+      return row;
+    }, function (row) { return '<b>' + esc(row.n) + '</b>: training done. The ' + ((d0.cfg && d0.cfg.ah) || 48) + ' hours to active started'; });
+  }
+
+  // ---- the windows ----
+
+  function d0CloseWindows() {
+    ['d0Absent', 'd0Resch', 'd0Hand'].forEach(function (id) { $(id).classList.add('hidden'); });
+    d0.act = '';
+  }
+
+  function d0Sub(r) { return r.n + ' \u00b7 works at ' + (r.s || '-'); }
+
+  function d0AbsentOpen(e) {
+    var r = d0.byE[e];
+    if (!r || d0.tapping[e]) return;
+    d0CloseWindows();
+    d0.act = e;
+    $('d0AbsentSub').textContent = d0Sub(r);
+    $('d0Why').value = '';
+    $('d0AbsentMsg').className = 'msg';
+    $('d0AbsentMsg').textContent = 'Tap a reason and it is saved. The row turns red in the Onboarding sheet.';
+    $('d0Absent').classList.remove('hidden');
+  }
+
+  function d0AbsentSave(text) {
+    var e = d0.act;
+    var why = d0Why(text);
+    if (!e || !d0.byE[e]) { d0CloseWindows(); return; }
+    if (!why) {
+      $('d0AbsentMsg').className = 'msg err';
+      $('d0AbsentMsg').textContent = 'Write the reason first.';
+      return;
+    }
+    d0CloseWindows();
+    var me = d0.me;
+    d0Do(e, 'apiDay0Absent', [why], function (row) {
+      row.st = 'Absent'; row.g = 'X'; row.r = why; row.aa = 0; row.td = 0; row.rd = ''; row.u = 0;
+      if (me && me.r === 'POC' && (row.o === '' || d0.stations.indexOf(String(row.o).toUpperCase()) >= 0)) row.o = me.n;
+      return row;
+    }, function (row) { return '<b>' + esc(row.n) + '</b> is now Absent'; });
+  }
+
+  function d0ReschOpen(e) {
+    var r = d0.byE[e];
+    if (!r || d0.tapping[e]) return;
+    d0CloseWindows();
+    d0.act = e;
+    d0.reschPick = '';
+    var today = d0Today();
+    var floor = r.d > today ? r.d : today;                // the new day is after the lecture day, and after today
+    var html = '';
+    for (var i = 1; i <= 4; i++) {
+      var k = addDays(floor, i);
+      html += '<button type="button" class="dchip" data-d="' + k + '">' + esc(k === addDays(today, 1) ? 'Tomorrow' : d0Chip(k)) + '</button>';
+    }
+    $('d0ReschDays').innerHTML = html;
+    var inp = $('d0ReschDate');
+    inp.min = addDays(floor, 1);
+    inp.max = addDays(today, 60);
+    inp.value = '';
+    $('d0ReschSub').textContent = d0Sub(r);
+    $('d0ReschMsg').className = 'msg';
+    $('d0ReschMsg').textContent = 'He stays Rescheduled in the Onboarding sheet until that day.';
+    d0ReschSync();
+    $('d0Resch').classList.remove('hidden');
+  }
+
+  function d0ReschSync() {
+    var pick = d0.reschPick;
+    var chips = $('d0ReschDays').querySelectorAll('button[data-d]');
+    for (var i = 0; i < chips.length; i++) chips[i].classList.toggle('on', chips[i].getAttribute('data-d') === pick);
+    if ($('d0ReschDate').value !== pick) $('d0ReschDate').value = pick;
+    var btn = $('d0ReschSave');
+    btn.disabled = !pick;
+    btn.textContent = pick ? 'Reschedule to ' + d0Short(pick) : 'Choose the new date';
+  }
+
+  function d0ReschPick(v) {
+    var inp = $('d0ReschDate');
+    var good = /^\d{4}-\d{2}-\d{2}$/.test(v) && v >= inp.min && v <= inp.max;
+    d0.reschPick = good ? v : '';
+    $('d0ReschMsg').className = good || !v ? 'msg' : 'msg err';
+    $('d0ReschMsg').textContent = good || !v ? 'He stays Rescheduled in the Onboarding sheet until that day.'
+      : 'The new date must be after ' + d0Short(addDays(inp.min, -1)) + ', and not more than 60 days from today.';
+    d0ReschSync();
+  }
+
+  function d0ReschSave() {
+    var e = d0.act;
+    var pick = d0.reschPick;
+    if (!e || !d0.byE[e] || !pick) return;
+    d0CloseWindows();
+    var me = d0.me;
+    d0Do(e, 'apiDay0Resched', [pick], function (row) {
+      row.st = 'Rescheduled'; row.g = 'R'; row.rd = pick; row.r = ''; row.aa = 0; row.td = 0; row.u = 0;
+      if (me && me.r === 'POC' && (row.o === '' || d0.stations.indexOf(String(row.o).toUpperCase()) >= 0)) row.o = me.n;
+      return row;
+    }, function (row) { return '<b>' + esc(row.n) + '</b> is rescheduled to ' + esc(d0Short(pick)); });
+  }
+
+  function d0HandOpen(e) {
+    var r = d0.byE[e];
+    if (!r || d0.tapping[e]) return;
+    d0CloseWindows();
+    d0.act = e;
+    $('d0HandSub').textContent = d0Sub(r);
+    var near = function (p) {
+      return p.r === 'POC' && (p.st || []).some(function (s) { return s === r.s || s === r.ss; });
+    };
+    var rank = function (p) { return near(p) ? 0 : (p.r === 'POC' ? 1 : 2); };
+    var people = (d0.people || []).filter(function (p) { return !d0IsMe(p.n) && !d0SameName(p.n, r.o); });
+    people.sort(function (a, b) { return (rank(a) - rank(b)) || String(a.n).localeCompare(String(b.n)); });
+    var role = { POC: 'POC', MANAGER: 'Manager', OWNER: 'Owner' };
+    $('d0HandList').innerHTML = people.length ? people.map(function (p) {
+      var st = (p.st || []).indexOf('ALL') >= 0 ? 'All stations' : (p.st || []).join(', ');
+      return '<button type="button" class="d0-row' + (rank(p) === 0 ? ' same' : '') + '" data-n="' + esc(p.n) + '"><span class="nm">' + esc(p.n) +
+        '</span><span class="sb">' + esc((role[p.r] || p.r) + (st ? ' \u00b7 ' + st : '')) + '</span></button>';
+    }).join('') : '<div class="d0-empty">There is nobody else to give him to.</div>';
+    $('d0Hand').classList.remove('hidden');
+  }
+
+  function d0HandSave(name) {
+    var e = d0.act;
+    if (!e || !d0.byE[e] || !name) return;
+    d0CloseWindows();
+    d0Do(e, 'apiDay0HandOver', [name], function (row) { row.o = name; return row; },
+      function (row) { return '<b>' + esc(row.n) + '</b> handed to ' + esc(name); });
+  }
+
+  // ---- taps and typing ----
+
+  $('tabDay0').addEventListener('click', function () { setView('day0'); });
+
+  $('viewDay0').addEventListener('pointerdown', function () { d0.touchAt = Date.now(); }, true);
+
+  $('viewDay0').addEventListener('click', function (ev) {
+    var t = ev.target;
+    var b = t.closest('button[data-got]');
+    if (b) { b.disabled = true; d0Receive(b.getAttribute('data-got')); return; }
+    b = t.closest('.d0t button[data-f]');
+    if (b) {
+      var f = b.getAttribute('data-f');
+      d0.tile = d0.tile === f ? '' : f;
+      d0.shown = D0_PAGE;
+      d0Render();
+      return;
+    }
+    var tr = t.closest('.d0-by tr[data-s]');
+    if (tr) {
+      var s = tr.getAttribute('data-s');
+      d0.by = d0.by === s ? '' : s;
+      d0.shown = D0_PAGE;
+      d0Render();
+      return;
+    }
+    b = t.closest('#d0Days button[data-d]');
+    if (b) {
+      var d = b.getAttribute('data-d');
+      if (d0.words.length || d0.q) {                      // a search ends when a day is chosen
+        d0.q = ''; d0.words = [];
+        $('d0Q').value = '';
+      }
+      d0SetDay(d);
+      return;
+    }
+    b = t.closest('button[data-act]');
+    if (!b) return;
+    var act = b.getAttribute('data-act');
+    if (act === 'more') { d0.shown += D0_PAGE; d0Render(); return; }
+    if (act === 'retry') { d0.msg = ''; d0Render(); d0Load(true); return; }
+    var card = b.closest('[data-e]');
+    var e = card ? card.getAttribute('data-e') : '';
+    if (!e) return;
+    if (act === 'attend') d0Attend(e);
+    else if (act === 'absent') d0AbsentOpen(e);
+    else if (act === 'resched') d0ReschOpen(e);
+    else if (act === 'train') d0TrainDone(e);
+    else if (act === 'hand') d0HandOpen(e);
+  });
+
+  $('d0Q').addEventListener('input', function () {
+    d0.q = this.value;
+    clearTimeout(d0.qTimer);
+    d0.qTimer = setTimeout(function () {
+      d0.words = normText(d0.q).split(' ').filter(Boolean);
+      d0.shown = D0_PAGE;
+      d0Render();
+    }, 120);
+  });
+  $('d0Q').addEventListener('keydown', function (e) { if (e.key === 'Enter') this.blur(); });
+  $('d0QClear').addEventListener('click', function () {
+    d0.q = ''; d0.words = [];
+    $('d0Q').value = '';
+    d0Render();
+    $('d0Q').focus();
+  });
+
+  // Another day: the calendar (any date; a day outside the usual days is asked for)
+  $('d0Date').addEventListener('change', function () {
+    var v = this.value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { d0SetDay(d0.me && d0.me.boss ? 'TODAY' : 'OPEN'); return; }
+    if (d0.q) { d0.q = ''; d0.words = []; $('d0Q').value = ''; }
+    d0SetDay(v === d0Today() ? 'TODAY' : (v === addDays(d0Today(), 1) ? 'TOMORROW' : v));
+  });
+  $('d0Date').addEventListener('click', function () { try { if (this.showPicker) this.showPicker(); } catch (e) { } });
+
+  $('d0Toast').addEventListener('click', function (ev) {
+    if (ev.target.closest('#d0ToastBtn')) d0UndoTap();
+  });
+
+  $('d0Reasons').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-r]');
+    if (!b) return;
+    var why = b.getAttribute('data-r');
+    if (why) d0AbsentSave(why); else $('d0Why').focus();
+  });
+  $('d0WhySave').addEventListener('click', function () { d0AbsentSave($('d0Why').value); });
+  $('d0Why').addEventListener('keydown', function (e) { if (e.key === 'Enter') d0AbsentSave(this.value); });
+
+  $('d0ReschDays').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-d]');
+    if (b) d0ReschPick(b.getAttribute('data-d'));
+  });
+  $('d0ReschDate').addEventListener('change', function () { d0ReschPick(this.value); });
+  $('d0ReschSave').addEventListener('click', d0ReschSave);
+
+  $('d0HandList').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-n]');
+    if (b) d0HandSave(b.getAttribute('data-n'));
+  });
+
+  ['d0Absent', 'd0Resch', 'd0Hand'].forEach(function (id) {
+    $(id).addEventListener('click', function (ev) { if (ev.target === $(id)) d0CloseWindows(); });
+  });
+  ['d0AbsentX', 'd0ReschX', 'd0HandX'].forEach(function (id) { $(id).addEventListener('click', d0CloseWindows); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') d0CloseWindows(); });
+
+  // The page was away and is back, or the phone is online again: look at the list
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden || !d0.started) return;
+    d0Paint();
+    d0Soon(200);
+  });
+  window.addEventListener('online', function () { if (d0.started) d0Soon(500); });
 
   // ---------- Light or dark ----------
   // The two small buttons at the top. Without a choice the page follows the phone.
