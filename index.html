@@ -459,6 +459,7 @@
   .ni.k-request { --cc: var(--waiting); }
   .ni.k-comment, .ni.k-update { --cc: var(--found); }
   .ni.k-found { --cc: var(--approved); }
+  .ni.k-remind { --cc: #d9534f; }
   .ni.t-idl { --cc: var(--k-idle); }
   .ni.t-rsc { --cc: var(--k-rescue); }
   .ni.t-csh { --cc: var(--k-cash); }
@@ -468,6 +469,9 @@
   .ni-time { font-size: 12px; color: var(--muted); white-space: nowrap; }
   .ni-time.fresh { color: var(--ink); font-weight: 700; }
   .ni-text { margin-top: 4px; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+  /* A notice that was opened: its card is lit lightly, the message it is about is lit more (like the row and the cell in the sheet) */
+  .card.hl-card { background-image: linear-gradient(rgba(74,120,184,.13), rgba(74,120,184,.13)); box-shadow: 0 0 0 2px rgba(74,120,184,.45); }
+  .cm.hl-msg { box-shadow: 0 0 0 2px #4a78b8; background-image: linear-gradient(rgba(74,120,184,.30), rgba(74,120,184,.30)); }
   .nfoot { margin-top: 14px; font-size: 12px; color: var(--muted); }
   .npush { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; padding: 8px 12px;
     border: 1px solid var(--line); border-radius: 10px; font-size: 13px; line-height: 1.4; }
@@ -1777,6 +1781,7 @@
   // ---------- Views ----------
 
   function setView(v) {
+    state.hl = null;
     $('viewNew').classList.toggle('hidden', v !== 'new');
     $('viewLoss').classList.toggle('hidden', v !== 'loss');
     $('viewList').classList.toggle('hidden', v !== 'list');
@@ -2935,6 +2940,7 @@
 
   $('lossQ').addEventListener('input', function () {
     state.lossQ = this.value;
+    state.hl = null;
     clearTimeout(lossQTimer);
     lossQTimer = setTimeout(renderLosses, 120);
   });
@@ -2981,7 +2987,8 @@
     renderLosses();
   });
 
-  function renderLosses() {
+  function renderLosses() { renderLossesCore(); applyHl(); }
+  function renderLossesCore() {
     var open = state.losses.filter(function (l) { return l.open; });
 
     // Number on the tab: every open loss, on every day
@@ -3377,7 +3384,8 @@
 
   // Words typed = every entry that has all the words, on any day.
   // No words = the entries of the chosen day (all dates when no day is chosen).
-  function renderEntries() {
+  function renderEntries() { renderEntriesCore(); applyHl(); }
+  function renderEntriesCore() {
     renderCounts();
     var base = entBase();
     var f = state.entFilter;
@@ -3429,7 +3437,7 @@
       var actions = '';
       if (e.canCancel) actions += '<button data-act="cancel" data-id="' + esc(e.id) + '">Cancel</button>';
       actions += '<button data-act="request" data-id="' + esc(e.id) + '">Request change</button>';
-      return '<div class="card entry k-' + esc(String(e.kind).toLowerCase()) + '">' +
+      return '<div class="card entry k-' + esc(String(e.kind).toLowerCase()) + '" data-id="' + esc(e.id) + '">' +
         '<div class="row"><div class="name">' + esc(e.name) + '</div><span class="badge st-' + esc(slug) + '">' + esc(e.status) + '</span></div>' +
         '<div class="sub">' + esc(KIND_LABEL[e.kind] || e.kind) + ' - ' + esc(e.date) + ' - ' + esc(e.station) + '</div>' +
         detailHtml(e) +
@@ -3453,6 +3461,7 @@
 
   $('entQ').addEventListener('input', function () {
     state.entQ = this.value;
+    state.hl = null;
     clearTimeout(entQTimer);
     entQTimer = setTimeout(renderEntries, 120);
   });
@@ -4235,15 +4244,48 @@
       d0OpenDay(id.slice(4));
     } else if (id.indexOf('LOS-') === 0) {
       setView('loss');
+      state.hl = hlOf(id, n);
       state.lossQ = id;
       $('lossQ').value = id;
       renderLosses();
     } else {
       setView('list');
+      state.hl = hlOf(id, n);
       state.entQ = id;
       $('entQ').value = id;
       if (state.entriesLoaded) renderEntries();
     }
+  }
+
+  // What a tapped notice lights: its card (lightly) and the message it is about (more). Like the row and the cell in the sheet.
+  function hlOf(id, n) {
+    return { id: id, kind: String(n.kind || '').toUpperCase(), text: String(n.text || ''), done: false };
+  }
+
+  function applyHl() {
+    var h = state.hl;
+    if (!h) return;
+    try {
+      var cards = document.querySelectorAll('.card[data-id]');
+      var card = null;
+      for (var i = 0; i < cards.length; i++) if (cards[i].getAttribute('data-id') === h.id) card = cards[i];
+      if (!card) return;
+      card.classList.add('hl-card');
+      var msgs = card.querySelectorAll('.cm');
+      var pick = null;
+      for (i = msgs.length - 1; i >= 0 && !pick; i--) {                      // the message that the notice repeats
+        var t = msgs[i].querySelector('.cm-text');
+        var tx = t ? t.textContent.trim() : '';
+        if (tx.length >= 2 && h.text.indexOf(tx) !== -1) pick = msgs[i];
+      }
+      var want = h.kind === 'COMMENT' ? 'cm-audit' : (h.kind === 'REQUEST' || h.kind === 'UPDATE' ? 'cm-poc' : (h.kind === 'FOUND' ? 'cm-ev' : ''));
+      for (i = msgs.length - 1; i >= 0 && !pick && want; i--) if (msgs[i].classList.contains(want)) pick = msgs[i];
+      if (pick) pick.classList.add('hl-msg');
+      if (!h.done) {
+        h.done = true;
+        try { (pick || card).scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (ignore) { }
+      }
+    } catch (ignore) { }
   }
 
   $('bellBtn').addEventListener('click', function () { unlockAudio(); openNotices(); });
