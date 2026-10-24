@@ -566,6 +566,14 @@
     .d0-pill { padding: 0 8px; gap: 4px; }
   }
   .d0-reason { font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; }
+  .d0-talk { margin: 12px 16px 0; }
+  .d0-talk .chat { margin-top: 0; }
+  .d0-talk .wa-sp { width: 84px; }
+  .d0-talk .none { padding: 6px 2px; font-size: 13px; color: var(--muted); }
+  .d0-cmrow { display: flex; gap: 8px; margin-top: 8px; }
+  .d0-cmrow input { flex: 1 1 auto; min-width: 0; min-height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; font-size: 16px; }
+  .d0-cmrow button { flex: none; min-height: 42px; padding: 0 16px; border: 0; border-radius: 10px; background: var(--brand); color: var(--brand-ink); font-size: 14px; font-weight: 800; cursor: pointer; }
+  .d0-pend .d0-cmrow { opacity: .5; pointer-events: none; }
   .d0-attn { color: var(--d0-wait); font-weight: 800; }
   .d0-next { display: flex; align-items: center; gap: 8px; margin: 10px 16px 0; padding: 8px 12px; border: 1px solid transparent; border-radius: 10px;
     font-size: 14px; font-weight: 800; line-height: 1.3; }
@@ -1389,7 +1397,7 @@
   //    even when the first answer was lost;
   //  - only when every try fails is the person told. The words say what happened (see failText).
   var WRITE_CALLS = { apiSaveEntries: 1, apiCancelEntry: 1, apiRequestChange: 1, apiAddLossUpdate: 1, apiMarkFound: 1,
-    apiDay0Attend: 1, apiDay0Absent: 1, apiDay0Resched: 1, apiDay0TrainDone: 1, apiDay0HandOver: 1, apiDay0Undo: 1, apiDay0Receive: 1 };
+    apiDay0Attend: 1, apiDay0Absent: 1, apiDay0Resched: 1, apiDay0TrainDone: 1, apiDay0HandOver: 1, apiDay0Comment: 1, apiDay0Undo: 1, apiDay0Receive: 1 };
   var CALL_TRIES = 3;
   var CALL_WAIT_MS = [700, 2000];             // the wait before the 2nd and the 3rd try
   var CALL_READ_MS = 25000;                   // one try of a read
@@ -4241,7 +4249,8 @@
     var id = String(n.entryId || '');
     if (!id) return;
     if (id.indexOf('DY0-') === 0) {
-      d0OpenDay(id.slice(4));
+      var dy = id.slice(4).split('|');
+      d0OpenDay(dy[0], dy[1], n.text);
     } else if (id.indexOf('LOS-') === 0) {
       setView('loss');
       state.hl = hlOf(id, n);
@@ -4714,8 +4723,9 @@
   var D0_TOAST_MS = 10000;           // the message of a tap (with Undo)
   var D0_ERR_MS = 7000;              // a message that says no
   var D0_REASON_MAX = 120;
+  var D0_COMMENT_MAX = 500;
   var D0_TILES = [['W', 'Waiting'], ['T', 'Training'], ['A', 'To Active'], ['X', 'Absent'], ['R', 'Resched.']];
-  var D0_STAGE = { W: 'Waiting', T: 'Training', A: 'To Active', X: 'Absent', R: 'Rescheduled', D: 'Active No Show', N: 'No Show' };
+  var D0_STAGE = { W: 'Waiting', T: 'Training', A: 'Waiting for Active', X: 'Absent', R: 'Rescheduled', D: 'Active', N: 'No Show' };
   var D0_ICON = {
     clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',
     call: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>',
@@ -4732,7 +4742,7 @@
     today: '', skew: 0,
     day: 'OPEN', userDay: false, tile: '', by: '', q: '', words: [], shown: D0_PAGE,
     tapping: {}, fresh: '', undo: null, act: '', reschPick: '',
-    tickTimer: null, soonTimer: null, toastTimer: null, freshTimer: null, qTimer: null, touchAt: 0
+    draft: {}, hl: null, hlTimer: null, tickTimer: null, soonTimer: null, toastTimer: null, freshTimer: null, qTimer: null, touchAt: 0
   };
 
   // ---- small helpers ----
@@ -4835,13 +4845,7 @@
       if (left < 0) return { k: 'late', i: 'warn', t: 'Past ' + d0HourWord(th) + ' by ' + d0Dur(-left), late: true };
       return { k: 'time', i: 'clock', t: 'Until ' + d0HourWord(th) + ' \u00b7 ' + d0Dur(left) + ' left' };
     }
-    if (r.g === 'A') {
-      if (!r.u) return { k: 'act', i: 'clock', t: 'To Active' };
-      var left2 = r.u - now;
-      if (left2 < 0) return { k: 'late', i: 'warn', t: 'Over ' + ah + 'h by ' + d0Dur(-left2), late: true };
-      if (r.td && now - r.td >= wh * 3600000) return { k: 'warn', i: 'clock', t: 'To Active \u00b7 ' + d0Dur(left2) + ' left', warn: true };
-      return { k: 'ok', i: 'clock', t: 'To Active \u00b7 ' + d0Dur(left2) + ' left' };
-    }
+    if (r.g === 'A') return { k: 'act', i: 'clock', t: 'Waiting for Active' };
     if (r.g === 'X') return { k: 'info', i: 'call', t: 'Call center will call him' };
     if (r.g === 'R') {
       if (!r.rd) return { k: 'res', i: 'cal', t: 'Rescheduled' };
@@ -4857,10 +4861,10 @@
     var warn = !!(ln && ln.warn);
     if (r.g === 'W') return { card: 'd0-waiting', badge: 'st-pending', text: 'Waiting' };
     if (r.g === 'T') return { card: late ? 'd0-late' : 'd0-attend', badge: late ? 'b-late' : 'st-approved', text: 'Training' };
-    if (r.g === 'A') return { card: late ? 'd0-late' : (warn ? 'd0-warn' : 'd0-act'), badge: late ? 'b-late' : (warn ? 'b-warn' : 'b-act'), text: 'To Active' };
+    if (r.g === 'A') return { card: 'd0-act', badge: 'b-act', text: 'Waiting for Active' };
     if (r.g === 'X') return { card: 'd0-absent', badge: 'st-rejected', text: 'Absent' };
     if (r.g === 'R') return { card: 'd0-resched', badge: 'st-replied', text: 'Rescheduled' };
-    if (r.g === 'D') return { card: 'd0-done', badge: 'st-found', text: 'Active No Show' };
+    if (r.g === 'D') return { card: 'd0-done', badge: 'st-found', text: r.st || 'Active' };
     return { card: 'd0-done', badge: 'st-cancelled', text: r.st || 'No Show' };
   }
 
@@ -4968,7 +4972,7 @@
     d0.tickTimer = setTimeout(function () {
       if (!d0.open) return;
       if (!document.hidden) {
-        if (Date.now() - d0.touchAt > 2500) d0Render();           // the minutes left (not while a finger is on the page)
+        if (Date.now() - d0.touchAt > 2500 && !(document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('d0-cmin'))) d0Render();           // the minutes left (not while a finger is on the page)
         d0Load(false);
       }
       d0TickStart();
@@ -4976,8 +4980,16 @@
   }
 
   // A day that opens from a notice: Today, Tomorrow, or a date
-  function d0OpenDay(day) {
+  // A notice about one driver (DY0-2026-10-22|mail): the open drivers, his card is lit with the message
+  function d0OpenDay(day, mail, text) {
     setView('day0');
+    if (mail) {
+      d0.hl = { e: String(mail).toLowerCase(), text: String(text || ''), done: false };
+      d0.q = ''; d0.words = [];
+      try { $('d0Q').value = ''; } catch (ignore) { }
+      d0SetDay('OPEN');
+      return;
+    }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(day || ''))) return;
     d0SetDay(day === d0Today() ? 'TODAY' : (day === addDays(d0Today(), 1) ? 'TOMORROW' : day));
   }
@@ -5161,6 +5173,38 @@
     }).join('') + '</div>';
   }
 
+  // The talk about a driver (a chat like the cards of the Ops Desk): mine on the right, the others on the left with their names.
+  // The driver who waits for Active has a box to write in. A tapped notice lights the card and the message it is about.
+  function d0TalkHtml(r) {
+    var list = r.cm || [];
+    if (r.g !== 'A' && !list.length) return '';
+    var hl = d0.hl && d0.hl.e === r.e ? d0.hl : null;
+    var pick = -1;
+    if (hl) {
+      for (var i = list.length - 1; i >= 0 && pick < 0; i--) {
+        var tx = String(list[i][2] || '').trim();
+        if (tx.length >= 1 && String(hl.text || '').indexOf(tx) !== -1) pick = i;
+      }
+      if (pick < 0 && list.length) pick = list.length - 1;
+    }
+    var html = '';
+    if (list.length) {
+      html += '<div class="chat">' + list.map(function (m, i) {
+        var mine = d0IsMe(m[1]);
+        return '<div class="cm ' + (mine ? 'cm-out' : 'cm-in') + (i === pick ? ' hl-msg' : '') + '">' +
+          (mine ? '' : '<div class="cm-who wn1">' + esc(m[1]) + '</div>') +
+          '<div class="wa-body"><span class="cm-text" dir="auto">' + esc(m[2]) + '</span><span class="wa-sp"></span><span class="cm-time">' + esc(m[0]) + '</span></div></div>';
+      }).join('') + '</div>';
+    } else {
+      html += '<div class="none">No comments yet. Write why he is not active yet.</div>';
+    }
+    if (r.g === 'A') {
+      html += '<div class="d0-cmrow"><input type="text" class="d0-cmin" maxlength="' + D0_COMMENT_MAX + '" placeholder="Write a comment..." value="' + esc(d0.draft[r.e] || '') + '" autocomplete="off">' +
+        '<button type="button" data-act="cmsend">Send</button></div>';
+    }
+    return '<div class="d0-talk">' + html + '</div>';
+  }
+
   function d0CardHtml(r) {
     var ln = r._ln;
     var look = d0Look(r, ln);
@@ -5188,10 +5232,12 @@
         : '<button type="button" class="main" data-act="attend">Attend</button><button type="button" data-act="absent">Absent</button><button type="button" data-act="resched">Rescheduled</button>';
     } else if (r.g === 'T') {
       actions = '<button type="button" class="main" data-act="train">Training done</button><button type="button" data-act="hand">Hand over</button>';
+    } else if (r.g === 'X') {
+      actions = '<button type="button" class="main" data-act="attend">Attend</button><button type="button" data-act="resched">Rescheduled</button>';
     }
-    return '<div class="card lcard d0 ' + look.card + (d0.tapping[r.e] ? ' d0-pend' : '') + (d0.fresh === r.e ? ' d0-fresh' : '') + '" data-e="' + esc(r.e) + '">' +
+    return '<div class="card lcard d0 ' + look.card + (d0.tapping[r.e] ? ' d0-pend' : '') + (d0.fresh === r.e ? ' d0-fresh' : '') + (d0.hl && d0.hl.e === r.e ? ' hl-card' : '') + '" data-e="' + esc(r.e) + '">' +
       '<div class="lc-head"><div class="lc-who"><div class="lc-name" dir="auto">' + esc(r.n) + '</div><div class="lc-sub">' + sub + '</div></div><span class="badge ' + look.badge + '">' + esc(look.text) + '</span></div>' +
-      phone + reason + strip + (actions ? '<div class="lc-actions">' + actions + '</div>' : '') + '</div>';
+      phone + reason + strip + d0TalkHtml(r) + (actions ? '<div class="lc-actions">' + actions + '</div>' : '') + '</div>';
   }
 
   function d0Empty(searching, tileOn) {
@@ -5261,7 +5307,24 @@
         html += '<button type="button" class="d0-more" data-act="more">Show ' + Math.min(D0_PAGE, list.length - shown.length) + ' more (' + (list.length - shown.length) + ' left)</button>';
       }
     }
+    var typing = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('d0-cmin') ? document.activeElement : null;
+    var typingE = typing && typing.closest('[data-e]') ? typing.closest('[data-e]').getAttribute('data-e') : '';
+    var caret = typing ? typing.selectionStart : 0;
     $('d0List').innerHTML = html;
+    if (typingE) {
+      var back = $('d0List').querySelector('[data-e="' + typingE.replace(/"/g, '') + '"] .d0-cmin');
+      if (back) { try { back.focus(); back.setSelectionRange(caret, caret); } catch (ignore) { } }
+    }
+    if (d0.hl && !d0.hl.done) {
+      var lit = $('d0List').querySelector('.hl-card');
+      if (lit) {
+        d0.hl.done = true;
+        var msg = lit.querySelector('.hl-msg');
+        try { (msg || lit).scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (ignore) { }
+        clearTimeout(d0.hlTimer);
+        d0.hlTimer = setTimeout(function () { d0.hl = null; if (d0.open) d0Render(); }, 12000);
+      }
+    }
     $('d0Msg').innerHTML = d0.msg ? '<div class="d0-note">' + esc(d0.msg) + '<button type="button" class="refresh" data-act="retry">Try again</button></div>' : '';
   }
 
@@ -5418,10 +5481,28 @@
 
   function d0TrainDone(e) {
     d0Do(e, 'apiDay0TrainDone', [], function (row) {
-      row.td = d0Now(); row.g = 'A';
-      row.u = row.td + ((d0.cfg && d0.cfg.ah) || 48) * 3600000;
+      row.td = d0Now(); row.g = 'A'; row.st = 'Waiting for Active'; row.u = 0;
       return row;
-    }, function (row) { return '<b>' + esc(row.n) + '</b>: training done. The ' + ((d0.cfg && d0.cfg.ah) || 48) + ' hours to active started'; });
+    }, function (row) { return '<b>' + esc(row.n) + '</b>: training done. He is now Waiting for Active'; });
+  }
+
+  // A message about a driver who waits for Active
+  function d0Comment(e, input) {
+    var text = String(input ? input.value : (d0.draft[e] || '')).replace(/\s+/g, ' ').trim().replace(/^[=+\-@\s]+/, '').slice(0, D0_COMMENT_MAX).trim();
+    if (!text) return;
+    var me = d0.me ? d0.me.n : 'Me';
+    delete d0.draft[e];
+    var p = d0Do(e, 'apiDay0Comment', [text], function (row) {
+      var n = new Date();
+      var mon = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][n.getMonth()];
+      row.cm = (row.cm || []).concat([[n.getDate() + '-' + mon + ' ' + ('0' + n.getHours()).slice(-2) + ':' + ('0' + n.getMinutes()).slice(-2), me, text]]);
+      return row;
+    }, function (row) { return 'Comment sent for <b>' + esc(row.n) + '</b>'; });
+    Promise.resolve(p).then(function () {
+      var r = d0.byE[e];
+      var last = r && r.cm && r.cm.length ? r.cm[r.cm.length - 1] : null;
+      if (!last || last[2] !== text) { d0.draft[e] = text; if (d0.open) d0Render(); }        // it did not go: the text comes back in the box
+    });
   }
 
   // ---- the windows ----
@@ -5599,6 +5680,20 @@
     else if (act === 'resched') d0ReschOpen(e);
     else if (act === 'train') d0TrainDone(e);
     else if (act === 'hand') d0HandOpen(e);
+    else if (act === 'cmsend') d0Comment(e, card.querySelector('.d0-cmin'));
+  });
+
+  $('d0List').addEventListener('input', function (ev) {
+    var t = ev.target;
+    if (!t || !t.classList || !t.classList.contains('d0-cmin')) return;
+    var card = t.closest('[data-e]');
+    if (card) d0.draft[card.getAttribute('data-e')] = t.value;
+  });
+  $('d0List').addEventListener('keydown', function (ev) {
+    var t = ev.target;
+    if (ev.key !== 'Enter' || !t || !t.classList || !t.classList.contains('d0-cmin')) return;
+    var card = t.closest('[data-e]');
+    if (card) { ev.preventDefault(); d0Comment(card.getAttribute('data-e'), t); }
   });
 
   $('d0Q').addEventListener('input', function () {
