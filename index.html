@@ -966,9 +966,11 @@
   <div class="sheet">
     <div class="sheet-head"><span>Hand over</span><button class="x" id="d0HandX" aria-label="Close">&times;</button></div>
     <div class="msub" id="d0HandSub"></div>
+    <label>Your message to him (required)</label>
+    <div class="d0-write"><input type="text" id="d0HandNote" maxlength="500" placeholder="Why you hand him over, what he must know" autocomplete="off" enterkeyhint="done"></div>
     <label>Who gets him?</label>
     <div id="d0HandList"></div>
-    <div id="d0HandMsg" class="msg">He gets a notice and an alert on his phone.</div>
+    <div id="d0HandMsg" class="msg">Write the message, then tap his name. He gets your message, and the driver stays with you until he takes him over.</div>
   </div>
 </div>
 
@@ -1397,7 +1399,7 @@
   //    even when the first answer was lost;
   //  - only when every try fails is the person told. The words say what happened (see failText).
   var WRITE_CALLS = { apiSaveEntries: 1, apiCancelEntry: 1, apiRequestChange: 1, apiAddLossUpdate: 1, apiMarkFound: 1,
-    apiDay0Attend: 1, apiDay0Absent: 1, apiDay0Resched: 1, apiDay0TrainDone: 1, apiDay0HandOver: 1, apiDay0Comment: 1, apiDay0Undo: 1, apiDay0Receive: 1 };
+    apiDay0Attend: 1, apiDay0Absent: 1, apiDay0Resched: 1, apiDay0TrainDone: 1, apiDay0HandOver: 1, apiDay0TakeOver: 1, apiDay0HandCancel: 1, apiDay0Comment: 1, apiDay0Undo: 1, apiDay0Receive: 1 };
   var CALL_TRIES = 3;
   var CALL_WAIT_MS = [700, 2000];             // the wait before the 2nd and the 3rd try
   var CALL_READ_MS = 25000;                   // one try of a read
@@ -4818,6 +4820,11 @@
   function d0SameName(a, b) { return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase(); }
   function d0IsMe(o) { return !!d0.me && d0SameName(o, d0.me.n); }
 
+  // A message: one line, no sign that makes a formula, not too long
+  function d0Msg(v) {
+    return String(v == null ? '' : v).replace(/\s+/g, ' ').trim().replace(/^[=+\-@\s]+/, '').slice(0, D0_COMMENT_MAX).trim();
+  }
+
   // The reason as the server keeps it: one line, no sign that makes a formula, not too long
   function d0Why(v) {
     return String(v == null ? '' : v).replace(/\s+/g, ' ').trim().replace(/^[=+\-@\s]+/, '').slice(0, D0_REASON_MAX).trim();
@@ -4972,7 +4979,7 @@
     d0.tickTimer = setTimeout(function () {
       if (!d0.open) return;
       if (!document.hidden) {
-        if (Date.now() - d0.touchAt > 2500 && !(document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('d0-cmin'))) d0Render();           // the minutes left (not while a finger is on the page)
+        if (Date.now() - d0.touchAt > 2500 && !(document.activeElement && document.activeElement.classList && (document.activeElement.classList.contains('d0-cmin') || document.activeElement.classList.contains('d0-tkin')))) d0Render();           // the minutes left (not while a finger is on the page)
         d0Load(false);
       }
       d0TickStart();
@@ -5177,7 +5184,6 @@
   // The driver who waits for Active has a box to write in. A tapped notice lights the card and the message it is about.
   function d0TalkHtml(r) {
     var list = r.cm || [];
-    if (r.g !== 'A' && !list.length) return '';
     var hl = d0.hl && d0.hl.e === r.e ? d0.hl : null;
     var pick = -1;
     if (hl) {
@@ -5196,10 +5202,10 @@
           '<div class="wa-body"><span class="cm-text" dir="auto">' + esc(m[2]) + '</span><span class="wa-sp"></span><span class="cm-time">' + esc(m[0]) + '</span></div></div>';
       }).join('') + '</div>';
     } else {
-      html += '<div class="none">No comments yet. Write why he is not active yet.</div>';
+      html += '<div class="none">No messages yet.</div>';
     }
-    if (r.g === 'A') {
-      html += '<div class="d0-cmrow"><input type="text" class="d0-cmin" maxlength="' + D0_COMMENT_MAX + '" placeholder="Write a comment..." value="' + esc(d0.draft[r.e] || '') + '" autocomplete="off">' +
+    {
+      html += '<div class="d0-cmrow"><input type="text" class="d0-cmin" maxlength="' + D0_COMMENT_MAX + '" placeholder="Write a message..." value="' + esc(d0.draft[r.e] || '') + '" autocomplete="off">' +
         '<button type="button" data-act="cmsend">Send</button></div>';
     }
     return '<div class="d0-talk">' + html + '</div>';
@@ -5226,7 +5232,25 @@
       strip = '<div class="d0-next ' + ln.k + '">' + D0_ICON[ln.i] + '<span class="tx">' + esc(ln.t) + '</span>' + own + '</div>';
     }
     var actions = '';
-    if (r.g === 'W') {
+    var pend = '';
+    if (r.h) {
+      var toMe = d0IsMe(r.h.t);
+      var fromMe = d0IsMe(r.h.f);
+      if (toMe) {
+        strip = '<div class="d0-next warn">' + D0_ICON.flag + '<span class="tx">' + esc(r.h.f) + ' gave you this driver</span></div>' +
+          '<div class="d0-talk"><div class="chat"><div class="cm cm-in"><div class="cm-who wn1">' + esc(r.h.f) + '</div><div class="wa-body"><span class="cm-text" dir="auto">' + esc(r.h.n) + '</span></div></div></div>' +
+          '<div class="d0-cmrow"><input type="text" class="d0-tkin" maxlength="' + D0_COMMENT_MAX + '" placeholder="Message to ' + esc(r.h.f) + ' (not needed)" value="' + esc(d0.draft['T:' + r.e] || '') + '" autocomplete="off">' +
+          '<button type="button" data-act="takeover">Take over</button></div></div>';
+      } else {
+        strip = '<div class="d0-next info">' + D0_ICON.flag + '<span class="tx">' + (fromMe ? 'Waiting for ' + esc(r.h.t) + ' to take him' : esc(r.h.f) + ' gave him to ' + esc(r.h.t)) + '</span></div>' +
+          '<div class="d0-talk"><div class="chat"><div class="cm cm-out"><div class="wa-body"><span class="cm-text" dir="auto">' + esc(r.h.n) + '</span></div></div></div>' +
+          (fromMe ? '<div class="lc-actions" style="margin:8px 0 0;padding:0"><button type="button" data-act="handcancel">Cancel the hand over</button></div>' : '') + '</div>';
+      }
+      pend = strip;
+    }
+    if (r.h) {
+      actions = '';
+    } else if (r.g === 'W') {
       actions = r.d > today
         ? '<button type="button" data-act="resched">Rescheduled</button>'
         : '<button type="button" class="main" data-act="attend">Attend</button><button type="button" data-act="absent">Absent</button><button type="button" data-act="resched">Rescheduled</button>';
@@ -5237,7 +5261,7 @@
     }
     return '<div class="card lcard d0 ' + look.card + (d0.tapping[r.e] ? ' d0-pend' : '') + (d0.fresh === r.e ? ' d0-fresh' : '') + (d0.hl && d0.hl.e === r.e ? ' hl-card' : '') + '" data-e="' + esc(r.e) + '">' +
       '<div class="lc-head"><div class="lc-who"><div class="lc-name" dir="auto">' + esc(r.n) + '</div><div class="lc-sub">' + sub + '</div></div><span class="badge ' + look.badge + '">' + esc(look.text) + '</span></div>' +
-      phone + reason + strip + d0TalkHtml(r) + (actions ? '<div class="lc-actions">' + actions + '</div>' : '') + '</div>';
+      phone + reason + (r.h ? pend : strip + d0TalkHtml(r)) + (actions ? '<div class="lc-actions">' + actions + '</div>' : '') + '</div>';
   }
 
   function d0Empty(searching, tileOn) {
@@ -5307,12 +5331,12 @@
         html += '<button type="button" class="d0-more" data-act="more">Show ' + Math.min(D0_PAGE, list.length - shown.length) + ' more (' + (list.length - shown.length) + ' left)</button>';
       }
     }
-    var typing = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('d0-cmin') ? document.activeElement : null;
+    var typing = document.activeElement && document.activeElement.classList && (document.activeElement.classList.contains('d0-cmin') || document.activeElement.classList.contains('d0-tkin')) ? document.activeElement : null;
     var typingE = typing && typing.closest('[data-e]') ? typing.closest('[data-e]').getAttribute('data-e') : '';
     var caret = typing ? typing.selectionStart : 0;
     $('d0List').innerHTML = html;
     if (typingE) {
-      var back = $('d0List').querySelector('[data-e="' + typingE.replace(/"/g, '') + '"] .d0-cmin');
+      var back = $('d0List').querySelector('[data-e="' + typingE.replace(/"/g, '') + '"] .' + (typing.classList.contains('d0-tkin') ? 'd0-tkin' : 'd0-cmin'));
       if (back) { try { back.focus(); back.setSelectionRange(caret, caret); } catch (ignore) { } }
     }
     if (d0.hl && !d0.hl.done) {
@@ -5608,6 +5632,9 @@
     d0CloseWindows();
     d0.act = e;
     $('d0HandSub').textContent = d0Sub(r);
+    $('d0HandNote').value = '';
+    $('d0HandMsg').className = 'msg';
+    $('d0HandMsg').textContent = 'Write the message, then tap his name. He gets your message, and the driver stays with you until he takes him over.';
     var near = function (p) {
       return p.r === 'POC' && (p.st || []).some(function (s) { return s === r.s || s === r.ss; });
     };
@@ -5626,9 +5653,35 @@
   function d0HandSave(name) {
     var e = d0.act;
     if (!e || !d0.byE[e] || !name) return;
+    var note = d0Msg($('d0HandNote').value);
+    if (!note) {
+      $('d0HandMsg').className = 'msg err';
+      $('d0HandMsg').textContent = 'Write the message to ' + name + ' first.';
+      try { $('d0HandNote').focus(); } catch (ignore) { }
+      return;
+    }
+    var me = d0.me ? d0.me.n : '';
     d0CloseWindows();
-    d0Do(e, 'apiDay0HandOver', [name], function (row) { row.o = name; return row; },
-      function (row) { return '<b>' + esc(row.n) + '</b> handed to ' + esc(name); });
+    d0Do(e, 'apiDay0HandOver', [name, note], function (row) { row.h = { f: me, t: name, n: note }; return row; },
+      function (row) { return '<b>' + esc(row.n) + '</b>: your message went to ' + esc(name) + '. He is yours until ' + esc(name) + ' takes him'; });
+  }
+
+  // He takes the driver that was given to him (a message to the one who gave him is welcome, not needed)
+  function d0TakeOver(e, input) {
+    var r = d0.byE[e];
+    if (!r || !r.h) return;
+    var note = d0Msg(input ? input.value : '');
+    var me = d0.me ? d0.me.n : '';
+    var from = r.h.f;
+    delete d0.draft['T:' + e];
+    d0Do(e, 'apiDay0TakeOver', [note], function (row) { row.h = null; row.o = me; return row; },
+      function (row) { return 'You took <b>' + esc(row.n) + '</b> from ' + esc(from) + (note ? '. Your message went to him' : ''); });
+  }
+
+  function d0HandCancel(e) {
+    var r = d0.byE[e];
+    if (!r || !r.h) return;
+    d0Do(e, 'apiDay0HandCancel', [], function (row) { row.h = null; return row; }, function (row) { return 'The hand over of <b>' + esc(row.n) + '</b> is cancelled'; });
   }
 
   // ---- taps and typing ----
@@ -5681,19 +5734,21 @@
     else if (act === 'train') d0TrainDone(e);
     else if (act === 'hand') d0HandOpen(e);
     else if (act === 'cmsend') d0Comment(e, card.querySelector('.d0-cmin'));
+    else if (act === 'takeover') d0TakeOver(e, card.querySelector('.d0-tkin'));
+    else if (act === 'handcancel') d0HandCancel(e);
   });
 
   $('d0List').addEventListener('input', function (ev) {
     var t = ev.target;
-    if (!t || !t.classList || !t.classList.contains('d0-cmin')) return;
+    if (!t || !t.classList || !(t.classList.contains('d0-cmin') || t.classList.contains('d0-tkin'))) return;
     var card = t.closest('[data-e]');
-    if (card) d0.draft[card.getAttribute('data-e')] = t.value;
+    if (card) d0.draft[(t.classList.contains('d0-tkin') ? 'T:' : '') + card.getAttribute('data-e')] = t.value;
   });
   $('d0List').addEventListener('keydown', function (ev) {
     var t = ev.target;
-    if (ev.key !== 'Enter' || !t || !t.classList || !t.classList.contains('d0-cmin')) return;
+    if (ev.key !== 'Enter' || !t || !t.classList || !(t.classList.contains('d0-cmin') || t.classList.contains('d0-tkin'))) return;
     var card = t.closest('[data-e]');
-    if (card) { ev.preventDefault(); d0Comment(card.getAttribute('data-e'), t); }
+    if (card) { ev.preventDefault(); if (t.classList.contains('d0-tkin')) d0TakeOver(card.getAttribute('data-e'), t); else d0Comment(card.getAttribute('data-e'), t); }
   });
 
   $('d0Q').addEventListener('input', function () {
