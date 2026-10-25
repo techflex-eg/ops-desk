@@ -570,6 +570,12 @@
   .d0-talk .chat { margin-top: 0; }
   .d0-talk .wa-sp { width: 84px; }
   .d0-talk .none { padding: 6px 2px; font-size: 13px; color: var(--muted); }
+  .d0-login { padding-top: 8px; }
+  .d0-lrow { display: flex; gap: 10px; align-items: baseline; font-size: 14px; }
+  .d0-lk { color: var(--muted); font-weight: 700; flex: none; }
+  .d0-lv { font-weight: 800; word-break: break-all; user-select: all; flex: 1 1 auto; min-width: 0; }
+  .d0-cp { flex: none; min-height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--ink); font-size: 13px; font-weight: 700; cursor: pointer; }
+  .d0-cmrow .d0-cp2 { background: transparent; color: var(--ink); border: 1px solid var(--line); }
   .d0-cmrow { display: flex; gap: 8px; margin-top: 8px; }
   .d0-cmrow input { flex: 1 1 auto; min-width: 0; min-height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; font-size: 16px; }
   .d0-cmrow button { flex: none; min-height: 42px; padding: 0 16px; border: 0; border-radius: 10px; background: var(--brand); color: var(--brand-ink); font-size: 14px; font-weight: 800; cursor: pointer; }
@@ -1399,7 +1405,7 @@
   //    even when the first answer was lost;
   //  - only when every try fails is the person told. The words say what happened (see failText).
   var WRITE_CALLS = { apiSaveEntries: 1, apiCancelEntry: 1, apiRequestChange: 1, apiAddLossUpdate: 1, apiMarkFound: 1,
-    apiDay0Attend: 1, apiDay0Absent: 1, apiDay0Resched: 1, apiDay0TrainDone: 1, apiDay0HandOver: 1, apiDay0TakeOver: 1, apiDay0HandCancel: 1, apiDay0Comment: 1, apiDay0Undo: 1, apiDay0Receive: 1 };
+    apiDay0Attend: 1, apiDay0Absent: 1, apiDay0Resched: 1, apiDay0TrainDone: 1, apiDay0HandOver: 1, apiDay0TakeOver: 1, apiDay0HandCancel: 1, apiDay0Comment: 1, apiDay0Password: 1, apiDay0Undo: 1, apiDay0Receive: 1 };
   var CALL_TRIES = 3;
   var CALL_WAIT_MS = [700, 2000];             // the wait before the 2nd and the 3rd try
   var CALL_READ_MS = 25000;                   // one try of a read
@@ -4753,7 +4759,7 @@
   function d0Today() { return d0.today || todayStr(); }
 
   function d0Copy(r) {
-    return { e: r.e, n: r.n, p: r.p, c: r.c, s: r.s, a: r.a, ss: r.ss, o: r.o, st: r.st, g: r.g, r: r.r, d: r.d, rd: r.rd, at: r.at, aa: r.aa, td: r.td, ac: r.ac, u: r.u };
+    return { e: r.e, n: r.n, p: r.p, c: r.c, s: r.s, a: r.a, ss: r.ss, o: r.o, st: r.st, g: r.g, r: r.r, d: r.d, rd: r.rd, at: r.at, aa: r.aa, td: r.td, ac: r.ac, u: r.u, sa: r.sa, cm: r.cm, h: r.h, pw: r.pw };
   }
 
   // 2026-10-22 -> Thu 22-Oct
@@ -5261,7 +5267,7 @@
     }
     return '<div class="card lcard d0 ' + look.card + (d0.tapping[r.e] ? ' d0-pend' : '') + (d0.fresh === r.e ? ' d0-fresh' : '') + (d0.hl && d0.hl.e === r.e ? ' hl-card' : '') + '" data-e="' + esc(r.e) + '">' +
       '<div class="lc-head"><div class="lc-who"><div class="lc-name" dir="auto">' + esc(r.n) + '</div><div class="lc-sub">' + sub + '</div></div><span class="badge ' + look.badge + '">' + esc(look.text) + '</span></div>' +
-      phone + reason + (r.h ? pend : strip + d0TalkHtml(r)) + (actions ? '<div class="lc-actions">' + actions + '</div>' : '') + '</div>';
+      phone + d0LoginHtml(r) + reason + (r.h ? pend : strip + d0TalkHtml(r)) + (actions ? '<div class="lc-actions">' + actions + '</div>' : '') + '</div>';
   }
 
   function d0Empty(searching, tileOn) {
@@ -5511,6 +5517,42 @@
   }
 
   // A message about a driver who waits for Active
+  // The e-mail and the password of the driver for My Learning: in the training, and with a hand over (the one who takes him has them)
+  function d0LoginHtml(r) {
+    if (r.g !== 'T' && !r.h) return '';
+    return '<div class="lc-sec d0-login"><div class="d0-lrow"><span class="d0-lk">E-mail</span><span class="d0-lv" dir="ltr">' + esc(r.e) + '</span><button type="button" class="d0-cp" data-act="cpmail">Copy</button></div>' +
+      '<div class="d0-cmrow"><input type="text" class="d0-pwin" maxlength="60" dir="ltr" placeholder="Password" value="' + esc(r.pw || '') + '" autocomplete="off" autocapitalize="off" spellcheck="false">' +
+      '<button type="button" data-act="pwsave">Save</button><button type="button" class="d0-cp2" data-act="cppw">Copy</button></div></div>';
+  }
+
+  // Copy a text (the e-mail or the password of the driver) for My Learning; the button says Copied for a moment
+  function d0CopyText(btn, text) {
+    text = String(text || '');
+    if (!text) return;
+    var done = function () {
+      var old = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(function () { btn.textContent = old; }, 1500);
+    };
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.top = '0'; ta.style.opacity = '0'; ta.style.fontSize = '16px';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+      var okCopy = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (okCopy) done();
+    } catch (ignore) { }
+  }
+
+  function d0Password(e, input) {
+    var r = d0.byE[e];
+    if (!r || !input) return;
+    var pw = String(input.value || '').trim().slice(0, 60);
+    if (pw === String(r.pw || '')) return;
+    d0Do(e, 'apiDay0Password', [pw], function (row) { row.pw = pw; return row; }, function (row) { return 'Password saved for <b>' + esc(row.n) + '</b>'; });
+  }
+
   function d0Comment(e, input) {
     var text = String(input ? input.value : (d0.draft[e] || '')).replace(/\s+/g, ' ').trim().replace(/^[=+\-@\s]+/, '').slice(0, D0_COMMENT_MAX).trim();
     if (!text) return;
@@ -5734,6 +5776,9 @@
     else if (act === 'train') d0TrainDone(e);
     else if (act === 'hand') d0HandOpen(e);
     else if (act === 'cmsend') d0Comment(e, card.querySelector('.d0-cmin'));
+    else if (act === 'pwsave') d0Password(e, card.querySelector('.d0-pwin'));
+    else if (act === 'cpmail') d0CopyText(b, e);
+    else if (act === 'cppw') d0CopyText(b, card.querySelector('.d0-pwin') ? card.querySelector('.d0-pwin').value : '');
     else if (act === 'takeover') d0TakeOver(e, card.querySelector('.d0-tkin'));
     else if (act === 'handcancel') d0HandCancel(e);
   });
