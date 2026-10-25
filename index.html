@@ -4823,6 +4823,11 @@
     o = String(o || '').trim();
     return o !== '' && d0.stations.indexOf(o.toUpperCase()) < 0;
   }
+  // Nobody has the driver yet (empty, a station), or two POCs have him ('Sara, Omar'): the one who decides takes him
+  function d0Unclaimed(o) {
+    o = String(o || '').trim();
+    return o === '' || d0.stations.indexOf(o.toUpperCase()) >= 0 || o.indexOf(',') >= 0;
+  }
   function d0SameName(a, b) { return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase(); }
   function d0IsMe(o) { return !!d0.me && d0SameName(o, d0.me.n); }
 
@@ -5504,7 +5509,7 @@
     d0Do(e, 'apiDay0Attend', [], function (row) {
       row.st = 'Attend'; row.g = 'T'; row.aa = d0Now(); row.td = 0; row.r = ''; row.rd = '';
       row.u = (d0.cfg && d0.cfg.dl) || 0;
-      if (me && me.r === 'POC' && (row.o === '' || d0.stations.indexOf(String(row.o).toUpperCase()) >= 0)) row.o = me.n;
+      if (me && me.r === 'POC' && d0Unclaimed(row.o)) row.o = me.n;
       return row;
     }, function (row) { return '<b>' + esc(row.n) + '</b> is now Training'; });
   }
@@ -5605,7 +5610,7 @@
     var me = d0.me;
     d0Do(e, 'apiDay0Absent', [why], function (row) {
       row.st = 'Absent'; row.g = 'X'; row.r = why; row.aa = 0; row.td = 0; row.rd = ''; row.u = 0;
-      if (me && me.r === 'POC' && (row.o === '' || d0.stations.indexOf(String(row.o).toUpperCase()) >= 0)) row.o = me.n;
+      if (me && me.r === 'POC' && d0Unclaimed(row.o)) row.o = me.n;
       return row;
     }, function (row) { return '<b>' + esc(row.n) + '</b> is now Absent'; });
   }
@@ -5663,7 +5668,7 @@
     var me = d0.me;
     d0Do(e, 'apiDay0Resched', [pick], function (row) {
       row.st = 'Rescheduled'; row.g = 'R'; row.rd = pick; row.r = ''; row.aa = 0; row.td = 0; row.u = 0;
-      if (me && me.r === 'POC' && (row.o === '' || d0.stations.indexOf(String(row.o).toUpperCase()) >= 0)) row.o = me.n;
+      if (me && me.r === 'POC' && d0Unclaimed(row.o)) row.o = me.n;
       return row;
     }, function (row) { return '<b>' + esc(row.n) + '</b> is rescheduled to ' + esc(d0Short(pick)); });
   }
