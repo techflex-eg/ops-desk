@@ -974,9 +974,9 @@
     <div class="msub" id="d0HandSub"></div>
     <label>Your message to him (required)</label>
     <div class="d0-write"><input type="text" id="d0HandNote" maxlength="500" placeholder="Why you hand him over, what he must know" autocomplete="off" enterkeyhint="done"></div>
+    <div id="d0HandMsg" class="msg">Write your message, then tap a name.</div>
     <label>Who gets him?</label>
     <div id="d0HandList"></div>
-    <div id="d0HandMsg" class="msg">Write the message, then tap his name. He gets your message, and the driver stays with you until he takes him over.</div>
   </div>
 </div>
 
@@ -5676,7 +5676,7 @@
     $('d0HandSub').textContent = d0Sub(r);
     $('d0HandNote').value = '';
     $('d0HandMsg').className = 'msg';
-    $('d0HandMsg').textContent = 'Write the message, then tap his name. He gets your message, and the driver stays with you until he takes him over.';
+    $('d0HandMsg').textContent = 'Write your message, then tap a name.';
     var near = function (p) {
       return p.r === 'POC' && (p.st || []).some(function (s) { return s === r.s || s === r.ss; });
     };
