@@ -883,16 +883,16 @@
   <div id="d0Toast" class="d0-toast hidden" role="status" aria-live="polite"><span id="d0ToastText"></span><button type="button" id="d0ToastBtn" class="hidden">Undo</button></div>
 </div>
 
-<!-- Request a change window -->
+<!-- Conversation window (what a user writes on a card; it shows in the Conversation column of the sheet) -->
 <div id="reqModal" class="modal hidden">
   <div class="sheet">
-    <div class="sheet-head"><span>Request a change</span><button class="x" id="rClose">&times;</button></div>
+    <div class="sheet-head"><span>Conversation</span><button class="x" id="rClose">&times;</button></div>
     <div class="msub" id="rSub"></div>
 
-    <label>What do you want to do? For example: cancel it, or change the amount.</label>
-    <textarea id="rText" rows="4" maxlength="400" placeholder="Write your request"></textarea>
+    <label>What do you want to say? For example: please cancel it, or change the amount.</label>
+    <textarea id="rText" rows="4" maxlength="400" placeholder="Write your message"></textarea>
 
-    <button id="rSave" class="primary">Send request</button>
+    <button id="rSave" class="primary">Send</button>
     <div id="rMsg" class="msg"></div>
   </div>
 </div>
@@ -3452,7 +3452,7 @@
       var decided = '';
       var actions = '';
       if (e.canCancel) actions += '<button data-act="cancel" data-id="' + esc(e.id) + '">Cancel</button>';
-      actions += '<button data-act="request" data-id="' + esc(e.id) + '">Request change</button>';
+      actions += '<button data-act="request" data-id="' + esc(e.id) + '">Conversation</button>';
       return '<div class="card entry k-' + esc(String(e.kind).toLowerCase()) + '" data-id="' + esc(e.id) + '">' +
         '<div class="row"><div class="name">' + esc(e.name) + '</div><span class="badge st-' + esc(slug) + '">' + esc(e.status) + '</span></div>' +
         '<div class="sub">' + esc(KIND_LABEL[e.kind] || e.kind) + ' - ' + esc(e.date) + ' - ' + esc(e.station) + '</div>' +
@@ -3548,7 +3548,7 @@
   });
 
 
-  // ---------- Request a change ----------
+  // ---------- Conversation (a message on a card) ----------
 
   var reqId = '';
   var reqLoss = false;
@@ -3558,7 +3558,7 @@
     return null;
   }
 
-  // Any entry and any loss can get a request, in every status
+  // Any entry and any loss can get a message, in every status
   function openRequest(id) {
     var e = findEntry(id);
     var l = e ? null : findLoss(id);
@@ -3583,7 +3583,7 @@
 
   $('rSave').addEventListener('click', async function () {
     var text = $('rText').value.trim();
-    if (!text) { setMsg('rMsg', 'Write what you want to change.', 'err'); return; }
+    if (!text) { setMsg('rMsg', 'Write your message.', 'err'); return; }
     $('rSave').disabled = true;
     $('rSave').textContent = 'Sending...';
     try {
@@ -3593,7 +3593,7 @@
         var sentId = reqId;
         closeRequest();
         addLocalLine(sentId, wasLoss, r.line);        // the card shows it at once; the list is asked again in the background
-        setMsg(wasLoss ? 'lossMsg' : 'listMsg', 'Request sent. It will show in the sheet.', 'ok');
+        setMsg(wasLoss ? 'lossMsg' : 'listMsg', 'Message sent. It will show in the sheet.', 'ok');
         if (wasLoss) loadLosses(true); else loadEntries(true);
       } else {
         setMsg('rMsg', r.message, 'err');
@@ -3602,7 +3602,7 @@
       setMsg('rMsg', failText(e, 'Check before you try again.'), 'err');
     } finally {
       $('rSave').disabled = false;
-      $('rSave').textContent = 'Send request';
+      $('rSave').textContent = 'Send';
     }
   });
 
