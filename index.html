@@ -4733,7 +4733,7 @@
   var D0_REASON_MAX = 120;
   var D0_COMMENT_MAX = 500;
   var D0_TILES = [['W', 'Waiting'], ['T', 'Training'], ['A', 'To Active'], ['X', 'Absent'], ['R', 'Resched.']];
-  var D0_STAGE = { W: 'Waiting', T: 'Training', A: 'Waiting for Active', X: 'Absent', R: 'Rescheduled', D: 'Active', N: 'No Show' };
+  var D0_STAGE = { W: 'Waiting', T: 'Training', A: 'Waiting for Active', X: 'Absent', R: 'Rescheduled', D: 'Active No Show' };
   var D0_ICON = {
     clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',
     call: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>',
@@ -4882,8 +4882,8 @@
     if (r.g === 'A') return { card: 'd0-act', badge: 'b-act', text: 'Waiting for Active' };
     if (r.g === 'X') return { card: 'd0-absent', badge: 'st-rejected', text: 'Absent' };
     if (r.g === 'R') return { card: 'd0-resched', badge: 'st-replied', text: 'Rescheduled' };
-    if (r.g === 'D') return { card: 'd0-done', badge: 'st-found', text: r.st || 'Active' };
-    return { card: 'd0-done', badge: 'st-cancelled', text: r.st || 'No Show' };
+    if (r.g === 'D') return { card: 'd0-done', badge: 'st-found', text: r.st || 'Active No Show' };
+    return { card: 'd0-done', badge: 'st-cancelled', text: r.st || 'Done' };
   }
 
   // "Open" = everything that is not finished. An Absent driver stays for 2 days (then the call center has him), a Rescheduled one until his new day.
