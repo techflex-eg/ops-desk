@@ -668,6 +668,66 @@
     background: #ffffff; color: #1b2430; font-size: 16px; line-height: 1.5; }
   #odSetup h1 { margin: 0 0 10px; font-size: 20px; }
   #odSetup code { background: #eef1f5; padding: 2px 6px; border-radius: 4px; }
+
+  /* ---------- PUNCH: the attendance of a person, with a selfie and the place ---------- */
+  .tabs-inner.t5 button { font-size: 12.5px; padding: 0 2px; }
+  .tabs-inner.t5 .cnt { margin-left: 2px; padding: 1px 5px; min-width: 18px; }
+  @media (max-width: 359px) {
+    .tabs-inner.t5 button { font-size: 11.5px; }
+    .tabs-inner.t5 .cnt { margin-left: 1px; padding: 1px 4px; min-width: 16px; font-size: 10.5px; }
+  }
+  .pn-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .pn-title { font-size: 18px; font-weight: 800; }
+  .pn-shift { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  #pnStations { margin-top: 12px; }
+  .pn-place { margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .pn-state { margin-top: 14px; padding: 14px 12px; border-radius: 12px; font-size: 22px; font-weight: 800; text-align: center; background: var(--cancelled-bg); color: var(--cancelled); }
+  .pn-state.in { background: var(--approved-bg); color: var(--approved); }
+  .pn-sub { margin-top: 8px; min-height: 18px; font-size: 13px; color: var(--muted); text-align: center; overflow-wrap: anywhere; }
+  .pn-cam { margin-top: 14px; }
+  .pn-video { position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 62vh; background: #000; border-radius: 12px; overflow: hidden; }
+  .pn-video video { display: block; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+  .pn-gps { margin-top: 8px; min-height: 18px; font-size: 13px; font-weight: 700; text-align: center; color: var(--muted); }
+  .pn-gps.ok { color: var(--approved); }
+  .pn-gps.bad { color: var(--error); }
+  .pn-cancel { width: 100%; min-height: 44px; margin-top: 10px; border: 1px solid var(--line); border-radius: 12px; background: transparent; color: var(--muted); font-weight: 700; cursor: pointer; }
+  .pn-done { margin-top: 12px; padding: 12px; border-radius: 12px; text-align: center; background: var(--approved-bg); color: var(--approved); font-weight: 700; }
+  .pn-done.warn { background: var(--waiting-bg); color: var(--waiting); }
+  .pn-done img { display: block; width: 96px; height: 72px; margin: 10px auto 0; object-fit: cover; border-radius: 10px; }
+  .pn-done .pn-note { font-weight: 600; color: inherit; }
+  .pn-h { font-size: 15px; font-weight: 800; }
+  .pn-note { margin-top: 6px; font-size: 13px; color: var(--muted); }
+  .pn-row { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .pn-row:first-child { border-top: 0; }
+  .pn-row .a { flex: none; min-width: 36px; font-weight: 800; }
+  .pn-row .m { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+  .pn-row .s { display: block; font-size: 12.5px; color: var(--muted); }
+  .pn-row.bad .a, .pn-row.bad .s { color: var(--error); }
+
+  /* ---------- PRESENCE CHECK: a manager or the owner asks POCs to confirm that they are at the station ---------- */
+  #tabPunch.flag::after { content: ''; display: inline-block; width: 9px; height: 9px; margin-left: 5px; border-radius: 50%; background: #d64545; vertical-align: middle; }
+  .ni.k-check, .ntoast.k-check { --cc: var(--waiting); }
+  .ni.k-check_done, .ntoast.k-check_done { --cc: var(--found); }
+  .pc-q { margin-top: 12px; font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; }
+  #pcMineCard .pn-gps { margin-top: 10px; }
+  #pcMineCard .primary { margin-top: 12px; }
+  #pcMineCard:has(#pcGo.hidden) #pcGps:empty, #pcMineCard:has(#pcGo.hidden) #pcMsg:empty { display: none; }   /* no empty space once the button is gone */
+  #pcAll { flex: none; padding: 0; font-size: 13px; }
+  #pcAskCard .pn-note { margin-top: 8px; }
+  #pcAskBtn { margin-top: 14px; }
+  .pc-row { display: flex; align-items: center; gap: 12px; margin: 0; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; font-weight: 400; color: var(--ink); cursor: pointer; }
+  .pc-row:first-child { border-top: 0; }
+  .pc-row input { flex: none; width: 22px; height: 22px; margin: 0; }
+  .pc-row.off, .pc-row.res { cursor: default; }
+  .pc-row.res { align-items: flex-start; }
+  .pc-who { flex: 1; min-width: 0; }
+  .pc-name { display: block; font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+  .pc-sub { display: block; margin-top: 1px; font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+  .pc-pill { flex: none; padding: 3px 10px; border-radius: 999px; background: var(--cancelled-bg); color: var(--cancelled); font-size: 12px; font-weight: 800; white-space: nowrap; }
+  .pc-pill.good { background: var(--approved-bg); color: var(--approved); }
+  .pc-pill.wait { background: var(--found-bg); color: var(--found); }
+  .pc-pill.warn { background: var(--waiting-bg); color: var(--waiting); }
+  .pc-pill.bad { background: var(--rejected-bg); color: var(--rejected); }
 </style>
 <script>
   // Light or dark: the choice of the person is set before the page is drawn
@@ -703,7 +763,7 @@
     <div class="top-inner">
       <div>
         <h1 id="officeName">Ops Desk</h1>
-        <div class="who"><span id="whoLine"></span><span class="ver" id="verTag"> &middot; v41</span></div>
+        <div class="who"><span id="whoLine"></span><span class="ver" id="verTag"> &middot; v43</span></div>
       </div>
       <div class="top-right">
         <button type="button" class="bell" id="bellBtn" aria-label="Notifications" title="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg><span class="dot" id="bellDot"></span></button>
@@ -868,6 +928,57 @@
       <div id="d0Msg"></div>
     </div>
 
+    <!-- PUNCH -->
+    <div id="viewPunch" class="hidden">
+      <!-- PRESENCE CHECK: the question for a POC -->
+      <div class="card hidden" id="pcMineCard">
+        <div class="pn-head"><span class="pn-title">Presence check</span><span class="pn-shift" id="pcLeft"></span></div>
+        <div class="pc-q hidden" id="pcQ"></div>
+        <div class="pn-gps" id="pcGps"></div>
+        <button type="button" class="primary hidden" id="pcGo">Confirm I am here</button>
+        <div id="pcMsg" class="msg"></div>
+        <div class="pn-done hidden" id="pcDone"></div>
+      </div>
+      <!-- PRESENCE CHECK: a manager or the owner asks POCs to confirm -->
+      <div class="card hidden" id="pcAskCard">
+        <div class="pn-head"><span class="pn-title">Ask to confirm</span><button type="button" class="refresh hidden" id="pcAll">Select all</button></div>
+        <div class="pn-note" id="pcAskNote"></div>
+        <div id="pcList"></div>
+        <div class="pn-note" id="pcWarn"></div>
+        <button type="button" class="primary" id="pcAskBtn" disabled>Ask to confirm</button>
+        <div id="pcAskMsg" class="msg"></div>
+      </div>
+      <div class="card hidden" id="pcRecentCard">
+        <div class="pn-h">Latest checks</div>
+        <div id="pcRecent"></div>
+      </div>
+      <div class="card" id="pnMainCard">
+        <div class="pn-head"><span class="pn-title">Attendance</span><span class="pn-shift" id="pnShift"></span></div>
+        <div class="seg wrap hidden" id="pnStations"></div>
+        <div class="pn-place" id="pnPlace"></div>
+        <div class="pn-state" id="pnState">Loading...</div>
+        <div class="pn-sub" id="pnSub"></div>
+        <div class="pn-cam hidden" id="pnCam">
+          <div class="pn-video"><video id="pnVideo" playsinline muted autoplay></video></div>
+          <div class="pn-gps" id="pnGps"></div>
+        </div>
+        <button type="button" class="primary hidden" id="pnGo">Punch IN</button>
+        <button type="button" class="pn-cancel hidden" id="pnCancel">Cancel</button>
+        <div id="pnMsg" class="msg"></div>
+        <div class="pn-done hidden" id="pnDone"></div>
+      </div>
+      <div class="card hidden" id="pnHistoryCard">
+        <div class="pn-h">Last punches</div>
+        <div id="pnHistory"></div>
+      </div>
+      <div class="card hidden" id="pnPlaceCard">
+        <div class="pn-h">Station place</div>
+        <div class="pn-note" id="pnPlaceNote"></div>
+        <button type="button" class="primary" id="pnPlaceBtn">Save my place as the station place</button>
+        <div id="pnPlaceMsg" class="msg"></div>
+      </div>
+    </div>
+
   </div>
 
   <div class="tabs">
@@ -876,6 +987,7 @@
       <button id="tabLoss">Losses<span id="lossCnt" class="cnt hidden"></span></button>
       <button id="tabList">My Entries</button>
       <button id="tabDay0">DAY0<span id="d0Cnt" class="cnt hidden"></span></button>
+      <button id="tabPunch" class="hidden">Punch</button>
     </div>
   </div>
 
@@ -1650,6 +1762,7 @@
       setView('new');
       loadLosses(true);
       try { d0Start(); } catch (ignore) { }
+      try { pnStart(); } catch (ignore) { }
       try { startNotices(); } catch (ignore) { }
       try { startAppLink(); } catch (ignore) { }
       if (pendingOpen) {
@@ -1685,6 +1798,7 @@
     closeRequest();
     try { stopNotices(); } catch (ignore) { }
     try { d0Stop(); } catch (ignore) { }
+    try { pnStop(); } catch (ignore) { }
     showLogin();
   });
 
@@ -1811,6 +1925,7 @@
     if (v === 'new') freshEntryDay();
     if (v === 'list') { resetEntBox(); loadEntries(); }
     if (v === 'loss') { resetLossBox(); renderLosses(); loadLosses(false); }
+    try { pnView(v); } catch (ignore) { }
     window.scrollTo(0, 0);
   }
   $('tabNew').addEventListener('click', function () { setView('new'); });
@@ -4042,6 +4157,7 @@
     notif.bad = 0;
     try { d0Note(r.d0); } catch (ignore) { }                 // the note of DAY0: a new one means the list changed
     var items = r.items || [];
+    try { pnNotes(items, notif.seq < 0 || !!r.reset); } catch (ignore) { }
 
     if (notif.seq < 0 || r.reset) {
       // The page was just opened: what is older than the last time the person looked is already read,
@@ -4256,6 +4372,7 @@
   function openNoticeEntry(n) {
     var id = String(n.entryId || '');
     if (!id) return;
+    if (id.indexOf('PCK-') === 0) { try { pnOpenFromNotice(); } catch (ignore) { } return; }
     if (id.indexOf('DY0-') === 0) {
       var dy = id.slice(4).split('|');
       d0OpenDay(dy[0], dy[1], n.text);
@@ -5865,6 +5982,1151 @@
     d0Soon(200);
   });
   window.addEventListener('online', function () { if (d0.started) d0Soon(500); });
+
+  // ---------- PUNCH: IN and OUT with a live selfie and the place of the phone ----------
+  // The server part is Punch.gs. This part shows the state, takes the selfie and the place, and sends them.
+  // It does not change the other tabs. The Punch tab is shown only to a person who has a shift, and to a manager or the owner.
+  // A POC who is asked for a presence check (the end of this part) sees the tab too, for as long as the check is open.
+  // The selfie comes only from the live camera (there is no way to choose a file). The place comes from the GPS of the phone.
+
+  WRITE_CALLS.apiPunch = 1;
+  WRITE_CALLS.apiPunchStation = 1;
+  WRITE_CALLS.apiPunchAsk = 1;
+  WRITE_CALLS.apiPunchCheckAnswer = 1;
+
+  var PN_PHOTO_PX = 480;               // the selfie that goes to Drive: its long side in pixels
+  var PN_THUMB_PX = 160;               // the small selfie of the cell in the Users tab
+  var PN_PHOTO_Q = 0.72;               // the JPEG quality of the selfie
+  var PN_THUMB_Q = 0.6;                // the JPEG quality of the small selfie
+  var PN_WARM_MS = 700;                // the camera gets a moment (the light) before the selfie can be taken
+  var PN_FIX_FRESH_MS = 20000;         // a place that is older than this is read again when the selfie is taken
+  var PN_FIX_USE_MS = 90000;           // an old place is still used, when no new one comes, if it is not older than this (the server takes 120 s)
+  var PN_GPS_WAIT_MS = 15000;          // how long the phone may look for its place when the selfie is taken
+  var PN_STATION_WAIT_MS = 20000;      // how long the phone may look for a good place when the place of a station is saved
+  var PN_CALL_MS = 60000;              // one try of a punch (the server saves the selfie in Drive)
+  var PN_PLACE_CALL_MS = 30000;        // one try of saving the place of a station
+  var PN_CONFIRM_MS = 6000;            // the second tap that saves the place of a station must come within this time
+  var PN_SKEW_MAX_MS = 5 * 60 * 1000;  // the clock of the phone may be this far from the server (the same limit as the server)
+  var PN_DARK = 8;                     // a selfie that is darker than this (0 to 255) is a covered camera
+  var PN_DEV_KEY = 'od_dev';           // the number of this phone (kept in the browser)
+  var PN_STATION_KEY = 'od_pn_st';     // the station of the last punch
+
+  var pn = {
+    run: 0, seq: 0, started: false, open: false, loading: false, busy: false,
+    st: null, skew: 0, station: '', askAt: 0, tick: 0,
+    cam: false, ready: false, stream: null, watchId: null, fix: null, gpsErr: ''
+  };
+
+  // The presence check (the end of this part): the question for this person, the people he can ask, and the screen state
+  var pc = {
+    poll: 0, timer: 0, loading: false, again: false, off: false, fresh: false,
+    mine: null, ask: null, skew: 0, window: 15, pick: {}, busy: false, askBusy: false, done: null, closed: false, want: 0, listHtml: ''
+  };
+
+  // The number of this phone: a long random text that the browser keeps. The server keeps only a short fingerprint of it.
+  function pnDevice() {
+    var id = readStore(PN_DEV_KEY);
+    if (/^[A-Za-z0-9_-]{16,64}$/.test(id)) return id;
+    var a = '';
+    try {
+      var u = new Uint8Array(16);
+      crypto.getRandomValues(u);
+      a = Array.prototype.map.call(u, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+    } catch (e) {
+      a = (String(Math.random()).slice(2) + String(Math.random()).slice(2) + '00000000000000000000000000000000').slice(0, 32);
+    }
+    store(PN_DEV_KEY, a);
+    return readStore(PN_DEV_KEY) === a ? a : '';       // a browser that keeps nothing sends no number (a new one every time would look like another phone)
+  }
+
+  // The camera and the GPS are turned off
+  function pnStopMedia() {
+    pn.seq++;
+    if (pn.watchId !== null) {
+      try { navigator.geolocation.clearWatch(pn.watchId); } catch (ignore) { }
+      pn.watchId = null;
+    }
+    if (pn.stream) {
+      try { pn.stream.getTracks().forEach(function (t) { t.stop(); }); } catch (ignore) { }
+      pn.stream = null;
+    }
+    try { var v = $('pnVideo'); v.pause(); v.srcObject = null; } catch (ignore) { }
+    pn.cam = false; pn.ready = false; pn.fix = null; pn.gpsErr = '';
+  }
+
+  function pnReset() {
+    pn.run++;
+    clearInterval(pn.tick);
+    pn.tick = 0;
+    pnStopMedia();
+    pn.started = false; pn.open = false; pn.loading = false; pn.busy = false;
+    pn.st = null; pn.skew = 0; pn.station = ''; pn.askAt = 0;
+    $('tabPunch').classList.add('hidden');
+    $('tabPunch').classList.remove('on');
+    document.querySelector('.tabs-inner').classList.remove('t5');
+    $('viewPunch').classList.add('hidden');
+    $('pnDone').classList.add('hidden');
+    $('pnDone').innerHTML = '';
+    $('pnHistory').innerHTML = '';
+    $('pnStations').innerHTML = '';
+    setMsg('pnMsg', '');
+    setMsg('pnPlaceMsg', '');
+    pcReset();
+  }
+
+  // After the sign in: the state is asked for a moment later, so the first tab is not slowed down
+  function pnStart() {
+    pnReset();
+    pn.started = true;
+    var run = pn.run;
+    setTimeout(function () { if (run === pn.run) pnLoad(); }, 1800);
+  }
+
+  function pnStop() { pnReset(); }
+
+  // The state from the server: the shift, the next punch (IN or OUT), the last punches, the places of the stations
+  async function pnLoad() {
+    if (!pn.started || pn.loading || !state.pin) return;
+    pn.loading = true;
+    var run = pn.run;
+    pcLoad();                                                  // the presence checks are read together with the state
+    try {
+      var r = await call('apiPunchState', state.pin);
+      if (run !== pn.run) return;
+      if (r && r.ok) {
+        if (!pn.st || !(Number(r.now) < Number(pn.st.now))) {            // never go back to an older state
+          pn.st = r;
+          pn.skew = Number(r.now) - Date.now();
+        }
+        pnTab();
+        if (pn.open && !pn.busy && !pn.cam) pnRender();
+      } else if (pn.open) {
+        setMsg('pnMsg', (r && r.message) || 'The server could not do it now. Please try again.', 'err');
+      }
+    } catch (e) {
+      if (run === pn.run && pn.open) setMsg('pnMsg', failText(e), 'err');
+    } finally {
+      if (run === pn.run) pn.loading = false;
+    }
+  }
+
+  // The tab is shown to a person who has a shift, and to a manager or the owner (they save the place of the station here)
+  function pnTab() {
+    var st = pn.st;
+    var show = !!(st && st.ok && (st.hasShift || st.canSetStation)) || pcAlive();    // a POC with a presence check sees it too
+    var flag = pcWaiting();
+    $('tabPunch').classList.toggle('hidden', !show);
+    $('tabPunch').classList.toggle('flag', flag);
+    if (flag) $('tabPunch').setAttribute('aria-label', 'Punch, a presence check is waiting for you'); else $('tabPunch').removeAttribute('aria-label');
+    document.querySelector('.tabs-inner').classList.toggle('t5', show);
+    if (!show && pn.open) setView('new');
+  }
+
+  function pnView(v) {
+    var on = v === 'punch';
+    $('viewPunch').classList.toggle('hidden', !on);
+    $('tabPunch').classList.toggle('on', on);
+    if (on) {
+      $('stationBar').classList.add('hidden');             // the Punch tab has its own station buttons
+      pnOpen();
+    } else {
+      pnClose();
+    }
+  }
+
+  function pnOpen() {
+    if (pn.open) return;
+    pn.open = true;
+    pn.askAt = 0;
+    setMsg('pnMsg', '');
+    setMsg('pnPlaceMsg', '');
+    $('pnDone').classList.add('hidden');
+    pnRender();
+    pnLoad();
+    clearInterval(pn.tick);
+    pn.tick = setInterval(function () { if (pn.open && !pn.cam && !pn.busy && !document.hidden) pnRender(); }, 30000);
+  }
+
+  function pnClose() {
+    if (!pn.open) return;
+    pn.open = false;
+    clearInterval(pn.tick);
+    pn.tick = 0;
+    if (!pn.busy) pnStopMedia();
+    pcClose();
+  }
+
+  // The station of this punch: the one of the open IN, the last one used, the one of the app, or the first one
+  function pnPick() {
+    var list = pn.st && pn.st.stations ? pn.st.stations : [];
+    if (list.indexOf(pn.station) === -1) {
+      var want = '';
+      if (pn.st.next === 'OUT' && list.indexOf(pn.st.openStation) !== -1) want = pn.st.openStation;
+      if (!want && list.indexOf(readStore(PN_STATION_KEY)) !== -1) want = readStore(PN_STATION_KEY);
+      if (!want && list.indexOf(state.station) !== -1) want = state.station;
+      pn.station = want || list[0] || '';
+    }
+    return pn.station;
+  }
+
+  // Has the chosen station a saved place? Then the phone must be near it, and the place must be exact.
+  function pnPlaceSet() {
+    var inf = pn.st && pn.st.stationInfo ? pn.st.stationInfo[pn.station] : null;
+    return !!(inf && inf.set);
+  }
+
+  function pnElapsed(since) {
+    var m = Math.max(0, Math.floor((Date.now() + pn.skew - Number(since)) / 60000));
+    return m < 60 ? m + ' min' : Math.floor(m / 60) + ' h ' + (m % 60) + ' min';
+  }
+
+  function pnRender() {
+    pcRender();
+    var st = pn.st;
+    if (!st || !st.ok) {
+      $('pnState').textContent = 'Loading...';
+      $('pnState').className = 'pn-state';
+      $('pnState').classList.remove('hidden');
+      $('pnSub').textContent = '';
+      $('pnShift').textContent = '';
+      $('pnPlace').textContent = '';
+      $('pnStations').classList.add('hidden');
+      $('pnGo').classList.add('hidden');
+      $('pnCancel').classList.add('hidden');
+      $('pnCam').classList.add('hidden');
+      $('pnHistoryCard').classList.add('hidden');
+      $('pnPlaceCard').classList.add('hidden');
+      return;
+    }
+    var list = st.stations || [];
+    pnPick();
+    var inf = st.stationInfo ? st.stationInfo[pn.station] : null;
+    $('pnShift').textContent = st.hasShift && st.shift ? 'Shift ' + st.shift.s + ' - ' + st.shift.e : '';
+
+    // a button for each station, when the person has more than one
+    var chips = $('pnStations');
+    if (list.length > 1) {
+      chips.innerHTML = list.map(function (c) {
+        return '<button type="button" data-st="' + esc(c) + '"' + (c === pn.station ? ' class="on"' : '') + '>' + esc(c) + '</button>';
+      }).join('');
+    }
+    chips.classList.toggle('hidden', list.length < 2);
+
+    var place = '';
+    if (!list.length) place = 'No station is set for you.';
+    else if (inf && inf.set) place = 'Station ' + pn.station + ': you can punch within ' + inf.radius + ' m of it.';
+    else place = 'The place of ' + pn.station + ' is not saved yet, so the distance is not checked.';
+    $('pnPlace').textContent = place;
+
+    // what the person is now: IN or OUT
+    var box = $('pnState');
+    var sub = $('pnSub');
+    var plain = !st.hasShift && !!st.canSetStation;          // a manager or the owner without a shift: only the place of the station
+    box.classList.toggle('hidden', plain);
+    sub.classList.toggle('hidden', plain);
+    $('pnPlace').classList.toggle('hidden', plain);          // the card of the station place says it
+    if (!st.hasShift) {
+      box.textContent = 'No shift';
+      box.className = 'pn-state' + (plain ? ' hidden' : '');
+      sub.textContent = st.shiftNote || '';
+    } else if (st.next === 'OUT') {
+      box.textContent = 'You are IN';
+      box.className = 'pn-state in';
+      sub.textContent = 'Since ' + st.sinceText + ' (' + pnElapsed(st.since) + ')' + (st.openStation ? ' at ' + st.openStation : '');
+    } else {
+      box.textContent = 'You are OUT';
+      box.className = 'pn-state';
+      var last = (st.history || [])[0];
+      sub.textContent = last && last.ok ? 'Last punch: ' + last.a + ' ' + last.day + ' ' + last.hm : 'Tap Punch IN when your shift starts.';
+    }
+
+    var hist = st.history || [];
+    $('pnHistory').innerHTML = hist.map(function (h) {
+      return '<div class="pn-row' + (h.ok ? '' : ' bad') + '"><span class="a">' + esc(h.a) + '</span><span class="m">' + esc(h.day) + ' ' + esc(h.hm) +
+        '<span class="s">' + esc(h.st) + ' - ' + esc(h.s) + '</span></span></div>';
+    }).join('');
+    $('pnHistoryCard').classList.toggle('hidden', !hist.length);
+
+    // a manager or the owner saves the place of the station here
+    var canSet = !!(st.canSetStation && list.length);
+    $('pnPlaceCard').classList.toggle('hidden', !canSet);
+    if (canSet) {
+      $('pnPlaceNote').textContent = inf && inf.set
+        ? 'The place of ' + pn.station + ' is saved. Stand at the station and tap the button only if you want to replace it.'
+        : 'The place of ' + pn.station + ' is not saved. Stand at the station, then tap the button.';
+      $('pnPlaceBtn').textContent = pn.askAt ? 'Tap again to save this place for ' + pn.station : 'Save my place as the station place';
+      $('pnPlaceBtn').disabled = pn.busy || pn.cam;
+    }
+    pnCamUi();
+  }
+
+  // The camera part: the picture, the line of the GPS, the main button
+  function pnCamUi() {
+    var st = pn.st;
+    var go = $('pnGo');
+    var act = st && st.next === 'OUT' ? 'OUT' : 'IN';
+    var canPunch = !!(st && st.ok && st.hasShift && st.stations && st.stations.length);
+    go.classList.toggle('hidden', !canPunch);
+    $('pnCam').classList.toggle('hidden', !pn.cam);
+    $('pnCancel').classList.toggle('hidden', !pn.cam || pn.busy);
+    if (!pn.cam) {
+      go.textContent = 'Punch ' + act;
+      go.disabled = pn.busy;
+      return;
+    }
+    var limit = st && st.cfg && st.cfg.acc ? st.cfg.acc : 100;
+    var f = pn.fix;
+    var text = 'Looking for your place...';
+    var kind = '';
+    var good = false;
+    if (f && pnPlaceSet() && f.acc > limit) {
+      text = f.acc > 500 ? pnApprox(f.acc) : 'Your place is not exact enough (about ' + f.acc + ' m). Go near a window or outside and wait a few seconds.';
+      kind = 'bad';
+    } else if (f) {
+      text = 'Your place is OK (about ' + f.acc + ' m).';
+      kind = 'ok';
+      good = true;
+    } else if (pn.gpsErr) {
+      text = pn.gpsErr;
+      kind = 'bad';
+    }
+    $('pnGps').textContent = text;
+    $('pnGps').className = 'pn-gps' + (kind ? ' ' + kind : '');
+    go.textContent = pn.busy ? 'Please wait...' : (pn.ready ? 'Take selfie and punch ' + act : 'Starting the camera...');
+    go.disabled = pn.busy || !pn.ready || !good;
+  }
+
+  // A place that is thousands of meters wide: the phone gives only an approximate place (the person allowed it so in the settings)
+  function pnApprox(acc) {
+    return 'Your phone gives only an approximate place (about ' + acc + ' m). In the settings of the phone, allow the precise location for this browser.';
+  }
+
+  // The words for a camera or a GPS that does not work
+  function pnCamError(e) {
+    var n = e && e.name;
+    if (n === 'NotAllowedError' || n === 'SecurityError' || n === 'PermissionDeniedError') return 'The camera is blocked. Allow the camera for this page in the settings of the browser, then try again.';
+    if (n === 'NotFoundError' || n === 'DevicesNotFoundError') return 'No camera was found on this phone.';
+    if (n === 'NotReadableError' || n === 'TrackStartError') return 'The camera is used by another app. Close that app and try again.';
+    return 'The camera could not be started. Close the app, open it again, and try again.';
+  }
+
+  function pnGpsError(e) {
+    var c = e && e.code;
+    if (c === 1) return 'The location is blocked. Allow the location for this page in the settings of the browser, then try again.';
+    if (c === 2) return 'Your place is not available now. Check that the location (GPS) of the phone is on.';
+    if (c === 3) return 'Your place is taking long. Go near a window or outside.';
+    return 'Your place could not be read.';
+  }
+
+  // A place of the phone: { lat, lng, acc (meters), at (when it was read) }, or null
+  function pnMakeFix(pos) {
+    var c = pos && pos.coords;
+    if (!c) return null;
+    var lat = Number(c.latitude);
+    var lng = Number(c.longitude);
+    if (!isFinite(lat) || !isFinite(lng)) return null;
+    var acc = Number(c.accuracy);
+    if (!isFinite(acc) || acc < 0) acc = 9999;                // an unknown accuracy is not a good one
+    var at = Number(pos.timestamp);
+    if (!isFinite(at) || at <= 0 || Math.abs(Date.now() - at) > 3600000) at = Date.now();
+    return { lat: lat, lng: lng, acc: Math.round(acc), at: at };
+  }
+
+  // While the camera is open the GPS is kept warm: the newest place is always at hand
+  function pnWatch() {
+    try {
+      pn.watchId = navigator.geolocation.watchPosition(function (pos) {
+        var f = pnMakeFix(pos);
+        if (!f) return;
+        pn.fix = f;
+        pn.gpsErr = '';
+        if (pn.cam) pnCamUi();
+      }, function (err) {
+        if (!pn.cam) return;
+        pn.gpsErr = pnGpsError(err);
+        pnCamUi();
+      }, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 });
+    } catch (e) {
+      pn.gpsErr = 'Your place is not available in this browser.';
+    }
+  }
+
+  // Reads the place for up to ms milliseconds. It stops early when the place is as exact as good (meters).
+  // Gives { fix: the most exact place that came, or null, err: the words when none came }.
+  function pnBestFix(ms, good) {
+    return new Promise(function (resolve) {
+      var best = null;
+      var err = '';
+      var done = false;
+      var id = null;
+      var timer = null;
+      function end() {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        try { if (id !== null) navigator.geolocation.clearWatch(id); } catch (ignore) { }
+        resolve({ fix: best, err: err });
+      }
+      try {
+        id = navigator.geolocation.watchPosition(function (pos) {
+          var f = pnMakeFix(pos);
+          if (!f) return;
+          if (!best || f.acc <= best.acc) best = f;
+          if (best.acc <= good) end();
+        }, function (e) {
+          err = pnGpsError(e);
+          if (e && e.code === 1) end();                       // blocked: waiting longer does not help
+        }, { enableHighAccuracy: true, maximumAge: 0, timeout: ms });
+      } catch (e) {
+        err = 'Your place is not available in this browser.';
+        end();
+        return;
+      }
+      timer = setTimeout(end, ms);
+    });
+  }
+
+  // One picture of the camera as a JPEG text. The long side is longSide pixels.
+  function pnJpeg(v, w, h, longSide, q) {
+    var k = Math.min(1, longSide / Math.max(w, h));
+    var c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(w * k));
+    c.height = Math.max(1, Math.round(h * k));
+    var s = '';
+    try {
+      c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+      s = c.toDataURL('image/jpeg', q);
+    } catch (e) { s = ''; }
+    return /^data:image\/jpeg;base64,/.test(s) ? s : '';
+  }
+
+  // How bright is the picture (0 to 255)? A covered camera is black.
+  function pnBright(v) {
+    try {
+      var c = document.createElement('canvas');
+      c.width = 16;
+      c.height = 12;
+      var g = c.getContext('2d');
+      g.drawImage(v, 0, 0, 16, 12);
+      var d = g.getImageData(0, 0, 16, 12).data;
+      var sum = 0;
+      for (var i = 0; i < d.length; i += 4) sum += (d[i] + d[i + 1] + d[i + 2]) / 3;
+      return sum / (d.length / 4);
+    } catch (e) { return 255; }
+  }
+
+  // The selfie of this moment: { photo, thumb }, or { err } when it is not good
+  function pnCapture() {
+    var v = $('pnVideo');
+    var w = v.videoWidth;
+    var h = v.videoHeight;
+    if (!w || !h || v.readyState < 2) return { err: 'The camera is not ready. Wait a moment and try again.' };
+    var photo = pnJpeg(v, w, h, PN_PHOTO_PX, PN_PHOTO_Q);
+    var thumb = pnJpeg(v, w, h, PN_THUMB_PX, PN_THUMB_Q);
+    if (!photo) return { err: 'The selfie could not be made. Please try again.' };
+    if (pnBright(v) < PN_DARK) return { err: 'The camera shows only black. Uncover the camera and try again.' };
+    return { photo: photo, thumb: thumb };
+  }
+
+  // Tap 1: the camera and the GPS start
+  async function pnBegin() {
+    var st = pn.st;
+    if (!st || !st.hasShift || pn.busy || pn.cam || !pn.station) return;
+    setMsg('pnMsg', '');
+    $('pnDone').classList.add('hidden');
+    if (Math.abs(pn.skew) > PN_SKEW_MAX_MS) {
+      setMsg('pnMsg', 'The clock of your phone is wrong. Set the date and the time to automatic, then try again.', 'err');
+      return;
+    }
+    var md = navigator.mediaDevices;
+    if (!window.isSecureContext || !md || !md.getUserMedia || !navigator.geolocation) {
+      setMsg('pnMsg', 'This browser cannot take the selfie and read the place here. Open the app in Chrome (Android) or Safari (iPhone).', 'err');
+      return;
+    }
+    var run = pn.run;
+    pn.cam = true;
+    pn.ready = false;
+    pn.fix = null;
+    pn.gpsErr = '';
+    var seq = ++pn.seq;
+    pnRender();
+    pnWatch();
+    var stream = null;
+    try {
+      stream = await md.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
+    } catch (e1) {
+      try {
+        if (e1 && (e1.name === 'OverconstrainedError' || e1.name === 'ConstraintNotSatisfiedError')) stream = await md.getUserMedia({ video: true, audio: false });
+        else throw e1;
+      } catch (e2) {
+        if (run === pn.run && seq === pn.seq) {
+          pnStopMedia();
+          pnRender();
+          setMsg('pnMsg', pnCamError(e2), 'err');
+        }
+        return;
+      }
+    }
+    if (run !== pn.run || seq !== pn.seq || !pn.cam) {         // cancelled while the phone was asking for the camera
+      try { stream.getTracks().forEach(function (t) { t.stop(); }); } catch (ignore) { }
+      return;
+    }
+    pn.stream = stream;
+    var v = $('pnVideo');
+    v.srcObject = stream;
+    try { await v.play(); } catch (ignore) { }
+    setTimeout(function () {
+      if (run === pn.run && seq === pn.seq && pn.cam) { pn.ready = true; pnCamUi(); }
+    }, PN_WARM_MS);
+  }
+
+  function pnCancelCam() {
+    if (pn.busy || !pn.cam) return;
+    pnStopMedia();
+    setMsg('pnMsg', '');
+    pnRender();
+  }
+
+  // Tap 2: the selfie is taken, the place is read, and both go to the server
+  async function pnShoot() {
+    var st = pn.st;
+    if (!st || !pn.cam || !pn.ready || pn.busy) return;
+    var act = st.next === 'OUT' ? 'OUT' : 'IN';
+    var station = pn.station;
+    var run = pn.run;
+    var need = pnPlaceSet();
+    var limit = st.cfg && st.cfg.acc ? st.cfg.acc : 100;
+    pn.busy = true;
+    setMsg('pnMsg', '');
+    var pic = pnCapture();                                     // the selfie is taken now, at the tap
+    pnCamUi();
+    if (pic.err) {
+      pn.busy = false;
+      pnCamUi();
+      setMsg('pnMsg', pic.err, 'err');
+      return;
+    }
+    var f = pn.fix;
+    if (!f || Date.now() - f.at > PN_FIX_FRESH_MS) {           // the GPS was quiet: read the place again
+      setMsg('pnMsg', 'Reading your place...');
+      var got = await pnBestFix(PN_GPS_WAIT_MS, need ? limit : 1e9);
+      if (run !== pn.run) return;
+      if (got.fix) f = got.fix;
+      else if (f && Date.now() - f.at > PN_FIX_USE_MS) f = null;
+      if (!f) {
+        pn.busy = false;
+        pnCamUi();
+        setMsg('pnMsg', got.err || 'Your location was not received. Allow the location and try again.', 'err');
+        return;
+      }
+    }
+    if (need && f.acc > limit) {
+      pn.busy = false;
+      pnCamUi();
+      setMsg('pnMsg', f.acc > 500 ? pnApprox(f.acc) : 'Your place is not exact enough (about ' + f.acc + ' m). Go near a window or outside, wait a few seconds, and try again.', 'err');
+      return;
+    }
+    setMsg('pnMsg', 'Sending...');
+    var body = {
+      act: act, station: station, lat: f.lat, lng: f.lng, acc: f.acc, age: Math.max(0, Date.now() - f.at), ts: Date.now(),
+      photo: pic.photo, thumb: pic.thumb, dev: pnDevice()
+    };
+    var r = null;
+    try {
+      r = await callWith({ ms: PN_CALL_MS }, 'apiPunch', [state.pin, body]);
+    } catch (e) {
+      if (run !== pn.run) return;
+      pn.busy = false;
+      pnStopMedia();
+      pnRender();
+      setMsg('pnMsg', failText(e, 'Look at your last punches before you try again.'), 'err');
+      setTimeout(function () { if (run === pn.run && pn.open) pnLoad(); }, 1500);
+      return;
+    }
+    if (run !== pn.run) return;
+    pn.busy = false;
+    pnStopMedia();
+    if (r && r.state && r.state.ok) {
+      pn.st = r.state;
+      pn.skew = Number(r.state.now) - Date.now();
+    }
+    if (r && r.ok) {
+      store(PN_STATION_KEY, station);
+      setMsg('pnMsg', '');
+      pnShowDone(r, pic.thumb);
+    } else {
+      setMsg('pnMsg', (r && r.message) || 'The server could not do it now. Please try again.', 'err');
+    }
+    pnTab();
+    pnRender();
+  }
+
+  // The answer of a punch that was saved
+  function pnShowDone(r, thumb) {
+    var warn = /^(Late|Early)/.test(String(r.status));
+    var h = '<div>' + esc(r.act) + ' saved at ' + esc(r.hm) + '</div><div class="pn-note">' + esc(r.status);
+    if (r.distance !== null && r.distance !== undefined) h += ' - ' + esc(r.distance) + ' m from the station';
+    h += '</div>';
+    if (r.other) h += '<div class="pn-note">This is not the phone of your first punch. The punch is saved, and the manager can see it.</div>';
+    if (thumb) h += '<img alt="Your selfie" src="' + esc(thumb) + '">';
+    var el = $('pnDone');
+    el.className = 'pn-done' + (warn ? ' warn' : '');
+    el.innerHTML = h;
+  }
+
+  // A manager or the owner, at the station: the place of the phone becomes the place of the station
+  async function pnSavePlace() {
+    var st = pn.st;
+    if (!st || !st.canSetStation || pn.busy || pn.cam || !pn.station) return;
+    if (!window.isSecureContext || !navigator.geolocation) {
+      setMsg('pnPlaceMsg', 'This browser cannot read your place here. Open the app in Chrome (Android) or Safari (iPhone).', 'err');
+      return;
+    }
+    var run = pn.run;
+    if (!pn.askAt || Date.now() - pn.askAt > PN_CONFIRM_MS) {          // the first tap only asks: the place of a station is not changed by a touch by mistake
+      pn.askAt = Date.now();
+      var at0 = pn.askAt;
+      setMsg('pnPlaceMsg', 'Stand at the station. Tap the button again to save this place for ' + pn.station + '.');
+      pnRender();
+      setTimeout(function () {
+        if (run === pn.run && pn.askAt === at0) { pn.askAt = 0; setMsg('pnPlaceMsg', ''); pnRender(); }
+      }, PN_CONFIRM_MS + 100);
+      return;
+    }
+    pn.askAt = 0;
+    if (Math.abs(pn.skew) > PN_SKEW_MAX_MS) {
+      pnRender();
+      setMsg('pnPlaceMsg', 'The clock of your phone is wrong. Set the date and the time to automatic, then try again.', 'err');
+      return;
+    }
+    var station = pn.station;
+    var limit = st.cfg && st.cfg.stAcc ? st.cfg.stAcc : 50;
+    pn.busy = true;
+    pnRender();
+    setMsg('pnPlaceMsg', 'Reading your place. Stay outside and do not move.');
+    var got = await pnBestFix(PN_STATION_WAIT_MS, limit);
+    if (run !== pn.run) return;
+    var f = got.fix;
+    if (!f || f.acc > limit) {
+      pn.busy = false;
+      pnRender();
+      setMsg('pnPlaceMsg', f ? (f.acc > 500 ? pnApprox(f.acc) : 'Your place is not exact enough (about ' + f.acc + ' m). Stand outside, wait a few seconds, and try again.') :
+        (got.err || 'Your location was not received. Allow the location and try again.'), 'err');
+      return;
+    }
+    var r = null;
+    try {
+      r = await callWith({ ms: PN_PLACE_CALL_MS }, 'apiPunchStation', [state.pin, {
+        station: station, lat: f.lat, lng: f.lng, acc: f.acc, age: Math.max(0, Date.now() - f.at), ts: Date.now()
+      }]);
+    } catch (e) {
+      if (run !== pn.run) return;
+      pn.busy = false;
+      pnRender();
+      setMsg('pnPlaceMsg', failText(e, 'Please try again.'), 'err');
+      return;
+    }
+    if (run !== pn.run) return;
+    pn.busy = false;
+    if (r && r.ok) {
+      if (pn.st && pn.st.stationInfo) pn.st.stationInfo[station] = { set: true, radius: r.radius };
+      pnRender();
+      setMsg('pnPlaceMsg', 'Saved. A punch at ' + station + ' is now checked within ' + r.radius + ' m of this place.', 'ok');
+    } else {
+      pnRender();
+      setMsg('pnPlaceMsg', (r && r.message) || 'The server could not do it now. Please try again.', 'err');
+    }
+  }
+
+  $('tabPunch').addEventListener('click', function () { setView('punch'); });
+  $('pnGo').addEventListener('click', function () { if (pn.cam) pnShoot(); else pnBegin(); });
+  $('pnCancel').addEventListener('click', pnCancelCam);
+  $('pnPlaceBtn').addEventListener('click', pnSavePlace);
+  $('pnStations').addEventListener('click', function (ev) {
+    var b = ev.target && ev.target.closest ? ev.target.closest('button[data-st]') : null;
+    if (!b || pn.cam || pn.busy) return;
+    pn.station = b.getAttribute('data-st');
+    pn.askAt = 0;
+    setMsg('pnMsg', '');
+    setMsg('pnPlaceMsg', '');
+    pnRender();
+  });
+
+  // The picture box takes the shape of the camera picture (a phone in the hand often gives a tall picture)
+  $('pnVideo').addEventListener('loadedmetadata', function () {
+    var v = $('pnVideo');
+    if (v.videoWidth && v.videoHeight) v.parentNode.style.aspectRatio = v.videoWidth + ' / ' + v.videoHeight;
+  });
+
+  // The page goes away (another app, the screen is off): the camera is turned off. It is back: the state is read again.
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      if (pn.cam && !pn.busy) { pnStopMedia(); pnRender(); }
+      return;
+    }
+    if (pn.open && !pn.cam && !pn.busy) pnLoad();
+  });
+  window.addEventListener('pagehide', function () { if (!pn.busy) pnStopMedia(); });
+
+  // ---------- PRESENCE CHECK: a manager asks POCs to confirm that they are at the station ----------
+  // The server part is the end of Punch.gs. A manager or the owner ticks POCs and taps Ask. Each POC gets a notice (the bell, and an alert on
+  // the phone) and a card at the top of his Punch tab with one button: Confirm. The phone reads its place (there is no selfie) and sends it.
+  // The manager sees the answer in this tab and in a notice. Nothing here blocks anything: it is only information.
+  // If the server does not know these calls yet (an old Punch.gs or WebApp.gs), this part stays hidden and silent.
+
+  var PC_FIX_WAIT_MS = 20000;          // how long the phone may look for its place when a POC confirms
+  var PC_FIX_GOOD = 50;                // the search stops early when the place is this exact (meters)
+  var PC_CALL_MS = 30000;              // one try of an ask or of a confirm
+  var PC_POLL_MS = 10000;              // while a check waits, the list of the manager is read again this often
+  var PC_BATCH = 12;                   // the server takes this many names in one call: a longer list goes in several calls
+
+  // The time left of a check (milliseconds), by the clock of the server
+  function pcMsLeft(until) { return Number(until) - (Date.now() + pc.skew); }
+
+  function pcLeftText(until) {
+    var ms = pcMsLeft(until);
+    if (ms <= 0) return 'time is over';
+    var m = Math.ceil(ms / 60000);
+    return m <= 1 ? 'less than 1 min left' : m + ' min left';
+  }
+
+  function pcHas(v) { return v !== null && v !== undefined && v !== '' && isFinite(Number(v)); }
+
+  function pcDist(m) {
+    m = Number(m);
+    return m < 1000 ? Math.round(m) + ' m' : (m / 1000).toFixed(1) + ' km';
+  }
+
+  function pcSecText(s) {
+    s = Number(s) || 0;
+    return s < 120 ? s + ' s' : Math.round(s / 60) + ' min';
+  }
+
+  function pcMeName() { return String(state.user && state.user.name || '').trim().toLowerCase(); }
+
+  // Is a question waiting for this person? (his Punch tab shows a dot then)
+  function pcWaiting() { return !!(pc.mine && pcMsLeft(pc.mine.until) > 0); }
+
+  function pcMineShown() { return !!(pc.mine || pc.done || pc.closed); }
+
+  // Is a check on this screen or waiting for this person? (the Punch tab stays reachable while it is)
+  function pcAlive() { return pcWaiting() || !!(pn.open && pcMineShown()); }
+
+  function pcReset() {
+    clearInterval(pc.poll);
+    clearTimeout(pc.timer);
+    pc.poll = 0; pc.timer = 0;
+    pc.loading = false; pc.again = false; pc.off = false; pc.fresh = false;
+    pc.mine = null; pc.ask = null; pc.skew = 0; pc.window = 15;
+    pc.pick = {}; pc.busy = false; pc.askBusy = false; pc.done = null; pc.closed = false; pc.want = 0; pc.listHtml = '';
+    $('pcMineCard').classList.add('hidden');
+    $('pcAskCard').classList.add('hidden');
+    $('pcRecentCard').classList.add('hidden');
+    $('pnMainCard').classList.remove('hidden');
+    $('tabPunch').classList.remove('flag');
+    $('tabPunch').removeAttribute('aria-label');
+    $('pcList').innerHTML = '';
+    $('pcRecent').innerHTML = '';
+    $('pcWarn').textContent = '';
+    $('pcDone').className = 'pn-done hidden';
+    $('pcDone').innerHTML = '';
+    $('pcGps').textContent = '';
+    setMsg('pcMsg', '');
+    setMsg('pcAskMsg', '');
+  }
+
+  // The checks from the server: the one that waits for this person, and (for a manager or the owner) the people he can ask
+  async function pcLoad() {
+    if (!pn.started || !state.pin || pc.off || pc.fresh) return;
+    if (pc.loading) { pc.again = true; return; }
+    pc.loading = true;
+    var run = pn.run;
+    var started = Date.now();
+    try {
+      var r = await call('apiPunchChecks', state.pin);
+      if (run !== pn.run) return;
+      if (r && r.ok) pcTake(r, started);
+    } catch (e) {
+      if (run === pn.run) {
+        // the server has not got this part (an old Punch.gs or WebApp.gs): stay silent
+        if (e && e.kind === 'app' && /unknown function|function not found/i.test(String(e.message || ''))) pc.off = true;
+        if (pc.want && started >= pc.want) {                       // a tap on a notice found nothing: the card says so
+          pc.want = 0;
+          if (!pc.off) {
+            pc.closed = 'error';
+            pcOpenTab();
+          }
+        }
+      }
+    } finally {
+      if (run === pn.run) {
+        pc.loading = false;
+        if (pc.again) { pc.again = false; setTimeout(function () { if (run === pn.run) pcLoad(); }, 400); }
+      }
+    }
+  }
+
+  // The Punch tab opens. The data is fresh, so the reading that the opening asks for is not needed.
+  function pcOpenTab() {
+    pc.fresh = true;
+    try { setView('punch'); } finally { pc.fresh = false; }
+    pnTab();
+    if (pn.open) pcRender();
+  }
+
+  function pcTake(r, started) {
+    var had = !!pc.mine;
+    pc.skew = Number(r.now) - Date.now();
+    pc.window = Number(r.window) || 15;
+    pc.mine = r.mine && r.mine.id ? r.mine : null;
+    pc.ask = r.ask && Array.isArray(r.ask.people) ? r.ask : null;
+    if (pc.mine) {
+      pc.done = null;
+      pc.closed = false;
+    } else if (pc.closed === 'error' || (had && pn.open && !pc.done)) {
+      pc.closed = true;                                // it was on the screen and it is gone: the time is over
+    }
+    if (pc.want && started >= pc.want) {               // a tap on a notice: the Punch tab opens
+      pc.want = 0;
+      if (!pc.mine && !pc.ask && !pc.done) pc.closed = true;
+      pcOpenTab();
+    } else {
+      pnTab();
+      if (pn.open) pcRender();
+    }
+    pcSchedule();
+  }
+
+  function pcRender() {
+    var st = pn.st;
+    // a POC who has no shift and was only asked to confirm sees only the check
+    var hide = st && st.ok ? (!st.hasShift && !st.canSetStation) : pcMineShown();
+    $('pnMainCard').classList.toggle('hidden', !!hide);
+    pcMineRender();
+    pcAskRender();
+    pcPollSync();
+  }
+
+  // The card of a POC: the question, the button, and then the answer
+  function pcMineRender() {
+    var show = pcMineShown();
+    $('pcMineCard').classList.toggle('hidden', !show);
+    if (!show) return;
+    var q = $('pcQ');
+    var go = $('pcGo');
+    var done = $('pcDone');
+    var left = $('pcLeft');
+    if (pc.done) {
+      left.textContent = '';
+      q.classList.add('hidden');
+      go.classList.add('hidden');
+      $('pcGps').textContent = '';
+      done.className = 'pn-done' + (pc.done.status === 'Inside' ? '' : ' warn');
+      done.innerHTML = pcDoneHtml(pc.done);
+      return;
+    }
+    done.className = 'pn-done hidden';
+    done.innerHTML = '';
+    var m = pc.mine;
+    if (m && pcMsLeft(m.until) > 0) {
+      left.textContent = pcLeftText(m.until);
+      q.textContent = m.by + ' asks you to confirm that you are at the station. Tap the button. Your phone sends its place, not a picture.';
+      q.classList.remove('hidden');
+      go.classList.remove('hidden');
+      go.textContent = pc.busy ? 'Please wait...' : 'Confirm I am here';
+      go.disabled = !!pc.busy;
+      return;
+    }
+    left.textContent = '';
+    q.textContent = pc.closed === 'error' ? 'The request could not be loaded. Check the internet, then tap the notice again.'
+      : 'This request is closed. If you did not confirm in time, ask your manager to send it again.';
+    q.classList.remove('hidden');
+    go.classList.add('hidden');
+  }
+
+  // What the POC reads after he confirmed
+  function pcDoneHtml(d) {
+    var head = 'Your answer is sent.';
+    var note = '';
+    if (d.status === 'Inside') {
+      head = 'Confirmed. You are at ' + d.station + '.';
+    } else if (d.status === 'Outside') {
+      note = 'Your place is ' + pcDist(d.meters) + ' from ' + d.station + '. Your manager can see it.';
+    } else if (d.status === 'Unclear') {
+      note = 'Your place was not exact' + (pcHas(d.acc) ? ' (give or take ' + pcDist(d.acc) + ')' : '') + '. Your manager can see it and may ask again.';
+    } else {
+      note = 'The place of the station is not saved yet, so it could not be compared.';
+    }
+    var h = '<div>' + esc(head) + '</div>';
+    if (note) h += '<div class="pn-note">' + esc(note) + '</div>';
+    if (d.other) h += '<div class="pn-note">This is not the phone of your first punch. The answer is saved, and the manager can see it.</div>';
+    return h;
+  }
+
+  // The cards of a manager or the owner: the people to ask, and the latest checks
+  function pcAskRender() {
+    var a = pc.ask;
+    $('pcAskCard').classList.toggle('hidden', !a);
+    $('pcRecentCard').classList.toggle('hidden', !(a && a.recent && a.recent.length));
+    if (!a) return;
+    var me = pcMeName();
+    var byName = {};
+    a.people.forEach(function (p) { byName[p.name] = p; });
+    Object.keys(pc.pick).forEach(function (k) { if (!byName[k] || byName[k].open) delete pc.pick[k]; });
+
+    $('pcAskNote').textContent = 'Tick the POCs. Each one gets a notice and has ' + pc.window + ' minutes to confirm that he is at the station.';
+    var list = a.people.map(function (p) {
+      var pill = p.open ? '<span class="pc-pill wait">Waiting</span>'
+        : (p.alerts ? '<span class="pc-pill good">Alerts on</span>' : '<span class="pc-pill off">No alerts</span>');
+      var more = p.open ? '<span class="pc-sub">' + esc('Asked' + (p.open.by && String(p.open.by).trim().toLowerCase() !== me ? ' by ' + p.open.by : '') + ', ' + pcLeftText(p.open.until)) + '</span>' : '';
+      return '<label class="pc-row' + (p.open ? ' off' : '') + '"><input type="checkbox" data-n="' + esc(p.name) + '"' + (p.open || pc.askBusy ? ' disabled' : '') + '>' +
+        '<span class="pc-who"><span class="pc-name">' + esc(p.name) + '</span><span class="pc-sub">' + esc(p.st) + (p.punch ? ' - ' + esc(p.punch) : '') +
+        '</span>' + more + '</span>' + pill + '</label>';
+    }).join('');
+    if (!a.people.length) list = '<div class="pn-note">No POCs are set for your stations.</div>';
+    if (list !== pc.listHtml) {
+      $('pcList').innerHTML = list;
+      pc.listHtml = list;
+    }
+    // the ticks are set after the list is made, so a tick is never lost when the list is made again
+    Array.prototype.forEach.call($('pcList').querySelectorAll('input[type=checkbox]'), function (c) {
+      c.checked = !!pc.pick[c.getAttribute('data-n')];
+    });
+
+    var picked = a.people.filter(function (p) { return pc.pick[p.name] && !p.open; });
+    var quiet = picked.filter(function (p) { return !p.alerts; });
+    $('pcWarn').textContent = quiet.length
+      ? (quiet.length === 1 ? quiet[0].name + ' has no alerts on' : quiet.length + ' of them have no alerts on') + ': the request shows only when the app is opened.'
+      : '';
+    var btn = $('pcAskBtn');
+    btn.textContent = pc.askBusy ? 'Sending...' : (picked.length > 1 ? 'Ask ' + picked.length + ' people to confirm' : 'Ask to confirm');
+    btn.disabled = pc.askBusy || !picked.length;
+    btn.classList.toggle('hidden', !a.people.length);
+    var free = a.people.filter(function (p) { return !p.open; });
+    var all = $('pcAll');
+    all.classList.toggle('hidden', free.length < 2);
+    all.textContent = free.length && free.every(function (p) { return pc.pick[p.name]; }) ? 'Clear' : 'Select all';
+
+    $('pcRecent').innerHTML = (a.recent || []).map(function (x) { return pcRecentHtml(x, me); }).join('');
+  }
+
+  // One latest check: who, when, and what the answer says
+  function pcRecentHtml(x, me) {
+    var s = x.status;
+    if (s === 'Waiting' && pcMsLeft(x.until) <= 0) s = 'No answer';
+    var cls = 'off';
+    var label = s;
+    var line = '';
+    var from = pcHas(x.meters) ? pcDist(x.meters) : '';
+    if (s === 'Waiting') {
+      cls = 'wait'; line = pcLeftText(x.until);
+    } else if (s === 'Inside') {
+      cls = 'good'; label = 'At station'; line = from ? from + ' from the place of ' + x.station : 'At ' + x.station;
+    } else if (s === 'Outside') {
+      cls = 'bad'; label = 'Not at station'; line = from ? from + ' from ' + x.station : '';
+    } else if (s === 'Unclear') {
+      cls = 'warn'; line = 'About ' + from + ' from ' + x.station + (pcHas(x.acc) ? ', give or take ' + pcDist(x.acc) : '');
+    } else if (s === 'No place') {
+      label = 'Place sent'; line = 'The place of the station is not saved yet.';
+    } else if (s === 'No answer') {
+      cls = 'bad'; line = 'No answer in ' + pc.window + ' min';
+    }
+    var when = 'Asked ' + x.at + (x.by && String(x.by).trim().toLowerCase() !== me ? ' by ' + x.by : '');
+    if (x.ans) when += ', answered ' + x.ans + ' (' + pcSecText(x.sec) + ')';
+    return '<div class="pc-row res"><span class="pc-who"><span class="pc-name">' + esc(x.name) + '</span><span class="pc-sub">' + esc(when) + '</span>' +
+      (line ? '<span class="pc-sub">' + esc(line) + '</span>' : '') + '</span><span class="pc-pill ' + cls + '">' + esc(label) + '</span></div>';
+  }
+
+  // While a check waits and the Punch tab is open, the list of the manager is read again every few seconds
+  function pcPollSync() {
+    var need = !!(pn.open && pc.ask && pc.ask.people.some(function (p) { return p.open; }));
+    if (need && !pc.poll) {
+      pc.poll = setInterval(function () { if (!document.hidden) pcLoad(); }, PC_POLL_MS);
+    } else if (!need && pc.poll) {
+      clearInterval(pc.poll);
+      pc.poll = 0;
+    }
+  }
+
+  // The next moment when a check ends: the screen is made again then (the data is read again too), so the card and the list say so
+  function pcSchedule() {
+    clearTimeout(pc.timer);
+    pc.timer = 0;
+    var soon = 0;
+    var see = function (until) {
+      var ms = pcMsLeft(until);
+      if (ms > 0 && (!soon || ms < soon)) soon = ms;
+    };
+    if (pc.mine) see(pc.mine.until);
+    if (pc.ask) pc.ask.people.forEach(function (p) { if (p.open) see(p.open.until); });
+    if (!soon) return;
+    var run = pn.run;
+    pc.timer = setTimeout(function () {
+      pc.timer = 0;
+      if (run !== pn.run) return;
+      pnTab();
+      if (pn.open) pcRender();
+      pcLoad();
+    }, Math.min(soon + 500, 2000000000));
+  }
+
+  // A manager or the owner asks the ticked people. The server takes PC_BATCH names in one call, so a longer list goes in several calls.
+  async function pcAsk() {
+    var a = pc.ask;
+    if (!a || pc.askBusy) return;
+    var names = a.people.filter(function (p) { return pc.pick[p.name] && !p.open; }).map(function (p) { return p.name; });
+    if (!names.length) { setMsg('pcAskMsg', 'Choose at least one person.', 'err'); return; }
+    var run = pn.run;
+    pc.askBusy = true;
+    setMsg('pcAskMsg', 'Sending...');
+    pcAskRender();
+    var sent = 0;
+    var alerted = 0;
+    var notes = [];
+    var failed = '';
+    for (var i = 0; i < names.length && !failed; i += PC_BATCH) {
+      var r = null;
+      try {
+        r = await callWith({ ms: PC_CALL_MS }, 'apiPunchAsk', [state.pin, { names: names.slice(i, i + PC_BATCH) }]);
+      } catch (e) {
+        if (run !== pn.run) return;
+        failed = failText(e, 'Look at the list before you try again.');
+        break;
+      }
+      if (run !== pn.run) return;
+      if (r && r.ok) {
+        pc.skew = Number(r.now) - Date.now();
+        if (r.ask && Array.isArray(r.ask.people)) pc.ask = r.ask;
+        sent += Number(r.sent) || 0;
+        alerted += Number(r.alerted) || 0;
+        (r.results || []).forEach(function (x) {
+          if (x.ok) delete pc.pick[x.name];
+          else if (x.message) notes.push(x.name + ': ' + x.message);
+        });
+      } else {
+        failed = (r && r.message) || 'The server could not do it now. Please try again.';
+      }
+    }
+    pc.askBusy = false;
+    var text = sent ? 'Asked ' + sent + (sent === 1 ? ' person' : ' people') + '. You get a notice when they answer.' : (failed ? '' : 'Nobody was asked.');
+    if (sent && alerted < sent) text += ' The notice could not be sent to everyone. They see the request when they open the app.';
+    if (notes.length) text += (text ? ' ' : '') + notes.join(' ');
+    if (failed) text += (text ? ' ' : '') + (sent ? 'The others were not asked. ' : '') + failed;
+    setMsg('pcAskMsg', text, sent && !failed ? 'ok' : 'err');
+    pcRender();
+    pcSchedule();
+    if (failed) setTimeout(function () { if (run === pn.run) pcLoad(); }, 1500);       // a lost answer may have been saved: the list says
+  }
+
+  // A POC taps Confirm: the phone reads its place and sends it
+  async function pcConfirm() {
+    var m = pc.mine;
+    if (!m || pc.busy || pc.done) return;
+    setMsg('pcMsg', '');
+    if (pcMsLeft(m.until) <= 0) { pcMineRender(); pcLoad(); return; }
+    if (pn.cam || pn.busy) { setMsg('pcMsg', 'Finish or cancel your punch first.', 'err'); return; }
+    if (Math.abs(pc.skew) > PN_SKEW_MAX_MS) {
+      setMsg('pcMsg', 'The clock of your phone is wrong. Set the date and the time to automatic, then try again.', 'err');
+      return;
+    }
+    if (!window.isSecureContext || !navigator.geolocation) {
+      setMsg('pcMsg', 'This browser cannot read your place here. Open the app in Chrome (Android) or Safari (iPhone).', 'err');
+      return;
+    }
+    var run = pn.run;
+    var id = m.id;
+    pc.busy = true;
+    pcMineRender();
+    $('pcGps').textContent = 'Reading your place...';
+    var got = await pnBestFix(PC_FIX_WAIT_MS, PC_FIX_GOOD);
+    if (run !== pn.run) return;
+    $('pcGps').textContent = '';
+    var f = got.fix;
+    if (!f) {
+      pc.busy = false;
+      pcMineRender();
+      setMsg('pcMsg', got.err || 'Your location was not received. Allow the location and try again.', 'err');
+      return;
+    }
+    setMsg('pcMsg', 'Sending...');
+    var r = null;
+    try {
+      r = await callWith({ ms: PC_CALL_MS }, 'apiPunchCheckAnswer', [state.pin, {
+        id: id, lat: f.lat, lng: f.lng, acc: f.acc, age: Math.max(0, Date.now() - f.at), ts: Date.now(), dev: pnDevice()
+      }]);
+    } catch (e) {
+      if (run !== pn.run) return;
+      pc.busy = false;
+      pcMineRender();
+      setMsg('pcMsg', failText(e, 'Tap Confirm again.'), 'err');
+      setTimeout(function () { if (run === pn.run) pcLoad(); }, 1500);
+      return;
+    }
+    if (run !== pn.run) return;
+    pc.busy = false;
+    if (r && r.ok) {
+      setMsg('pcMsg', '');
+      pc.done = { id: id, status: r.status, station: r.station, meters: r.meters, acc: r.acc, other: !!r.other };
+      pc.mine = null;
+      pc.closed = false;
+      pnTab();
+      pcMineRender();
+      pcSchedule();
+    } else {
+      setMsg('pcMsg', (r && r.message) || 'The server could not do it now. Please try again.', 'err');
+      pcMineRender();
+      pcLoad();                                        // the check may be closed now: the card says it
+    }
+  }
+
+  function pcToggleAll() {
+    var a = pc.ask;
+    if (!a || pc.askBusy) return;
+    var free = a.people.filter(function (p) { return !p.open; });
+    var all = free.length && free.every(function (p) { return pc.pick[p.name]; });
+    free.forEach(function (p) { if (all) delete pc.pick[p.name]; else pc.pick[p.name] = true; });
+    setMsg('pcAskMsg', '');
+    pcAskRender();
+  }
+
+  // The Punch tab is left: the answer of a check is not shown again, and a tab that was shown only for a check hides itself
+  function pcClose() {
+    pc.done = null;
+    pc.closed = false;
+    pcPollSync();
+    pnTab();
+  }
+
+  // The notices that just arrived (not the first list of a page that was just opened): a question or an answer of a presence check
+  // means that the checks changed
+  function pnNotes(items, first) {
+    if (first || !pn.started || !items || !items.length) return;
+    for (var i = 0; i < items.length; i++) {
+      var k = items[i] && items[i].kind;
+      if (k === 'CHECK' || k === 'CHECK_DONE') { pcLoad(); return; }
+    }
+  }
+
+  // A tap on a notice of a presence check (the bell, the banner, or the alert of the phone): the Punch tab opens
+  function pnOpenFromNotice() {
+    if (!pn.started || pc.off) return;
+    pc.want = Date.now();
+    pcLoad();
+  }
+
+  $('pcGo').addEventListener('click', pcConfirm);
+  $('pcAskBtn').addEventListener('click', pcAsk);
+  $('pcAll').addEventListener('click', pcToggleAll);
+  $('pcList').addEventListener('change', function (ev) {
+    var t = ev.target;
+    if (!t || t.type !== 'checkbox' || pc.askBusy) return;
+    var n = t.getAttribute('data-n');
+    if (t.checked) pc.pick[n] = true; else delete pc.pick[n];
+    setMsg('pcAskMsg', '');
+    pcAskRender();
+  });
+  // The app is in front again: the checks are read again (a question may have come while the screen was off)
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && pn.started) pcLoad(); });
 
   // ---------- Light or dark ----------
   // The two small buttons at the top. Without a choice the page follows the phone.
